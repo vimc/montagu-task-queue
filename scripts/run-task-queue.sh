@@ -1,0 +1,1 @@
+celery -A src worker -l info
