@@ -7,7 +7,6 @@ app = Celery('tasks',
              backend=config.backend,
              include=['src.task_add'])
 
-print("MADE CELERY")
 
 # Optional configuration, see the celery application user guide.
 app.conf.update(
@@ -17,4 +16,4 @@ app.conf.update(
 
 if __name__ == '__main__':
     app.start()
-    print("STARTED")
+
