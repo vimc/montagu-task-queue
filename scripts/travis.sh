@@ -8,4 +8,4 @@ fi
 
 HERE=$(readlink -f "$(dirname $0)")
 . $HERE/build-docker.sh
-. $HERE/push-docker.sh.sh
+. $HERE/push-docker.sh
