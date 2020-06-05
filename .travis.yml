@@ -16,8 +16,7 @@ after_script:
 
 after_success:
   - codecov
-  - ./scripts/build-docker.sh
-  - ./scripts/push-docker.sh
+  - ./scripts/travis.sh
 
 services:
   - docker
