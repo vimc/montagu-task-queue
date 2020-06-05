@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -ex
+
 ./scripts/clear-docker.sh
 
 docker network prune -f

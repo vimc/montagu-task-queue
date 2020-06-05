@@ -6,7 +6,6 @@ install:
 
 script:
   - pip3 install -r requirements.txt
-  - ./scripts/build-docker.sh
   - ./scripts/run-dependencies.sh
   - ./scripts/run-dev-worker.sh &
   - pytest --cov=src
@@ -17,6 +16,8 @@ after_script:
 
 after_success:
   - codecov
+  - ./scripts/build-docker.sh
+  - ./scripts/push-docker.sh
 
 services:
   - docker
