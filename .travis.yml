@@ -6,8 +6,9 @@ install:
 
 script:
   - pip3 install -r requirements.txt
-  - ./scripts/run-dev-mq.sh
-  - ./scripts/run-task-queue.sh
+  - ./scripts/build-docker.sh
+  - ./scripts/run-dependencies.sh
+  - ./scripts/run-docker-worker.sh
   - pytest --cov=src
   - pycodestyle .
 

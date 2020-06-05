@@ -1,6 +1,9 @@
 # montagu-task-queue
 
-[Celery](https://docs.celeryproject.org/en/stable/) based task queue for Montagu
+[Celery](https://docs.celeryproject.org/en/stable/) based task queue for Montagu.
+
+The task queue consists of a message queue or broker  to receive task requests, and one or more instances of a worker to 
+execute tasks, coordinated by Celery. Celery supports various message brokers including RabbitMQ and Redis.
 
 ## Installation
 
@@ -12,9 +15,9 @@ pip3 install --user -r requirements.txt
 
 ## Development
 
-Run the message queue dependency in docker with `scripts/run-dev-mq.sh`
+Run dependencies (a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
 
-Run the task queue with `scripts/run-task-queue.sh`
+Run a worker with `scripts/run-dev-worker.sh`
 
 ## Testing
 

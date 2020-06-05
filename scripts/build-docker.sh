@@ -1,0 +1,1 @@
+docker build . -t test-task-queue:latest
