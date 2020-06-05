@@ -1,0 +1,2 @@
+broker: pyamqp://guest@montagu_mq//
+backend: rpc://

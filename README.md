@@ -22,3 +22,17 @@ Run a worker with `scripts/run-dev-worker.sh`
 ## Testing
 
 Run the message queue and task queue as described above, then run `pytest`
+
+## Docker
+
+Built the docker image for the worker with `scripts/build-docker.sh`.
+
+Push the docker image to the public registry with `scripts/push-docker.sh`.
+
+Run the worker inside docker with `scripts/run-docker-worker.sh`.
+
+## Configuration
+
+The worker expects to find a config file at `config/config.yml`. The Dockerfile copies `docker_config.yml` to `docker.yml`.
+This allows the worker running on metal to use a message queue on `localhost` while the worker in docker needs to use
+`montagu_mq` the container name of the message queue  to access its port. 

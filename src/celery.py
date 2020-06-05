@@ -1,10 +1,13 @@
 from celery import Celery
+from .config import Config
 
-# TODO: Get these values from config
+config = Config()
 app = Celery('tasks',
-             broker='pyamqp://guest@localhost//',
-             backend='rpc://',
+             broker=config.broker,
+             backend=config.backend,
              include=['src.task_add'])
+
+print("MADE CELERY")
 
 # Optional configuration, see the celery application user guide.
 app.conf.update(
@@ -14,3 +17,4 @@ app.conf.update(
 
 if __name__ == '__main__':
     app.start()
+    print("STARTED")

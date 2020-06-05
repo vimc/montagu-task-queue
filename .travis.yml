@@ -12,6 +12,9 @@ script:
   - pytest --cov=src
   - pycodestyle .
 
+after_script:
+  - ./scripts/clear-docker.sh
+
 after_success:
   - codecov
 
