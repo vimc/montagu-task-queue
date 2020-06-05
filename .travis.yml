@@ -8,7 +8,7 @@ script:
   - pip3 install -r requirements.txt
   - ./scripts/build-docker.sh
   - ./scripts/run-dependencies.sh
-  - ./scripts/run-docker-worker.sh
+  - ./scripts/run-dev-worker.sh &
   - pytest --cov=src
   - pycodestyle .
 
