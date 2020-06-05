@@ -1,6 +1,6 @@
 from celery import Celery
 
-#TODO: Get these values from config
+# TODO: Get these values from config
 app = Celery('tasks',
              broker='pyamqp://guest@montagu_mq//',
              backend='rpc://',
