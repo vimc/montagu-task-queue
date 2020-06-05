@@ -10,4 +10,4 @@ echo $DOCKER_PASSWORD | \
     docker login -u $DOCKER_USERNAME --password-stdin
 
 ./scripts/build-app.sh
-./scripts/push-app.sh
+./scripts/push-app.sh$
