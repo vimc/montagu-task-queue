@@ -6,6 +6,8 @@ if [ $TRAVIS_PULL_REQUEST != "false" ]; then
    exit 0
 fi
 
-HERE=$(readlink -f "$(dirname $0)")
-. $HERE/build-docker.sh
-. $HERE/push-docker.sh
+echo $DOCKER_PASSWORD | \
+    docker login -u $DOCKER_USERNAME --password-stdin
+
+./scripts/build-docker.sh
+./scripts/push-docker.sh
