@@ -9,4 +9,3 @@ def test_broker():
 
 def test_backend():
     assert config.backend == "rpc://"
-
