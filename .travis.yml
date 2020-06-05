@@ -6,6 +6,8 @@ install:
 
 script:
   - pip3 install -r requirements.txt
+  - ./scripts/run-dev-mq.sh
+  - ./scripts/run-task-queue.sh
   - pytest --cov=src
   - pycodestyle .
 
