@@ -17,7 +17,11 @@ pip3 install --user -r requirements.txt
 
 Run dependencies (a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
 
-Run a worker with `scripts/run-dev-worker.sh`
+Run a worker with `scripts/run-dev-worker.sh`. You can `Ctrl-C` out of this process to terminate the worker. 
+
+If you end 
+up with an old worker still running (which causes new workers to complain that another node is already listening), you
+kill all dev workers with `pkill -9 -f 'celery -A src worker'`.
 
 ## Testing
 
