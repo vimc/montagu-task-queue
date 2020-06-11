@@ -1,5 +1,8 @@
 # montagu-task-queue
 
+[![Build Status](https://travis-ci.com/vimc/montagu-task-queue.svg?branch=master)](https://travis-ci.com/vimc/montagu-task-queue)
+[![codecov.io](https://codecov.io/github/vimc/montagu-task-queue/coverage.svg?branch=master)](https://codecov.io/github/vimc/montagu-task-queue?branch=master)
+
 [Celery](https://docs.celeryproject.org/en/stable/) based task queue for Montagu.
 
 The task queue consists of a broker (message queue)  to receive task requests, and one or more instances of a worker to 
