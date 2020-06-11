@@ -10,6 +10,7 @@ script:
   - ./scripts/run-dev-worker.sh &
   - pytest --cov=src
   - pycodestyle .
+  - ./scripts/build-docker.sh
 
 after_script:
   - ./scripts/clear-docker.sh

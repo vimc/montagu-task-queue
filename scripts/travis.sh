@@ -9,5 +9,4 @@ fi
 echo $DOCKER_PASSWORD | \
     docker login -u $DOCKER_USERNAME --password-stdin
 
-./scripts/build-docker.sh
 ./scripts/push-docker.sh
