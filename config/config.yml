@@ -1,0 +1,2 @@
+broker: pyamqp://guest@localhost//
+backend: rpc://
