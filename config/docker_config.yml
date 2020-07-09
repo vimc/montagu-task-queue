@@ -1,2 +1,5 @@
-broker: pyamqp://guest@montagu_mq//
+broker: pyamqp://guest@montagu_mq_1//
 backend: rpc://
+montagu_url: http://montagu_api_1:8080
+montagu_user: test.user@example.com
+montagu_password: password

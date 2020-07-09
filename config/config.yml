@@ -1,2 +1,5 @@
 broker: pyamqp://guest@localhost//
 backend: rpc://
+montagu_url: http://localhost:8080
+montagu_user: test.user@example.com
+montagu_password: password
