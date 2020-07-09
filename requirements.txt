@@ -1,3 +1,4 @@
 celery
 future
 pyyaml
+montagu==0.0.2

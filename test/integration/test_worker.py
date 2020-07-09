@@ -10,3 +10,8 @@ def test_add_wait():
 
 def test_add_nowait():
     app.send_task("src.task_add.add", [2, 3])
+
+
+def test_auth():
+    result = app.signature("src.task_auth.auth").delay().get()
+    assert len(result) > 0
