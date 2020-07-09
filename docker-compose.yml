@@ -5,13 +5,30 @@ services:
     ports:
       - "5672:5672"
   api:
-    image: vimc/montagu-api:master
+    image: ${REGISTRY}/montagu-api:master
     ports:
       - "8080:8080"
     depends_on:
       - db
   db:
-    image: vimc/montagu-db:master
+    image: ${REGISTRY}/montagu-db:master
     ports:
       - "5432:5432"
     command: /etc/montagu/postgresql.test.conf
+  orderly:
+    image: ${REGISTRY}/orderly.server:master
+    ports:
+      - "8321:8321"
+    volumes:
+      - orderly_volume:/orderly
+    command: --port 8321 --go-signal /orderly_go /orderly
+  orderly_web:
+    image: ${REGISTRY}/orderly-web:master
+    ports:
+      - "8888:8888"
+    depends_on:
+      - api
+    volumes:
+      - orderly_volume:/orderly
+volumes:
+  orderly_volume:
