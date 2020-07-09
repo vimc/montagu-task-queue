@@ -20,7 +20,11 @@ migrate_image=vimc/montagu-migrate:master
 docker pull $migrate_image
 docker run --network=montagu_default $migrate_image
 
-# Generate test data
-test_data_image=vimc/montagu-generate-test-data:master
-docker pull $test_data_image
-docker run --rm --network=montagu_default $test_data_image
+# add test user
+here=$(dirname $0)
+
+$here/montagu_cli.sh add "Test User" test.user \
+    test.user@example.com password \
+    --if-not-exists
+
+$here/montagu_cli.sh addRole test.user user
