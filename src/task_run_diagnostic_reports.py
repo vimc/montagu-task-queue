@@ -8,15 +8,8 @@ import logging
 @app.task
 def run_diagnostic_reports(group, disease):
     config = Config()
-    orderly_web = auth(config)
-
     reports = config.diagnostic_reports(group, disease)
-    keys = []
-    for r in reports:
-        key = orderly_web.run_report(r.name, r.parameters)
-        keys.append(key)
-        logging.info("Running report: {}. Key is {}".format(r.name, key))
-    return keys
+    return run_reports(config, reports)
 
 
 def auth(config):
@@ -24,3 +17,16 @@ def auth(config):
                                config.montagu_password)
     ow = orderlyweb_api.OrderlyWebAPI(config.orderlyweb_url, monty.token)
     return ow
+
+
+def run_reports(config, reports):
+    orderly_web = auth(config)
+    keys = []
+    for r in reports:
+        try:
+            key = orderly_web.run_report(r.name, r.parameters)
+            keys.append(key)
+            logging.info("Running report: {}. Key is {}".format(r.name, key))
+        except Exception as ex:
+            logging.exception(ex)
+    return keys
