@@ -11,9 +11,6 @@ export NETWORK=montagu_default
 docker-compose pull
 docker-compose --project-name montagu up -d
 
-#TODO: TAKE THIS OUT
-docker ps
-
 # Start the APIs
 docker exec montagu_api_1 mkdir -p /etc/montagu/api/
 docker exec montagu_api_1 touch /etc/montagu/api/go_signal

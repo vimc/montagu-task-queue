@@ -25,4 +25,3 @@ def test_montagu_password():
 
 def test_orderlyweb_url():
     assert config.orderlyweb_url == "http://localhost:8888"
-
