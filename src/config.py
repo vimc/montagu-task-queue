@@ -25,3 +25,7 @@ class Config:
     @property
     def montagu_password(self):
         return self.cfg["montagu_password"]
+
+    @property
+    def orderlyweb_url(self):
+        return self.cfg["orderlyweb_url"]
