@@ -11,6 +11,7 @@ export NETWORK=montagu_default
 docker-compose pull
 docker-compose --project-name montagu up -d
 
+#TODO: TAKE THIS OUT
 docker ps
 
 # Start the APIs
