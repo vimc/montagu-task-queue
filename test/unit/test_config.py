@@ -33,9 +33,8 @@ def test_diagnostic_reports():
     assert reports[0].name == "minimal"
     assert len(reports[0].parameters.keys()) == 0
     assert reports[1].name == "other"
-    assert len(reports[1].parameters.keys()) == 2
+    assert len(reports[1].parameters.keys()) == 1
     assert reports[1].parameters["nmin"] == 0
-    assert reports[1].parameters["type"] == "test"
 
 
 def test_diagnostic_reports_nonexistent():

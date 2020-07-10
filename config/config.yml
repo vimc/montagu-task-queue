@@ -11,4 +11,3 @@ diagnostic_reports:
       - report_name: other
         parameters:
           nmin: 0
-          type: test
