@@ -3,6 +3,7 @@ from .config import Config
 import montagu
 import orderlyweb_api
 import logging
+import time
 
 
 @app.task
@@ -22,11 +23,40 @@ def auth(config):
 def run_reports(config, reports):
     orderly_web = auth(config)
     keys = []
+    new_versions = []
+
+    # Start configured reports
     for r in reports:
         try:
             key = orderly_web.run_report(r.name, r.parameters)
             keys.append(key)
             logging.info("Running report: {}. Key is {}".format(r.name, key))
-        except Exception as ex:
+        except Exception as ex: #TODO handle OrderlyWebResponseError
             logging.exception(ex)
-    return keys
+
+    # Poll running reports until they complete
+    report_poll_seconds = config.report_poll_seconds
+    while len(keys) > 0:
+        finished = []
+        for k in keys:
+            try:
+                result = orderly_web.report_status(k)
+                if result.finished:
+                    finished.append(k)
+                    if result.success:
+                        new_versions.append(result.version)
+                        logging.info("Success for key {}. New version is {}"
+                                     .format(k, result.version, result.output))
+                    else:
+                        logging.error("Failure for key {}. Status: {}"
+                                      .format(k, result.status, result.output))
+
+            except Exception as ex: #TODO handle OrderlyWEbResponseError
+                keys.remove(k)
+                logging.exception(ex)
+
+        for k in finished:
+            keys.remove(k)
+        time.sleep(report_poll_seconds)
+
+    return new_versions

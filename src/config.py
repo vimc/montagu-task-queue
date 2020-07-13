@@ -36,6 +36,10 @@ class Config:
     def orderlyweb_url(self):
         return self.cfg["orderlyweb_url"]
 
+    @property
+    def report_poll_seconds(self):
+        return self.cfg["report_poll_seconds"]
+
     def diagnostic_reports(self, group, disease):
         result = []
         reports_config = self.cfg["diagnostic_reports"]

@@ -14,5 +14,5 @@ def test_add_nowait():
 
 def test_run_diagnostic_reports():
     sig = "src.task_run_diagnostic_reports.run_diagnostic_reports"
-    keys = app.signature(sig, ["testGroup", "testDisease"]).delay().get()
-    assert len(keys) == 2
+    versions = app.signature(sig, ["testGroup", "testDisease"]).delay().get()
+    assert len(versions) == 2
