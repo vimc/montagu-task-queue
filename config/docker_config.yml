@@ -3,4 +3,4 @@ backend: rpc://
 montagu_url: http://montagu_api_1:8080
 montagu_user: test.user@example.com
 montagu_password: password
-orderlyweb_url: http://montagu_orderly_web_1:8888
+orderlyweb_url: http://montagu_orderly_web:8888
