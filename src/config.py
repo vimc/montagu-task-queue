@@ -13,3 +13,19 @@ class Config:
     @property
     def backend(self):
         return self.cfg["backend"]
+
+    @property
+    def montagu_url(self):
+        return self.cfg["montagu_url"]
+
+    @property
+    def montagu_user(self):
+        return self.cfg["montagu_user"]
+
+    @property
+    def montagu_password(self):
+        return self.cfg["montagu_password"]
+
+    @property
+    def orderlyweb_url(self):
+        return self.cfg["orderlyweb_url"]

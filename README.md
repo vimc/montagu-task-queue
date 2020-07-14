@@ -18,7 +18,7 @@ pip3 install --user -r requirements.txt
 
 ## Development
 
-Run dependencies (a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
+Run dependencies (Montagu API and DB, OrderlyWeb and a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
 
 Run a worker with `scripts/run-dev-worker.sh`. You can `Ctrl-C` out of this process to terminate the worker. 
 
@@ -28,7 +28,7 @@ kill all dev workers with `pkill -9 -f 'celery -A src worker'`.
 
 ## Testing
 
-Run the message queue and task queue as described above, then run `pytest`.
+Run the dependencies and task queue as described above, then run `pytest`.
 
 ## Docker
 
@@ -37,6 +37,9 @@ Build the docker image for the worker with `scripts/build-docker.sh`.
 Push the docker image to the public registry with `scripts/push-docker.sh`.
 
 Run the worker inside docker with `scripts/run-docker-worker.sh`.
+
+You can test that the docker image is working by running `pytest` as described as above, with the worker running inside
+docker instead of using the `run-dev-worker.sh` script.
 
 ## Configuration
 

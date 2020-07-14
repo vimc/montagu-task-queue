@@ -5,7 +5,7 @@ config = Config()
 app = Celery('tasks',
              broker=config.broker,
              backend=config.backend,
-             include=['src.task_add'])
+             include=['src.task_add', 'src.task_auth'])
 
 
 # Optional configuration, see the celery application user guide.

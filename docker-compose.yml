@@ -1,0 +1,17 @@
+version: '3'
+services:
+  mq:
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+  api:
+    image: ${REGISTRY}/montagu-api:master
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    image: ${REGISTRY}/montagu-db:master
+    ports:
+      - "5432:5432"
+    command: /etc/montagu/postgresql.test.conf
