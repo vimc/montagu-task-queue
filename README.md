@@ -18,7 +18,7 @@ pip3 install --user -r requirements.txt
 
 ## Development
 
-Run dependencies (Montagu API and DB, and a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
+Run dependencies (Montagu API and DB, OrderlyWeb and a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
 
 Run a worker with `scripts/run-dev-worker.sh`. You can `Ctrl-C` out of this process to terminate the worker. 
 
