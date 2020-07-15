@@ -1,6 +1,12 @@
 import yaml
 
 
+class ReportConfig:
+    def __init__(self, name, parameters):
+        self.name = name
+        self.parameters = parameters
+
+
 class Config:
     def __init__(self):
         with open("config/config.yml", "r") as ymlfile:
@@ -16,16 +22,34 @@ class Config:
 
     @property
     def montagu_url(self):
-        return self.cfg["montagu_url"]
+        return self.__montagu()["url"]
 
     @property
     def montagu_user(self):
-        return self.cfg["montagu_user"]
+        return self.__montagu()["user"]
 
     @property
     def montagu_password(self):
-        return self.cfg["montagu_password"]
+        return self.__montagu()["password"]
 
     @property
     def orderlyweb_url(self):
-        return self.cfg["orderlyweb_url"]
+        return self.__server("orderlyweb")["url"]
+
+    def diagnostic_reports(self, group, disease):
+        result = []
+        reports_config = self.__task("diagnostic_reports")
+        if group in reports_config and disease in reports_config[group]:
+            for r in reports_config[group][disease]:
+                params = r["parameters"] if "parameters" in r else {}
+                result.append(ReportConfig(r["report_name"], params))
+        return result
+
+    def __server(self, name):
+        return self.cfg["servers"][name]
+
+    def __task(self, name):
+        return self.cfg["tasks"][name]
+
+    def __montagu(self):
+        return self.__server("montagu")

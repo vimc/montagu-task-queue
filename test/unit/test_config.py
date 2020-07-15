@@ -25,3 +25,18 @@ def test_montagu_password():
 
 def test_orderlyweb_url():
     assert config.orderlyweb_url == "http://localhost:8888"
+
+
+def test_diagnostic_reports():
+    reports = config.diagnostic_reports("testGroup", "testDisease")
+    assert len(reports) == 2
+    assert reports[0].name == "minimal"
+    assert len(reports[0].parameters.keys()) == 0
+    assert reports[1].name == "other"
+    assert len(reports[1].parameters.keys()) == 1
+    assert reports[1].parameters["nmin"] == 0
+
+
+def test_diagnostic_reports_nonexistent():
+    assert len(config.diagnostic_reports("not a group", "not a disease")) == 0
+    assert len(config.diagnostic_reports("testGroup", "not a disease")) == 0

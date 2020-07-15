@@ -12,6 +12,7 @@ def test_add_nowait():
     app.send_task("src.task_add.add", [2, 3])
 
 
-def test_auth():
-    result = app.signature("src.task_auth.auth").delay().get()
-    assert len(result) > 0
+def test_run_diagnostic_reports():
+    sig = "src.task_run_diagnostic_reports.run_diagnostic_reports"
+    keys = app.signature(sig, ["testGroup", "testDisease"]).delay().get()
+    assert len(keys) == 2
