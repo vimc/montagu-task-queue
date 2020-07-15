@@ -11,7 +11,8 @@ def run_diagnostic_reports(group, disease):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
-        return run_reports(config, reports)
+        orderly_web = auth(config)
+        return run_reports(orderly_web, config, reports)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
@@ -25,8 +26,7 @@ def auth(config):
     return ow
 
 
-def run_reports(config, reports):
-    orderly_web = auth(config)
+def run_reports(orderly_web, config, reports):
     keys = []
     new_versions = []
 
@@ -36,7 +36,7 @@ def run_reports(config, reports):
             key = orderly_web.run_report(r.name, r.parameters)
             keys.append(key)
             logging.info("Running report: {}. Key is {}".format(r.name, key))
-        except Exception as ex: #TODO handle OrderlyWebResponseError
+        except Exception as ex:
             logging.exception(ex)
 
     # Poll running reports until they complete
@@ -56,7 +56,7 @@ def run_reports(config, reports):
                         logging.error("Failure for key {}. Status: {}"
                                       .format(k, result.status, result.output))
 
-            except Exception as ex: #TODO handle OrderlyWEbResponseError
+            except Exception as ex:
                 keys.remove(k)
                 logging.exception(ex)
 
