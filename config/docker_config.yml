@@ -1,14 +1,17 @@
 broker: pyamqp://guest@montagu_mq_1//
 backend: rpc://
-montagu_url: http://montagu_api_1:8080
-montagu_user: test.user@example.com
-montagu_password: password
-orderlyweb_url: http://montagu_orderly_web:8888
-diagnostic_reports:
-  testGroup:
-    testDisease:
-      - report_name: minimal
-      - report_name: other
-        parameters:
-          nmin: 0
-
+servers:
+  montagu:
+    url: http://montagu_api_1:8080
+    user: test.user@example.com
+    password: password
+  orderlyweb:
+    url: http://montagu_orderly_web:8888
+tasks:
+  diagnostic_reports:
+    testGroup:
+      testDisease:
+        - report_name: minimal
+        - report_name: other
+          parameters:
+            nmin: 0
