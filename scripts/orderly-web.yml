@@ -1,0 +1,50 @@
+container_prefix: montagu_orderly
+
+network: montagu_default
+
+volumes:
+  orderly: orderly_volume
+  proxy_logs: orderly_web_proxy_logs
+
+## Orderly configuration
+orderly:
+  image:
+    repo: vimc
+    name: orderly.server
+    tag: master
+  initial:
+    source: clone
+    url: https://github.com/vimc/orderly-demo
+
+web:
+  image:
+    repo: vimc
+    name: orderly-web
+    tag: master
+    migrate: orderlyweb-migrate
+    admin: orderly-web-user-cli
+  url: https://localhost
+  dev_mode: true
+  port: 8888
+  name: OrderlyWeb
+  email: admin@example.com
+  auth:
+    github_org: vimc
+    github_team: ""
+    github_oauth:
+      id: "notarealid"
+      secret: "notarealsecret"
+    fine_grained: true
+    montagu: true
+    montagu_url: http://montagu_api_1:8080
+    montagu_api_url: http://montagu_api_1:8080/v1
+
+proxy:
+  enabled: false
+  hostname: localhost
+  port_http: 80
+  port_https: 443
+  image:
+    repo: vimc
+    name: orderly-web-proxy
+    tag: master

@@ -22,29 +22,38 @@ class Config:
 
     @property
     def montagu_url(self):
-        return self.cfg["montagu_url"]
+        return self.__montagu()["url"]
 
     @property
     def montagu_user(self):
-        return self.cfg["montagu_user"]
+        return self.__montagu()["user"]
 
     @property
     def montagu_password(self):
-        return self.cfg["montagu_password"]
+        return self.__montagu()["password"]
 
     @property
     def orderlyweb_url(self):
-        return self.cfg["orderlyweb_url"]
+        return self.__server("orderlyweb")["url"]
 
     @property
-    def report_poll_seconds(self):
-        return self.cfg["report_poll_seconds"]
+    def report_poll_seconds(self): #TODO: could have config type for task..
+        return self.__task("diagnostic_reports")["poll_seconds"]
 
     def diagnostic_reports(self, group, disease):
         result = []
-        reports_config = self.cfg["diagnostic_reports"]
+        reports_config = self.__task("diagnostic_reports")["reports"]
         if group in reports_config and disease in reports_config[group]:
             for r in reports_config[group][disease]:
                 params = r["parameters"] if "parameters" in r else {}
                 result.append(ReportConfig(r["report_name"], params))
         return result
+
+    def __server(self, name):
+        return self.cfg["servers"][name]
+
+    def __task(self, name):
+        return self.cfg["tasks"][name]
+
+    def __montagu(self):
+        return self.__server("montagu")
