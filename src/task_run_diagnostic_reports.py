@@ -9,7 +9,12 @@ import logging
 def run_diagnostic_reports(group, disease):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
-    return run_reports(config, reports)
+    if len(reports) > 0:
+        return run_reports(config, reports)
+    else:
+        msg = "No configured diagnostic reports for group {}, disease {}"
+        logging.warning(msg.format(group, disease))
+        return []
 
 
 def auth(config):
