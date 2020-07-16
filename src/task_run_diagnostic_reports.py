@@ -51,10 +51,9 @@ def run_reports(orderly_web, config, reports):
                     if result.success:
                         new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
-                                     .format(k, result.version, result.output))
+                                     .format(k, result.version))
                     else:
-                        logging.error("Failure for key {}. Status: {}"
-                                      .format(k, result.status, result.output))
+                        logging.error("Failure for key {}.".format(k))
 
             except Exception as ex:
                 keys.remove(k)
