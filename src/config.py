@@ -37,7 +37,7 @@ class Config:
         return self.__server("orderlyweb")["url"]
 
     @property
-    def report_poll_seconds(self): #TODO: could have config type for task..
+    def report_poll_seconds(self):
         return self.__task("diagnostic_reports")["poll_seconds"]
 
     def diagnostic_reports(self, group, disease):

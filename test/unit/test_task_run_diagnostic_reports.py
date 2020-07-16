@@ -145,7 +145,8 @@ class MockOrderlyWebAPI:
             raise Exception("test-run-error: " + name)
 
     def report_status(self, key):
-        if key in self.report_responses and len(self.report_responses[key]) > 0:
+        if key in self.report_responses and \
+                len(self.report_responses[key]) > 0:
             return self.report_responses[key].pop(0)
         else:
             raise Exception("test-status-error: " + key)
