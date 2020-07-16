@@ -62,6 +62,7 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
         call("Success for key r1-key. New version is r1-version")
     ], any_order=False)
 
+
 @patch("src.task_run_diagnostic_reports.logging")
 def test_run_reports_with_run_error(logging):
     run_successfully = ["r2"]
@@ -101,7 +102,7 @@ def test_run_reports_with_status_error(logging):
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
         call("Success for key r2-key. New version is r2-version")
-    ], any_order = False)
+    ], any_order=False)
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-status-error: r1-key"
 
@@ -127,10 +128,10 @@ def test_run_reports_with_status_failure(logging):
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
         call("Success for key r1-key. New version is r1-version")
-    ], any_order = False)
+    ], any_order=False)
     logging.error.assert_has_calls([
        call("Failure for key r2-key.")
-    ], any_order = False)
+    ], any_order=False)
 
 
 class MockOrderlyWebAPI:
