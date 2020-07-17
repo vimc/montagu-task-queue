@@ -1,0 +1,7 @@
+Hi
+
+A new version of Orderly report {report_name} is available to view at {report_version_url}
+
+This version was run with parameters: {report_params}
+
+Have a great day!

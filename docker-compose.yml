@@ -15,3 +15,8 @@ services:
     ports:
       - "5432:5432"
     command: /etc/montagu/postgresql.test.conf
+  smtp_server:
+    image: reachfive/fake-smtp-server
+    ports:
+      - "1025:1025"
+      - "1080:1080"
