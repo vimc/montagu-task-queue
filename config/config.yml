@@ -14,15 +14,21 @@ servers:
 tasks:
   diagnostic_reports:
     poll_seconds: 5
-    success_email:
-      recipients:
-        - modeller@example.com
-        - science@example.com
-      subject: "New version of Orderly report: {report_name}"
     reports:
       testGroup:
         testDisease:
           - report_name: minimal
+            success_email:
+              recipients:
+                - minimal_modeller@example.com
+                - science@example.com
+              subject: "New version of Orderly report: {report_name}"
           - report_name: other
             parameters:
               nmin: 0
+            success_email:
+              recipients:
+                - other_modeller@example.com
+                - science@example.com
+              subject: "New version of another Orderly report: {report_name}"
+

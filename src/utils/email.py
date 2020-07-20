@@ -12,18 +12,12 @@ class Emailer:
 
     def send(self, from_email, to_emails, subject_template,
              content_template_name, template_values):
-        #text_message = """This is a test e-mail message."""
-        #html_message = """This is a <strong>test</strong> e-mail message."""
-
         text_template = self.read_file(content_template_name + ".txt")
         html_template = self.read_file(content_template_name + ".html")
 
         text_msg = self.apply_template_values(text_template, template_values)
         html_msg = self.apply_template_values(html_template, template_values)
         subject = self.apply_template_values(subject_template, template_values)
-
-        #from_email = "from@example.com"
-        #to_emails = ["to1@example.com", "to2@example.com"]
 
         try:
             msg = MIMEMultipart('alternative')
@@ -37,7 +31,6 @@ class Emailer:
             msg.attach(part1)
             msg.attach(part2)
 
-            #smtp = smtplib.SMTP('localhost', 1025)
             smtp = smtplib.SMTP(self.smtp_host, self.smtp_port)
             smtp.sendmail(from_email, to_emails, msg.as_string())
             smtp.quit()

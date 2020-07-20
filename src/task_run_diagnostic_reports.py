@@ -1,5 +1,6 @@
 from .celery import app
 from .config import Config
+from src.utils.email import Emailer
 import montagu
 import orderlyweb_api
 import logging
@@ -27,14 +28,14 @@ def auth(config):
 
 
 def run_reports(orderly_web, config, reports):
-    keys = []
+    keys = {}
     new_versions = []
 
     # Start configured reports
     for r in reports:
         try:
             key = orderly_web.run_report(r.name, r.parameters)
-            keys.append(key)
+            keys[key] = r
             logging.info("Running report: {}. Key is {}".format(r.name, key))
         except Exception as ex:
             logging.exception(ex)
@@ -43,7 +44,7 @@ def run_reports(orderly_web, config, reports):
     report_poll_seconds = config.report_poll_seconds
     while len(keys) > 0:
         finished = []
-        for k in keys:
+        for k in keys.keys():
             try:
                 result = orderly_web.report_status(k)
                 if result.finished:
@@ -52,15 +53,37 @@ def run_reports(orderly_web, config, reports):
                         new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
                                      .format(k, result.version))
+
+                        send_success_emails(r, result.version, config)
                     else:
                         logging.error("Failure for key {}.".format(k))
 
             except Exception as ex:
-                keys.remove(k)
+                keys.pop(k)
                 logging.exception(ex)
 
         for k in finished:
-            keys.remove(k)
+            keys.pop(k)
         time.sleep(report_poll_seconds)
 
     return new_versions
+
+
+def send_success_emails(report, version, config):
+    emailer = Emailer(config.smtp_host, config.smtp_port)
+
+    version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, report.name,
+                                            version)
+
+    params_array = ['{}={}'.format(k, v) for (k, v) in report.parameters]
+    report_params = ', '.join(params_array)
+
+    template_values = {
+        "report_name": report.name,
+        "report_version_url": version_url,
+        "report_params": report_params
+    }
+
+    emailer.send(config.smtp_from, report.sucess_email_recipients,
+                 report.success_email_subject, "diagnostic_report",
+                 template_values)
