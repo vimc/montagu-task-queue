@@ -92,7 +92,7 @@ def send_success_email(emailer, report, version, config):
         "report_params": report_params
     }
 
-    emailer.send(config.smtp_from, report.sucess_email_recipients,
+    emailer.send(config.smtp_from, report.success_email_recipients,
                  report.success_email_subject, "diagnostic_report",
                  template_values)
 

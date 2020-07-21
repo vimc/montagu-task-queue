@@ -6,7 +6,7 @@ class ReportConfig:
                  success_email_subject):
         self.name = name
         self.parameters = parameters
-        self.sucess_email_recipients = success_email_recipients
+        self.success_email_recipients = success_email_recipients
         self.success_email_subject = success_email_subject
 
 
