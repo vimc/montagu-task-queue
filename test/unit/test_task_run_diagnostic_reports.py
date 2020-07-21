@@ -6,9 +6,22 @@ from unittest.mock import patch, call
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1"),
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2")]
 
+send_email_call_r1 = call(
+    "test@test.com", ["r1@example.com"], "Subj: r1", "diagnostic_report",
+     {"report_name": "r1",
+      "report_version_url": "http://orderly-web/report/r1/r1-version/",
+      "report_params": "no parameters"})
 
+send_email_call_r2 = call(
+    "test@test.com", ["r2@example.com"], "Subj: r2", "diagnostic_report",
+     {"report_name": "r2",
+      "report_version_url": "http://orderly-web/report/r2/r2-version/",
+      "report_params": "p1=v1"})
+
+
+@patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports(logging):
+def test_run_reports(logging, emailer_send):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "success",
@@ -31,9 +44,12 @@ def test_run_reports(logging):
         call("Success for key r2-key. New version is r2-version")
     ], any_order=False)
 
+    emailer_send.assert_has_calls([send_email_call_r1, send_email_call_r2])
 
+
+@patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_finish_on_different_poll_cycles(logging):
+def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "running",
@@ -63,9 +79,12 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
         call("Success for key r1-key. New version is r1-version")
     ], any_order=False)
 
+    emailer_send.assert_has_calls([send_email_call_r2, send_email_call_r1])
 
+
+@patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_run_error(logging):
+def test_run_reports_with_run_error(logging, emailer_send):
     run_successfully = ["r2"]
     report_responses = {
        "r2-key": [ReportStatusResult({"status": "success",
@@ -84,9 +103,12 @@ def test_run_reports_with_run_error(logging):
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-run-error: r1"
 
+    emailer_send.assert_has_calls([send_email_call_r2])
 
+
+@patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_status_error(logging):
+def test_run_reports_with_status_error(logging, emailer_send):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r2-key": [ReportStatusResult({"status": "success",
@@ -107,9 +129,12 @@ def test_run_reports_with_status_error(logging):
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-status-error: r1-key"
 
+    emailer_send.assert_has_calls([send_email_call_r2])
 
+
+@patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_status_failure(logging):
+def test_run_reports_with_status_failure(logging, emailer_send):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "success",
@@ -133,6 +158,31 @@ def test_run_reports_with_status_failure(logging):
     logging.error.assert_has_calls([
        call("Failure for key r2-key.")
     ], any_order=False)
+
+    emailer_send.assert_has_calls([send_email_call_r1])
+
+
+@patch("src.utils.email.Emailer.send")
+def test_url_encodes_url_in_email(emailer_send):
+    name = "'A silly, report"
+    encoded = "%27A%20silly%2C%20report"
+    report = ReportConfig(name, {}, ["to@example.com"], "Hi")
+
+    run_successfully = [name]
+    report_responses = {
+        name+"-key": [ReportStatusResult({"status": "success",
+                                       "version": name+"-version",
+                                       "output": None})]
+    }
+    ow = MockOrderlyWebAPI(run_successfully, report_responses)
+
+    run_reports(ow, MockConfig(), [report])
+    url = "http://orderly-web/report/{}/{}-version/".format(encoded, encoded)
+    emailer_send.assert_has_calls([
+        call("test@test.com", ["to@example.com"], "Hi", "diagnostic_report",
+             {"report_name": "'A silly, report",
+              "report_version_url": url,
+              "report_params": "no parameters"})])
 
 
 class MockOrderlyWebAPI:

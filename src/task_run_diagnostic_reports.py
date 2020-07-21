@@ -31,6 +31,7 @@ def auth(config):
 def run_reports(orderly_web, config, reports):
     running_reports = {}
     new_versions = []
+    emailer = Emailer(config.smtp_host, config.smtp_port)
 
     # Start configured reports
     for report in reports:
@@ -51,11 +52,12 @@ def run_reports(orderly_web, config, reports):
                 if result.finished:
                     finished.append(key)
                     if result.success:
+                        print("REPORT SUCCEEDED: " + report.name)
                         new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
 
-                        send_success_email(report, result.version, config)
+                        send_success_email(emailer, report, result.version, config)
                     else:
                         logging.error("Failure for key {}.".format(key))
 
@@ -71,21 +73,18 @@ def run_reports(orderly_web, config, reports):
     return new_versions
 
 
-def send_success_email(report, version, config):
-    emailer = Emailer(config.smtp_host, config.smtp_port)
-
+def send_success_email(emailer, report, version, config):
     r_enc = urlencode(report.name)
     v_enc = urlencode(version)
     version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc,
                                             v_enc)
 
-    params_array = []
-    for (k, v) in report.parameters.items():
-        params_array.append("{}={}".format(k, v))
-    report_params = ', '.join(params_array)
-
-    if report_params == "":
-        report_params = 'no parameters'
+    report_params = 'no parameters'
+    if report.parameters is not None and len(report.parameters.items()) > 0:
+        params_array = []
+        for (k, v) in report.parameters.items():
+            params_array.append("{}={}".format(k, v))
+        report_params = ', '.join(params_array)
 
     template_values = {
         "report_name": report.name,
