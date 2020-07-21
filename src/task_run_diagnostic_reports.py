@@ -55,7 +55,7 @@ def run_reports(orderly_web, config, reports):
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
 
-                        send_success_emails(report, result.version, config)
+                        send_success_email(report, result.version, config)
                     else:
                         logging.error("Failure for key {}.".format(key))
 
@@ -71,7 +71,7 @@ def run_reports(orderly_web, config, reports):
     return new_versions
 
 
-def send_success_emails(report, version, config):
+def send_success_email(report, version, config):
     emailer = Emailer(config.smtp_host, config.smtp_port)
 
     r_enc = urlencode(report.name)
