@@ -2,4 +2,4 @@ celery
 future
 pyyaml
 montagu>=0.0.2
-orderlyweb-api==0.0.5
+orderlyweb-api>=0.0.6

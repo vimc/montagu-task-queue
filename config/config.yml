@@ -9,9 +9,11 @@ servers:
     url: http://localhost:8888
 tasks:
   diagnostic_reports:
-    testGroup:
-      testDisease:
-        - report_name: minimal
-        - report_name: other
-          parameters:
-            nmin: 0
+    poll_seconds: 5
+    reports:
+      testGroup:
+        testDisease:
+          - report_name: minimal
+          - report_name: other
+            parameters:
+              nmin: 0

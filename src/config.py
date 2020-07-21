@@ -36,9 +36,13 @@ class Config:
     def orderlyweb_url(self):
         return self.__server("orderlyweb")["url"]
 
+    @property
+    def report_poll_seconds(self):
+        return self.__task("diagnostic_reports")["poll_seconds"]
+
     def diagnostic_reports(self, group, disease):
         result = []
-        reports_config = self.__task("diagnostic_reports")
+        reports_config = self.__task("diagnostic_reports")["reports"]
         if group in reports_config and disease in reports_config[group]:
             for r in reports_config[group][disease]:
                 params = r["parameters"] if "parameters" in r else {}

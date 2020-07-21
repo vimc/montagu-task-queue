@@ -27,6 +27,10 @@ def test_orderlyweb_url():
     assert config.orderlyweb_url == "http://localhost:8888"
 
 
+def test_report_poll_seconds():
+    assert config.report_poll_seconds == 5
+
+
 def test_diagnostic_reports():
     reports = config.diagnostic_reports("testGroup", "testDisease")
     assert len(reports) == 2

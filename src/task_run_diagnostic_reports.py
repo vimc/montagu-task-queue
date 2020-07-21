@@ -3,6 +3,7 @@ from .config import Config
 import montagu
 import orderlyweb_api
 import logging
+import time
 
 
 @app.task
@@ -10,7 +11,8 @@ def run_diagnostic_reports(group, disease):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
-        return run_reports(config, reports)
+        orderly_web = auth(config)
+        return run_reports(orderly_web, config, reports)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
@@ -24,9 +26,11 @@ def auth(config):
     return ow
 
 
-def run_reports(config, reports):
-    orderly_web = auth(config)
+def run_reports(orderly_web, config, reports):
     keys = []
+    new_versions = []
+
+    # Start configured reports
     for r in reports:
         try:
             key = orderly_web.run_report(r.name, r.parameters)
@@ -34,4 +38,29 @@ def run_reports(config, reports):
             logging.info("Running report: {}. Key is {}".format(r.name, key))
         except Exception as ex:
             logging.exception(ex)
-    return keys
+
+    # Poll running reports until they complete
+    report_poll_seconds = config.report_poll_seconds
+    while len(keys) > 0:
+        finished = []
+        for k in keys:
+            try:
+                result = orderly_web.report_status(k)
+                if result.finished:
+                    finished.append(k)
+                    if result.success:
+                        new_versions.append(result.version)
+                        logging.info("Success for key {}. New version is {}"
+                                     .format(k, result.version))
+                    else:
+                        logging.error("Failure for key {}.".format(k))
+
+            except Exception as ex:
+                keys.remove(k)
+                logging.exception(ex)
+
+        for k in finished:
+            keys.remove(k)
+        time.sleep(report_poll_seconds)
+
+    return new_versions

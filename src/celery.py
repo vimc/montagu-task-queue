@@ -5,7 +5,7 @@ config = Config()
 app = Celery('tasks',
              broker=config.broker,
              backend=config.backend,
-             include=['src.task_add', 'src.task_run_diagnostic_reports'])
+             include=['src.task_run_diagnostic_reports'])
 
 
 # Optional configuration, see the celery application user guide.
