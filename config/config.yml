@@ -9,7 +9,7 @@ servers:
     url: http://localhost:8888
   smtp:
     host: localhost
-    port: 25
+    port: 1025
     from: noreply@example.com
 tasks:
   diagnostic_reports:

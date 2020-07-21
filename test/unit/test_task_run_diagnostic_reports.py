@@ -3,7 +3,8 @@ from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
 
-reports = [ReportConfig("r1", None), ReportConfig("r2", {"p1": "v1"})]
+reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1"),
+           ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2")]
 
 
 @patch("src.task_run_diagnostic_reports.logging")
@@ -157,3 +158,19 @@ class MockConfig:
     @property
     def report_poll_seconds(self):
         return 1
+
+    @property
+    def smtp_host(self):
+        return "localhost"
+
+    @property
+    def smtp_port(self):
+        return 25
+
+    @property
+    def smtp_from(self):
+        return "test@test.com"
+
+    @property
+    def orderlyweb_url(self):
+        return "http://orderly-web"
