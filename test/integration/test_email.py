@@ -8,7 +8,7 @@ smtp = FakeSmtpUtils()
 
 @pytest.fixture(scope="module", autouse=True)
 def mod_header(request):
-   smtp.delete_all()
+    smtp.delete_all()
 
 
 def test_send():
@@ -23,7 +23,8 @@ def test_send():
 
     expected_text = """Hi
 
-A new version of Orderly report TEST REPORT is available to view at http://test.com/test_report_version
+A new version of Orderly report TEST REPORT is available to view at""" + \
+                    """http://test.com/test_report_version
 
 This version was run with parameters: p1=v1, p2=v2
 
@@ -36,7 +37,8 @@ Have a great day!"""
 <body>
 <p>Hi,</p>
 <p>
-    A new version of Orderly report TEST REPORT is available to view <a href="http://test.com/test_report_version">here</a>.
+    A new version of Orderly report TEST REPORT is available to view """ + \
+                    """<a href="http://test.com/test_report_version">here</a>.
 </p>
 <p>
     This version was run with parameters: p1=v1, p2=v2
@@ -49,4 +51,3 @@ Have a great day!"""
         "New version of Orderly report: TEST REPORT",
         ["to1@example.com", "to2@example.com"], "from@example.com",
         expected_text, expected_html)])
-

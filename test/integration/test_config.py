@@ -51,14 +51,16 @@ def test_diagnostic_reports():
     assert len(reports[0].parameters.keys()) == 0
     assert reports[0].success_email_recipients == \
            ["minimal_modeller@example.com", "science@example.com"]
-    assert reports[0].success_email_subject == "New version of Orderly report: {report_name}"
+    assert reports[0].success_email_subject == \
+        "New version of Orderly report: {report_name}"
 
     assert reports[1].name == "other"
     assert len(reports[1].parameters.keys()) == 1
     assert reports[1].parameters["nmin"] == 0
     assert reports[1].success_email_recipients == \
         ["other_modeller@example.com", "science@example.com"]
-    assert reports[1].success_email_subject == "New version of another Orderly report: {report_name}"
+    assert reports[1].success_email_subject == \
+        "New version of another Orderly report: {report_name}"
 
 
 def test_diagnostic_reports_nonexistent():

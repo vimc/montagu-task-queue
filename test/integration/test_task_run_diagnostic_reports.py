@@ -10,7 +10,7 @@ smtp = FakeSmtpUtils()
 
 @pytest.fixture(scope="module", autouse=True)
 def mod_header(request):
-   smtp.delete_all()
+    smtp.delete_all()
 
 
 def test_run_diagnostic_reports():
@@ -32,7 +32,8 @@ Have a great day!"""
 <body>
 <p>Hi,</p>
 <p>
-    A new version of Orderly report {} is available to view <a href="{}">here</a>.
+    A new version of Orderly report {} is available to view """ +\
+                    """"<a href="{}">here</a>.
 </p>
 <p>
     This version was run with parameters: {}

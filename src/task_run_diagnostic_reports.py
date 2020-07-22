@@ -38,7 +38,8 @@ def run_reports(orderly_web, config, reports):
         try:
             key = orderly_web.run_report(report.name, report.parameters)
             running_reports[key] = report
-            logging.info("Running report: {}. Key is {}".format(report.name, key))
+            logging.info("Running report: {}. Key is {}".format(report.name,
+                                                                key))
         except Exception as ex:
             logging.exception(ex)
 
@@ -58,7 +59,8 @@ def run_reports(orderly_web, config, reports):
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
 
-                        send_success_email(emailer, report, result.version, config)
+                        send_success_email(emailer, report, result.version,
+                                           config)
                     else:
                         logging.error("Failure for key {}.".format(key))
 
@@ -96,4 +98,3 @@ def send_success_email(emailer, report, version, config):
     emailer.send(config.smtp_from, report.success_email_recipients,
                  report.success_email_subject, "diagnostic_report",
                  template_values)
-

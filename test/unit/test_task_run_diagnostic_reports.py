@@ -8,15 +8,15 @@ reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1"),
 
 send_email_call_r1 = call(
     "test@test.com", ["r1@example.com"], "Subj: r1", "diagnostic_report",
-     {"report_name": "r1",
-      "report_version_url": "http://orderly-web/report/r1/r1-version/",
-      "report_params": "no parameters"})
+    {"report_name": "r1",
+     "report_version_url": "http://orderly-web/report/r1/r1-version/",
+     "report_params": "no parameters"})
 
 send_email_call_r2 = call(
     "test@test.com", ["r2@example.com"], "Subj: r2", "diagnostic_report",
-     {"report_name": "r2",
-      "report_version_url": "http://orderly-web/report/r2/r2-version/",
-      "report_params": "p1=v1"})
+    {"report_name": "r2",
+     "report_version_url": "http://orderly-web/report/r2/r2-version/",
+     "report_params": "p1=v1"})
 
 
 @patch("src.utils.email.Emailer.send")
@@ -171,8 +171,8 @@ def test_url_encodes_url_in_email(emailer_send):
     run_successfully = [name]
     report_responses = {
         name+"-key": [ReportStatusResult({"status": "success",
-                                       "version": name+"-version",
-                                       "output": None})]
+                                          "version": name+"-version",
+                                          "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
 
