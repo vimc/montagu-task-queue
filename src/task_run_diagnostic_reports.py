@@ -1,9 +1,11 @@
 from .celery import app
 from .config import Config
+from src.utils.email import Emailer
 import montagu
 import orderlyweb_api
 import logging
 import time
+from urllib.parse import quote as urlencode
 
 
 @app.task
@@ -27,40 +29,72 @@ def auth(config):
 
 
 def run_reports(orderly_web, config, reports):
-    keys = []
+    running_reports = {}
     new_versions = []
+    emailer = Emailer(config.smtp_host, config.smtp_port)
 
     # Start configured reports
-    for r in reports:
+    for report in reports:
         try:
-            key = orderly_web.run_report(r.name, r.parameters)
-            keys.append(key)
-            logging.info("Running report: {}. Key is {}".format(r.name, key))
+            key = orderly_web.run_report(report.name, report.parameters)
+            running_reports[key] = report
+            logging.info("Running report: {}. Key is {}".format(report.name,
+                                                                key))
         except Exception as ex:
             logging.exception(ex)
 
     # Poll running reports until they complete
     report_poll_seconds = config.report_poll_seconds
-    while len(keys) > 0:
+    while len(running_reports.items()) > 0:
         finished = []
-        for k in keys:
+        keys = sorted(running_reports.keys())
+        for key in keys:
+            report = running_reports[key]
             try:
-                result = orderly_web.report_status(k)
+                result = orderly_web.report_status(key)
                 if result.finished:
-                    finished.append(k)
+                    finished.append(key)
                     if result.success:
                         new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
-                                     .format(k, result.version))
+                                     .format(key, result.version))
+
+                        send_success_email(emailer, report, result.version,
+                                           config)
                     else:
-                        logging.error("Failure for key {}.".format(k))
+                        logging.error("Failure for key {}.".format(key))
 
             except Exception as ex:
-                keys.remove(k)
+                if key not in finished:
+                    finished.append(key)
                 logging.exception(ex)
 
-        for k in finished:
-            keys.remove(k)
+        for key in finished:
+            running_reports.pop(key)
         time.sleep(report_poll_seconds)
 
     return new_versions
+
+
+def send_success_email(emailer, report, version, config):
+    r_enc = urlencode(report.name)
+    v_enc = urlencode(version)
+    version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc,
+                                            v_enc)
+
+    report_params = 'no parameters'
+    if report.parameters is not None and len(report.parameters.items()) > 0:
+        params_array = []
+        for (k, v) in report.parameters.items():
+            params_array.append("{}={}".format(k, v))
+        report_params = ', '.join(params_array)
+
+    template_values = {
+        "report_name": report.name,
+        "report_version_url": version_url,
+        "report_params": report_params
+    }
+
+    emailer.send(config.smtp_from, report.success_email_recipients,
+                 report.success_email_subject, "diagnostic_report",
+                 template_values)

@@ -2,9 +2,12 @@ import yaml
 
 
 class ReportConfig:
-    def __init__(self, name, parameters):
+    def __init__(self, name, parameters, success_email_recipients,
+                 success_email_subject):
         self.name = name
         self.parameters = parameters
+        self.success_email_recipients = success_email_recipients
+        self.success_email_subject = success_email_subject
 
 
 class Config:
@@ -40,13 +43,31 @@ class Config:
     def report_poll_seconds(self):
         return self.__task("diagnostic_reports")["poll_seconds"]
 
+    @property
+    def smtp_host(self):
+        return self.__smtp()["host"]
+
+    @property
+    def smtp_port(self):
+        return self.__smtp()["port"]
+
+    @property
+    def smtp_from(self):
+        return self.__smtp()["from"]
+
     def diagnostic_reports(self, group, disease):
         result = []
         reports_config = self.__task("diagnostic_reports")["reports"]
         if group in reports_config and disease in reports_config[group]:
             for r in reports_config[group][disease]:
-                params = r["parameters"] if "parameters" in r else {}
-                result.append(ReportConfig(r["report_name"], params))
+                params = self.__value_or_default(r, "parameters", {})
+
+                email = self.__value_or_default(r, "success_email", {})
+                recipients = self.__value_or_default(email, "recipients", [])
+                subject = self.__value_or_default(email, "subject", "")
+
+                result.append(ReportConfig(r["report_name"], params,
+                                           recipients, subject))
         return result
 
     def __server(self, name):
@@ -57,3 +78,10 @@ class Config:
 
     def __montagu(self):
         return self.__server("montagu")
+
+    def __smtp(self):
+        return self.__server("smtp")
+
+    @staticmethod
+    def __value_or_default(obj, key, default):
+        return obj[key] if key in obj else default

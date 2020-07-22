@@ -7,6 +7,10 @@ servers:
     password: password
   orderlyweb:
     url: http://localhost:8888
+  smtp:
+    host: localhost
+    port: 1025
+    from: noreply@example.com
 tasks:
   diagnostic_reports:
     poll_seconds: 5
@@ -14,6 +18,17 @@ tasks:
       testGroup:
         testDisease:
           - report_name: minimal
+            success_email:
+              recipients:
+                - minimal_modeller@example.com
+                - science@example.com
+              subject: "New version of Orderly report: {report_name}"
           - report_name: other
             parameters:
               nmin: 0
+            success_email:
+              recipients:
+                - other_modeller@example.com
+                - science@example.com
+              subject: "New version of another Orderly report: {report_name}"
+

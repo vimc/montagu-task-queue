@@ -20,11 +20,17 @@ pip3 install --user -r requirements.txt
 
 Run dependencies (Montagu API and DB, OrderlyWeb and a local RabbitMQ message queue in docker) with `scripts/run-dependencies.sh`
 
+Dependencies also include a fake smtp server run from a [docker image](https://hub.docker.com/r/reachfive/fake-smtp-server)
+to enable development and testing of email functionality. You can see a web front end for the emails 'sent' via this server
+at http://localhost:1080 and an API at http://localhost:1080/api/emails
+
 Run a worker with `scripts/run-dev-worker.sh`. You can `Ctrl-C` out of this process to terminate the worker. 
 
 If you end 
 up with an old worker still running (which causes new workers to complain that another node is already listening), you
 kill all dev workers with `pkill -9 -f 'celery -A src worker'`.
+
+
 
 ## Testing
 
