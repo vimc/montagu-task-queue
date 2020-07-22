@@ -19,26 +19,21 @@ class Emailer:
         html_msg = self.apply_template_values(html_template, template_values)
         subject = self.apply_template_values(subject_template, template_values)
 
-        try:
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = subject
-            msg['From'] = from_email
-            msg['To'] = ", ".join(to_emails)
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = from_email
+        msg['To'] = ", ".join(to_emails)
 
-            part1 = MIMEText(text_msg, 'plain')
-            part2 = MIMEText(html_msg, 'html')
+        part1 = MIMEText(text_msg, 'plain')
+        part2 = MIMEText(html_msg, 'html')
 
-            msg.attach(part1)
-            msg.attach(part2)
+        msg.attach(part1)
+        msg.attach(part2)
 
-            smtp = smtplib.SMTP(self.smtp_host, self.smtp_port)
-            smtp.sendmail(from_email, to_emails, msg.as_string())
-            smtp.quit()
-            logging.info("Successfully sent email")
-        except smtplib.SMTPException as ex:
-            #TODO something better
-            logging.error("Error: unable to send email")
-            return "fail: " + str(ex)
+        smtp = smtplib.SMTP(self.smtp_host, self.smtp_port)
+        smtp.sendmail(from_email, to_emails, msg.as_string())
+        smtp.quit()
+        logging.info("Successfully sent email")
 
     @staticmethod
     def read_file(filename):
@@ -47,5 +42,4 @@ class Emailer:
 
     @staticmethod
     def apply_template_values(template, values):
-        #TODO: be more defensive, this can blow up if template key not found
         return template.format(**values)
