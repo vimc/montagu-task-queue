@@ -46,13 +46,14 @@ def run_reports(orderly_web, config, reports):
     report_poll_seconds = config.report_poll_seconds
     while len(running_reports.items()) > 0:
         finished = []
-        for (key, report) in running_reports.items():
+        keys = sorted(running_reports.keys())
+        for key in keys:
+            report = running_reports[key]
             try:
                 result = orderly_web.report_status(key)
                 if result.finished:
                     finished.append(key)
                     if result.success:
-                        print("REPORT SUCCEEDED: " + report.name)
                         new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
