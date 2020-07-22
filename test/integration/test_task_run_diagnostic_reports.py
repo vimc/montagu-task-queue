@@ -33,7 +33,7 @@ Have a great day!"""
 <p>Hi,</p>
 <p>
     A new version of Orderly report {} is available to view """ +\
-                    """"<a href="{}">here</a>.
+                    """<a href="{}">here</a>.
 </p>
 <p>
     This version was run with parameters: {}

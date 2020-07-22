@@ -23,7 +23,7 @@ def test_send():
 
     expected_text = """Hi
 
-A new version of Orderly report TEST REPORT is available to view at""" + \
+A new version of Orderly report TEST REPORT is available to view at """ + \
                     """http://test.com/test_report_version
 
 This version was run with parameters: p1=v1, p2=v2
