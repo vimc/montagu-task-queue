@@ -1,5 +1,5 @@
 language: python
-python: 3.5
+python: 3.6.9
 
 env:
   - DOCKER_COMPOSE_VERSION=1.26.0
