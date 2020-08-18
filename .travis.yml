@@ -12,6 +12,7 @@ before_install:
 
 install:
   - pip3 install pytest-cov pycodestyle codecov
+  - apt update && apt upgrade <docker>
 
 script:
   - pip3 install -r requirements.txt
