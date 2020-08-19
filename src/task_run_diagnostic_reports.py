@@ -28,6 +28,15 @@ def auth(config):
     return ow
 
 
+def publish_report(orderly_web, name, version):
+    try:
+        logging.info("Publishing report version {}-{}".format(name, version))
+        return orderly_web.publish_report(name, version)
+    except Exception as ex:
+        logging.exception(ex)
+        return False
+
+
 def run_reports(orderly_web, config, reports):
     running_reports = {}
     new_versions = []
@@ -58,9 +67,16 @@ def run_reports(orderly_web, config, reports):
                         new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
-
-                        send_success_email(emailer, report, result.version,
-                                           config)
+                        version = result.version
+                        name = report.name
+                        if publish_report(orderly_web, name, version):
+                            send_success_email(emailer,
+                                               report,
+                                               version,
+                                               config)
+                        else:
+                            logging.error("Failed to publish report {}-{}"
+                                          .format(name, version))
                     else:
                         logging.error("Failure for key {}.".format(key))
 
