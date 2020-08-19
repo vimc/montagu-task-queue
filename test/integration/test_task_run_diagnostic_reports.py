@@ -70,8 +70,8 @@ def test_run_reports_handles_error():
         ReportConfig("nonexistent", None, ["test1@test.com"], "subject1"),
         ReportConfig("minimal", {}, ["test2@test.com"], "subject2")]
     config = Config()
-    orderly_web = OrderlyWebClientWrapper(config)
-    versions = run_reports(orderly_web, config, reports)
+    wrapper = OrderlyWebClientWrapper(config)
+    versions = run_reports(wrapper, config, reports)
     assert len(versions) == 1
 
 

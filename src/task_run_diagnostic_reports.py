@@ -20,10 +20,6 @@ def run_diagnostic_reports(group, disease):
         return []
 
 
-def ow_client(config):
-    return OrderlyWebClientWrapper(config)
-
-
 def run_reports(wrapper, config, reports):
     running_reports = {}
     new_versions = []
