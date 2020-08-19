@@ -1,9 +1,9 @@
 from src.task_run_diagnostic_reports import run_diagnostic_reports, \
-    run_reports, auth
+    run_reports
 from src.config import Config, ReportConfig
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
 import pytest
-
+from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 smtp = FakeSmtpUtils()
 
@@ -70,7 +70,7 @@ def test_run_reports_handles_error():
         ReportConfig("nonexistent", None, ["test1@test.com"], "subject1"),
         ReportConfig("minimal", {}, ["test2@test.com"], "subject2")]
     config = Config()
-    orderly_web = auth(config)
+    orderly_web = OrderlyWebClientWrapper(config)
     versions = run_reports(orderly_web, config, reports)
     assert len(versions) == 1
 

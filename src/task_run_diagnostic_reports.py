@@ -1,11 +1,10 @@
 from .celery import app
 from .config import Config
 from src.utils.email import Emailer
-import montagu
-import orderlyweb_api
 import logging
 import time
 from urllib.parse import quote as urlencode
+from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 
 @app.task
@@ -13,22 +12,19 @@ def run_diagnostic_reports(group, disease):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
-        orderly_web = auth(config)
-        return run_reports(orderly_web, config, reports)
+        wrapper = OrderlyWebClientWrapper(config)
+        return run_reports(wrapper, config, reports)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
         return []
 
 
-def auth(config):
-    monty = montagu.MontaguAPI(config.montagu_url, config.montagu_user,
-                               config.montagu_password)
-    ow = orderlyweb_api.OrderlyWebAPI(config.orderlyweb_url, monty.token)
-    return ow
+def ow_client(config):
+    return OrderlyWebClientWrapper(config)
 
 
-def run_reports(orderly_web, config, reports):
+def run_reports(wrapper, config, reports):
     running_reports = {}
     new_versions = []
     emailer = Emailer(config.smtp_host, config.smtp_port)
@@ -36,7 +32,10 @@ def run_reports(orderly_web, config, reports):
     # Start configured reports
     for report in reports:
         try:
-            key = orderly_web.run_report(report.name, report.parameters)
+            key = wrapper.execute(wrapper.ow.run_report,
+                                  report.name,
+                                  report.parameters)
+
             running_reports[key] = report
             logging.info("Running report: {}. Key is {}".format(report.name,
                                                                 key))
@@ -51,7 +50,7 @@ def run_reports(orderly_web, config, reports):
         for key in keys:
             report = running_reports[key]
             try:
-                result = orderly_web.report_status(key)
+                result = wrapper.execute(wrapper.ow.report_status, key)
                 if result.finished:
                     finished.append(key)
                     if result.success:
