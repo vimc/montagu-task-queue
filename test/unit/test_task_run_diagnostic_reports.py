@@ -50,6 +50,46 @@ def test_run_reports(logging, emailer_send):
 
 @patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
+def test_run_reports_with_additional_recipients(logging, emailer_send):
+    run_successfully = ["r1", "r2"]
+    report_responses = {
+        "r1-key": [ReportStatusResult({"status": "success",
+                                       "version": "r1-version",
+                                       "output": None})],
+        "r2-key": [ReportStatusResult({"status": "success",
+                                       "version": "r2-version",
+                                       "output": None})]
+    }
+    ow = MockOrderlyWebAPI(run_successfully, report_responses)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    versions = run_reports(wrapper, MockConfig(), reports, ["another@recipient.com"])
+
+    assert versions == ["r1-version", "r2-version"]
+
+    logging.info.assert_has_calls([
+        call("Running report: r1. Key is r1-key"),
+        call("Running report: r2. Key is r2-key"),
+        call("Success for key r1-key. New version is r1-version"),
+        call("Success for key r2-key. New version is r2-version")
+    ], any_order=False)
+
+    send_email_call_r1_additional = call(
+        "test@test.com", ["r1@example.com", "another@recipient.com"], "Subj: r1", "diagnostic_report",
+        {"report_name": "r1",
+         "report_version_url": "http://orderly-web/report/r1/r1-version/",
+         "report_params": "no parameters"})
+
+    send_email_call_r2_additional = call(
+        "test@test.com", ["r2@example.com", "another@recipient.com"], "Subj: r2", "diagnostic_report",
+        {"report_name": "r2",
+         "report_version_url": "http://orderly-web/report/r2/r2-version/",
+         "report_params": "p1=v1"})
+
+    emailer_send.assert_has_calls([send_email_call_r1_additional, send_email_call_r2_additional])
+
+
+@patch("src.utils.email.Emailer.send")
+@patch("src.task_run_diagnostic_reports.logging")
 def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
     run_successfully = ["r1", "r2"]
     report_responses = {
