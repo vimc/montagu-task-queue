@@ -43,6 +43,14 @@ def test_smtp_from():
     assert config.smtp_from == "noreply@example.com"
 
 
+def test_smtp_user():
+    assert config.smtp_user is None
+
+
+def test_smtp_password():
+    assert config.smtp_password is None
+
+
 def test_diagnostic_reports():
     reports = config.diagnostic_reports("testGroup", "testDisease")
     assert len(reports) == 2

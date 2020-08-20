@@ -55,6 +55,14 @@ class Config:
     def smtp_from(self):
         return self.__smtp()["from"]
 
+    @property
+    def smtp_user(self):
+        return self.__value_or_default(self.__smtp(), "user", None)
+
+    @property
+    def smtp_password(self):
+        return self.__value_or_default(self.__smtp(), "password", None)
+
     def diagnostic_reports(self, group, disease):
         result = []
         reports_config = self.__task("diagnostic_reports")["reports"]
