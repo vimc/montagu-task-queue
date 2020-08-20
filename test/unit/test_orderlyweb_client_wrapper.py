@@ -63,10 +63,12 @@ def test_retries_when_token_expired(logging, emailer_send):
     wrapper = OrderlyWebClientWrapper(None, auth)
     versions = run_reports(wrapper, MockConfig(), reports)
 
-    assert versions == ["r1-version"]
+    assert versions == {"r1-version": {"published": True}}
     logging.info.assert_has_calls([
         call("Running report: r1. Key is r1-key"),
-        call("Success for key r1-key. New version is r1-version")
+        call("Success for key r1-key. New version is r1-version"),
+        call("Publishing report version r1-r1-version"),
+        call("Successfully published report version r1-r1-version")
     ], any_order=False)
 
     emailer_send.assert_has_calls([send_email_call_r1])

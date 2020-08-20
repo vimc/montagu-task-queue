@@ -31,7 +31,7 @@ def publish_report(wrapper, name, version):
 
 def run_reports(wrapper, config, reports):
     running_reports = {}
-    new_versions = []
+    new_versions = {}
     emailer = Emailer(config.smtp_host, config.smtp_port)
 
     # Start configured reports
@@ -59,19 +59,24 @@ def run_reports(wrapper, config, reports):
                 if result.finished:
                     finished.append(key)
                     if result.success:
-                        new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
                         version = result.version
                         name = report.name
-                        if publish_report(wrapper, name, version):
+                        published = publish_report(wrapper, name, version)
+                        if published:
+                            logging.info(
+                                "Successfully published report version {}-{}"
+                                    .format(name, version))
                             send_success_email(emailer,
                                                report,
                                                version,
                                                config)
                         else:
-                            logging.error("Failed to publish report {}-{}"
-                                          .format(name, version))
+                            logging.error(
+                                "Failed to publish report version {}-{}"
+                                    .format(name, version))
+                        new_versions[version] = {"published": published}
                     else:
                         logging.error("Failure for key {}.".format(key))
 
