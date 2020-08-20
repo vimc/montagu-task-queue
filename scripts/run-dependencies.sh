@@ -38,4 +38,4 @@ $here/montagu_cli.sh addRole test.user user
 
 # Add user to orderlyweb
 $here/orderlyweb_cli.sh add-users test.user@example.com
-$here/orderlyweb_cli.sh grant test.user@example.com */reports.run
+$here/orderlyweb_cli.sh grant test.user@example.com */reports.read */reports.run */reports.review
