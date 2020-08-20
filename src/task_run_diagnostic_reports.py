@@ -67,7 +67,7 @@ def run_reports(wrapper, config, reports):
                         if published:
                             logging.info(
                                 "Successfully published report version {}-{}"
-                                    .format(name, version))
+                                .format(name, version))
                             send_success_email(emailer,
                                                report,
                                                version,
@@ -75,7 +75,7 @@ def run_reports(wrapper, config, reports):
                         else:
                             logging.error(
                                 "Failed to publish report version {}-{}"
-                                    .format(name, version))
+                                .format(name, version))
                         new_versions[version] = {"published": published}
                     else:
                         logging.error("Failure for key {}.".format(key))
