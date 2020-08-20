@@ -62,7 +62,8 @@ def test_run_reports_with_additional_recipients(logging, emailer_send):
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports, ["another@recipient.com"])
+    versions = run_reports(wrapper, MockConfig(), reports,
+                           ["another@recipient.com"])
 
     assert versions == ["r1-version", "r2-version"]
 
@@ -74,18 +75,21 @@ def test_run_reports_with_additional_recipients(logging, emailer_send):
     ], any_order=False)
 
     send_email_call_r1_additional = call(
-        "test@test.com", ["r1@example.com", "another@recipient.com"], "Subj: r1", "diagnostic_report",
+        "test@test.com", ["r1@example.com", "another@recipient.com"],
+        "Subj: r1", "diagnostic_report",
         {"report_name": "r1",
          "report_version_url": "http://orderly-web/report/r1/r1-version/",
          "report_params": "no parameters"})
 
     send_email_call_r2_additional = call(
-        "test@test.com", ["r2@example.com", "another@recipient.com"], "Subj: r2", "diagnostic_report",
+        "test@test.com", ["r2@example.com", "another@recipient.com"],
+        "Subj: r2", "diagnostic_report",
         {"report_name": "r2",
          "report_version_url": "http://orderly-web/report/r2/r2-version/",
          "report_params": "p1=v1"})
 
-    emailer_send.assert_has_calls([send_email_call_r1_additional, send_email_call_r2_additional])
+    emailer_send.assert_has_calls([send_email_call_r1_additional,
+                                   send_email_call_r2_additional])
 
 
 @patch("src.utils.email.Emailer.send")

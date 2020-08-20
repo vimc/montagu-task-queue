@@ -71,7 +71,8 @@ def run_reports(wrapper, config, reports, additional_recipients=None):
     return new_versions
 
 
-def send_success_email(emailer, report, version, config, additional_recipients):
+def send_success_email(emailer, report, version, config,
+                       additional_recipients):
     r_enc = urlencode(report.name)
     v_enc = urlencode(version)
     version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc,
