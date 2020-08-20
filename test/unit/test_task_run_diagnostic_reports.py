@@ -2,6 +2,7 @@ from src.task_run_diagnostic_reports import run_reports
 from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
+from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1"),
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2")]
@@ -32,8 +33,8 @@ def test_run_reports(logging, emailer_send):
                                        "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
-
-    versions = run_reports(ow, MockConfig(), reports)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    versions = run_reports(wrapper, MockConfig(), reports)
 
     assert versions == ["r1-version", "r2-version"]
 
@@ -41,7 +42,9 @@ def test_run_reports(logging, emailer_send):
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
         call("Success for key r1-key. New version is r1-version"),
-        call("Success for key r2-key. New version is r2-version")
+        call("Publishing report version r1-r1-version"),
+        call("Success for key r2-key. New version is r2-version"),
+        call("Publishing report version r2-r2-version")
     ], any_order=False)
 
     emailer_send.assert_has_calls([send_email_call_r1, send_email_call_r2])
@@ -67,8 +70,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
                                        "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
-
-    versions = run_reports(ow, MockConfig(), reports)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    versions = run_reports(wrapper, MockConfig(), reports)
 
     assert versions == ["r2-version", "r1-version"]
 
@@ -76,7 +79,9 @@ def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
         call("Success for key r2-key. New version is r2-version"),
-        call("Success for key r1-key. New version is r1-version")
+        call("Publishing report version r2-r2-version"),
+        call("Success for key r1-key. New version is r1-version"),
+        call("Publishing report version r1-r1-version")
     ], any_order=False)
 
     emailer_send.assert_has_calls([send_email_call_r2, send_email_call_r1])
@@ -92,13 +97,14 @@ def test_run_reports_with_run_error(logging, emailer_send):
                                       "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
-
-    versions = run_reports(ow, MockConfig(), reports)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    versions = run_reports(wrapper, MockConfig(), reports)
 
     assert versions == ["r2-version"]
     logging.info.assert_has_calls([
         call("Running report: r2. Key is r2-key"),
-        call("Success for key r2-key. New version is r2-version")
+        call("Success for key r2-key. New version is r2-version"),
+        call("Publishing report version r2-r2-version")
     ], any_order=False)
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-run-error: r1"
@@ -117,14 +123,15 @@ def test_run_reports_with_status_error(logging, emailer_send):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
-
-    versions = run_reports(ow, MockConfig(), reports)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    versions = run_reports(wrapper, MockConfig(), reports)
 
     assert versions == ["r2-version"]
     logging.info.assert_has_calls([
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
-        call("Success for key r2-key. New version is r2-version")
+        call("Success for key r2-key. New version is r2-version"),
+        call("Publishing report version r2-r2-version")
     ], any_order=False)
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-status-error: r1-key"
@@ -146,14 +153,15 @@ def test_run_reports_with_status_failure(logging, emailer_send):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
-
-    versions = run_reports(ow, MockConfig(), reports)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    versions = run_reports(wrapper, MockConfig(), reports)
 
     assert versions == ["r1-version"]
     logging.info.assert_has_calls([
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
-        call("Success for key r1-key. New version is r1-version")
+        call("Success for key r1-key. New version is r1-version"),
+        call("Publishing report version r1-r1-version")
     ], any_order=False)
     logging.error.assert_has_calls([
        call("Failure for key r2-key.")
@@ -175,8 +183,8 @@ def test_url_encodes_url_in_email(emailer_send):
                                           "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
-
-    run_reports(ow, MockConfig(), [report])
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    run_reports(wrapper, MockConfig(), [report])
     url = "http://orderly-web/report/{}/{}-version/".format(encoded, encoded)
     emailer_send.assert_has_calls([
         call("test@test.com", ["to@example.com"], "Hi", "diagnostic_report",
@@ -202,6 +210,9 @@ class MockOrderlyWebAPI:
             return self.report_responses[key].pop(0)
         else:
             raise Exception("test-status-error: " + key)
+
+    def publish_report(self, name, version):
+        return True
 
 
 class MockConfig:
