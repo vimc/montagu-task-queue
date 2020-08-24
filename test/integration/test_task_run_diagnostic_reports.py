@@ -14,8 +14,10 @@ def mod_header(request):
 
 
 def test_run_diagnostic_reports():
-    versions = list(run_diagnostic_reports("testGroup", "testDisease",
-                                      "estimate_uploader@example.com").keys())
+    result = run_diagnostic_reports("testGroup",
+                                    "testDisease",
+                                    "estimate_uploader@example.com")
+    versions = result.keys()
     assert len(versions) == 2
 
     expected_text = """Hi
