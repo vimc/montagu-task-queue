@@ -20,10 +20,20 @@ def run_diagnostic_reports(group, disease, additional_recipients=None):
         return []
 
 
+def publish_report(wrapper, name, version):
+    try:
+        logging.info("Publishing report version {}-{}".format(name, version))
+        return wrapper.execute(wrapper.ow.publish_report, name, version)
+    except Exception as ex:
+        logging.exception(ex)
+        return False
+
+
 def run_reports(wrapper, config, reports, *additional_recipients):
     running_reports = {}
-    new_versions = []
-    emailer = Emailer(config.smtp_host, config.smtp_port)
+    new_versions = {}
+    emailer = Emailer(config.smtp_host, config.smtp_port,
+                      config.smtp_user, config.smtp_password)
 
     # Start configured reports
     for report in reports:
@@ -50,12 +60,26 @@ def run_reports(wrapper, config, reports, *additional_recipients):
                 if result.finished:
                     finished.append(key)
                     if result.success:
-                        new_versions.append(result.version)
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
 
-                        send_success_email(emailer, report, result.version,
-                                           config, additional_recipients)
+                        version = result.version
+                        name = report.name
+                        published = publish_report(wrapper, name, version)
+                        if published:
+                            logging.info(
+                                "Successfully published report version {}-{}"
+                                .format(name, version))
+                            send_success_email(emailer,
+                                               report,
+                                               version,
+                                               config,
+                                               additional_recipients)
+                        else:
+                            logging.error(
+                                "Failed to publish report version {}-{}"
+                                .format(name, version))
+                        new_versions[version] = {"published": published}
                     else:
                         logging.error("Failure for key {}.".format(key))
 

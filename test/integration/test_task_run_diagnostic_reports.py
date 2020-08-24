@@ -14,8 +14,8 @@ def mod_header(request):
 
 
 def test_run_diagnostic_reports():
-    versions = run_diagnostic_reports("testGroup", "testDisease",
-                                      "estimate_uploader@example.com")
+    versions = list(run_diagnostic_reports("testGroup", "testDisease",
+                                      "estimate_uploader@example.com").keys())
     assert len(versions) == 2
 
     expected_text = """Hi
@@ -75,7 +75,9 @@ def test_run_reports_handles_error():
     config = Config()
     wrapper = OrderlyWebClientWrapper(config)
     versions = run_reports(wrapper, config, reports)
-    assert len(versions) == 1
+    keys = list(versions.keys())
+    assert len(keys) == 1
+    assert versions[keys[0]]["published"] is True
 
 
 def test_run_reports_no_group_config():
