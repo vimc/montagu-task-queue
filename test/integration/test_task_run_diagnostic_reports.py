@@ -17,7 +17,7 @@ def test_run_diagnostic_reports():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
                                     "estimate_uploader@example.com")
-    versions = result.keys()
+    versions = list(result.keys())
     assert len(versions) == 2
 
     expected_text = """Hi
