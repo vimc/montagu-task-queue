@@ -17,7 +17,7 @@ def run_diagnostic_reports(group, disease, additional_recipients=None):
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
-        return []
+        return {}
 
 
 def publish_report(wrapper, name, version):
@@ -115,7 +115,8 @@ def send_success_email(emailer, report, version, config,
         "report_params": report_params
     }
 
-    recipients = report.success_email_recipients + list(additional_recipients)
+    additional_str = filter(lambda arg: arg is not None, additional_recipients)
+    recipients = report.success_email_recipients + list(additional_str)
 
     emailer.send(config.smtp_from, recipients,
                  report.success_email_subject, "diagnostic_report",

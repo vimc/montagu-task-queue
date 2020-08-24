@@ -72,13 +72,20 @@ def test_run_reports_with_additional_recipients(logging, emailer_send):
     versions = run_reports(wrapper, MockConfig(), reports,
                            "another@recipient.com")
 
-    assert versions == ["r1-version", "r2-version"]
+    assert versions == {
+        "r1-version": {"published": True},
+        "r2-version": {"published": True}
+    }
 
     logging.info.assert_has_calls([
         call("Running report: r1. Key is r1-key"),
         call("Running report: r2. Key is r2-key"),
         call("Success for key r1-key. New version is r1-version"),
-        call("Success for key r2-key. New version is r2-version")
+        call("Publishing report version r1-r1-version"),
+        call("Successfully published report version r1-r1-version"),
+        call("Success for key r2-key. New version is r2-version"),
+        call("Publishing report version r2-r2-version"),
+        call("Successfully published report version r2-r2-version")
     ], any_order=False)
 
     send_email_call_r1_additional = call(
