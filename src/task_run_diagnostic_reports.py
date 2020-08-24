@@ -23,7 +23,8 @@ def run_diagnostic_reports(group, disease):
 def run_reports(wrapper, config, reports):
     running_reports = {}
     new_versions = []
-    emailer = Emailer(config.smtp_host, config.smtp_port)
+    emailer = Emailer(config.smtp_host, config.smtp_port,
+                      config.smtp_user, config.smtp_password)
 
     # Start configured reports
     for report in reports:
