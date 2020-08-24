@@ -32,7 +32,8 @@ def publish_report(wrapper, name, version):
 def run_reports(wrapper, config, reports):
     running_reports = {}
     new_versions = {}
-    emailer = Emailer(config.smtp_host, config.smtp_port)
+    emailer = Emailer(config.smtp_host, config.smtp_port,
+                      config.smtp_user, config.smtp_password)
 
     # Start configured reports
     for report in reports:

@@ -299,5 +299,13 @@ class MockConfig:
         return "test@test.com"
 
     @property
+    def smtp_user(self):
+        return None
+
+    @property
+    def smtp_password(self):
+        return None
+
+    @property
     def orderlyweb_url(self):
         return "http://orderly-web"

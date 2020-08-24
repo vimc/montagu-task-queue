@@ -12,7 +12,7 @@ def mod_header(request):
 
 
 def test_send():
-    emailer = Emailer("localhost", 1025)
+    emailer = Emailer("localhost", 1025, None, None)
     emailer.send("from@example.com",
                  ["to1@example.com", "to2@example.com"],
                  "New version of Orderly report: {report_name}",

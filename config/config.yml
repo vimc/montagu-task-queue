@@ -10,6 +10,8 @@ servers:
   smtp:
     host: localhost
     port: 1025
+    user:
+    password:
     from: noreply@example.com
 tasks:
   diagnostic_reports:

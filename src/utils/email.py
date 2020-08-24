@@ -6,9 +6,11 @@ from email.mime.text import MIMEText
 
 class Emailer:
 
-    def __init__(self, smtp_host, smtp_port):
+    def __init__(self, smtp_host, smtp_port, smtp_user, smtp_password):
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
+        self.smtp_user = smtp_user
+        self.smtp_password = smtp_password
 
     def send(self, from_email, to_emails, subject_template,
              content_template_name, template_values):
@@ -31,6 +33,9 @@ class Emailer:
         msg.attach(part2)
 
         smtp = smtplib.SMTP(self.smtp_host, self.smtp_port)
+        smtp.starttls()
+        if self.smtp_user is not None and self.smtp_password is not None:
+            smtp.login(self.smtp_user, self.smtp_password)
         smtp.sendmail(from_email, to_emails, msg.as_string())
         smtp.quit()
         logging.info("Successfully sent email")
