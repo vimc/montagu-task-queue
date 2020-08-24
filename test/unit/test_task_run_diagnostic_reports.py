@@ -63,7 +63,7 @@ def test_run_reports_with_additional_recipients(logging, emailer_send):
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     versions = run_reports(wrapper, MockConfig(), reports,
-                           ["another@recipient.com"])
+                           "another@recipient.com")
 
     assert versions == ["r1-version", "r2-version"]
 

@@ -20,7 +20,7 @@ def run_diagnostic_reports(group, disease, additional_recipients=None):
         return []
 
 
-def run_reports(wrapper, config, reports, additional_recipients=None):
+def run_reports(wrapper, config, reports, *additional_recipients):
     running_reports = {}
     new_versions = []
     emailer = Emailer(config.smtp_host, config.smtp_port)
@@ -91,10 +91,7 @@ def send_success_email(emailer, report, version, config,
         "report_params": report_params
     }
 
-    if additional_recipients is None:
-        recipients = report.success_email_recipients
-    else:
-        recipients = report.success_email_recipients + additional_recipients
+    recipients = report.success_email_recipients + list(additional_recipients)
 
     emailer.send(config.smtp_from, recipients,
                  report.success_email_subject, "diagnostic_report",

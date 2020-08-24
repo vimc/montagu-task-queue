@@ -15,7 +15,7 @@ def mod_header(request):
 
 def test_run_diagnostic_reports():
     versions = run_diagnostic_reports("testGroup", "testDisease",
-                                      ["estimate_uploader@example.com"])
+                                      "estimate_uploader@example.com")
     assert len(versions) == 2
 
     expected_text = """Hi
