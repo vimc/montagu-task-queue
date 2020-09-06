@@ -8,12 +8,12 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 
 @app.task
-def run_diagnostic_reports(group, disease, additional_recipients=None):
+def run_diagnostic_reports(group, disease, *additional_recipients):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
         wrapper = OrderlyWebClientWrapper(config)
-        return run_reports(wrapper, config, reports, additional_recipients)
+        return run_reports(wrapper, config, reports, *additional_recipients)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
@@ -115,8 +115,7 @@ def send_success_email(emailer, report, version, config,
         "report_params": report_params
     }
 
-    additional_str = filter(lambda arg: arg is not None, additional_recipients)
-    recipients = report.success_email_recipients + list(additional_str)
+    recipients = report.success_email_recipients + list(additional_recipients)
 
     emailer.send(config.smtp_from, recipients,
                  report.success_email_subject, "diagnostic_report",
