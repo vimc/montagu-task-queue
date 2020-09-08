@@ -24,7 +24,7 @@ tasks:
               recipients:
                 - minimal_modeller@example.com
                 - science@example.com
-              subject: "New version of Orderly report: {report_name}"
+              subject: "VIMC diagnostic report: {touchstone} - {group} - {disease}"
           - report_name: other
             parameters:
               nmin: 0
@@ -32,5 +32,5 @@ tasks:
               recipients:
                 - other_modeller@example.com
                 - science@example.com
-              subject: "New version of another Orderly report: {report_name}"
+              subject: "New version of another Orderly report"
 

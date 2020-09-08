@@ -1,7 +1,8 @@
-Hi
+Thank you for uploading your estimates for {disease} for the {touchstone} touchstone.
+This is an automated email with a link to your diagnostic report:
 
-A new version of Orderly report {report_name} is available to view at {report_version_url}
+{report_version_url}
 
-This version was run with parameters: {report_params}
-
-Have a great day!
+Please reply to this email to let us know:
+- whether the estimates in the report make sense to you
+- whether you'd like VIMC to accept these estimates, or if you will need to provide re-runs

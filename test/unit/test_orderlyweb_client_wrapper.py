@@ -3,15 +3,10 @@ from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
-from test.unit.test_task_run_diagnostic_reports import MockConfig
+from test.unit.test_run_reports import MockConfig
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1")]
 
-send_email_call_r1 = call(
-    "test@test.com", ["r1@example.com"], "Subj: r1", "diagnostic_report",
-    {"report_name": "r1",
-     "report_version_url": "http://orderly-web/report/r1/r1-version/",
-     "report_params": "no parameters"})
 
 report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",
@@ -56,12 +51,16 @@ class MockReturnAuthorisedClient:
             return MockOrderlyWebAPIWithValidToken()
 
 
-@patch("src.utils.email.Emailer.send")
 @patch("src.task_run_diagnostic_reports.logging")
-def test_retries_when_token_expired(logging, emailer_send):
+def test_retries_when_token_expired(logging):
     auth = MockReturnAuthorisedClient().auth
     wrapper = OrderlyWebClientWrapper(None, auth)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {"r1-version": {"published": True}}
     logging.info.assert_has_calls([
@@ -71,4 +70,4 @@ def test_retries_when_token_expired(logging, emailer_send):
         call("Successfully published report version r1-r1-version")
     ], any_order=False)
 
-    emailer_send.assert_has_calls([send_email_call_r1])
+    assert success["called"] is True

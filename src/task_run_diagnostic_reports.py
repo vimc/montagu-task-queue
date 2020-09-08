@@ -8,12 +8,31 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 
 @app.task
-def run_diagnostic_reports(group, disease, *additional_recipients):
+def run_diagnostic_reports(group,
+                           disease,
+                           touchstone,
+                           *additional_recipients):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
         wrapper = OrderlyWebClientWrapper(config)
-        return run_reports(wrapper, config, reports, *additional_recipients)
+        emailer = Emailer(config.smtp_host, config.smtp_port,
+                          config.smtp_user, config.smtp_password)
+
+        def success_callback(report, version):
+            send_diagnostic_report_email(emailer,
+                                         report,
+                                         version,
+                                         group,
+                                         disease,
+                                         touchstone,
+                                         config,
+                                         additional_recipients)
+
+        return run_reports(wrapper,
+                           config,
+                           reports,
+                           success_callback)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
@@ -29,11 +48,9 @@ def publish_report(wrapper, name, version):
         return False
 
 
-def run_reports(wrapper, config, reports, *additional_recipients):
+def run_reports(wrapper, config, reports, success_callback):
     running_reports = {}
     new_versions = {}
-    emailer = Emailer(config.smtp_host, config.smtp_port,
-                      config.smtp_user, config.smtp_password)
 
     # Start configured reports
     for report in reports:
@@ -69,16 +86,12 @@ def run_reports(wrapper, config, reports, *additional_recipients):
                         if published:
                             logging.info(
                                 "Successfully published report version {}-{}"
-                                .format(name, version))
-                            send_success_email(emailer,
-                                               report,
-                                               version,
-                                               config,
-                                               additional_recipients)
+                                    .format(name, version))
+                            success_callback(report, version)
                         else:
                             logging.error(
                                 "Failed to publish report version {}-{}"
-                                .format(name, version))
+                                    .format(name, version))
                         new_versions[version] = {"published": published}
                     else:
                         logging.error("Failure for key {}.".format(key))
@@ -95,28 +108,42 @@ def run_reports(wrapper, config, reports, *additional_recipients):
     return new_versions
 
 
-def send_success_email(emailer, report, version, config,
-                       additional_recipients):
+def send_diagnostic_report_email(emailer,
+                                 report,
+                                 version,
+                                 group,
+                                 disease,
+                                 touchstone,
+                                 config,
+                                 *additional_recipients):
     r_enc = urlencode(report.name)
     v_enc = urlencode(version)
     version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc,
                                             v_enc)
 
-    report_params = 'no parameters'
-    if report.parameters is not None and len(report.parameters.items()) > 0:
-        params_array = []
-        for (k, v) in report.parameters.items():
-            params_array.append("{}={}".format(k, v))
-        report_params = ', '.join(params_array)
-
     template_values = {
-        "report_name": report.name,
         "report_version_url": version_url,
-        "report_params": report_params
+        "disease": disease,
+        "group": group,
+        "touchstone": touchstone
     }
 
-    recipients = report.success_email_recipients + list(additional_recipients)
+    send_email(emailer,
+               report,
+               "diagnostic_report",
+               template_values,
+               config,
+               list(additional_recipients))
 
+
+def send_email(emailer,
+               report,
+               template_name,
+               template_values,
+               config,
+               additional_recipients):
+
+    recipients = report.success_email_recipients + additional_recipients
     emailer.send(config.smtp_from, recipients,
-                 report.success_email_subject, "diagnostic_report",
+                 report.success_email_subject, template_name,
                  template_values)
