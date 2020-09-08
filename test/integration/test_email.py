@@ -2,7 +2,6 @@ import pytest
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
 from src.utils.email import Emailer
 
-
 smtp = FakeSmtpUtils()
 
 
@@ -22,7 +21,7 @@ def test_send():
                   "touchstone": "tid",
                   "group": "G1"})
 
-    expected_text = """Thank you for uploading your estimates for d1 """ +\
+    expected_text = """Thank you for uploading your estimates for d1 """ + \
                     """for the tid touchstone.
 This is an automated email with a link to your diagnostic report:
 
@@ -30,7 +29,7 @@ http://test.com/test_report_version
 
 Please reply to this email to let us know:
 - whether the estimates in the report make sense to you
-- whether you'd like VIMC to accept these estimates, or if you will """ +\
+- whether you'd like VIMC to accept these estimates, or if you will """ + \
                     """need to provide re-runs
 """
 
@@ -44,7 +43,7 @@ Please reply to this email to let us know:
     This is an automated email with a link to your diagnostic report:
 </p>
 
-<a href="http://test.com/test_report_version">""" +\
+<a href="http://test.com/test_report_version">""" + \
                     """http://test.com/test_report_version</a>
 
 <p>
@@ -55,7 +54,8 @@ Please reply to this email to let us know:
         whether the estimates in the report make sense to you
     </li>
     <li>
-        whether you'd like VIMC to accept these estimates, or if you will need to provide re-runs
+        whether you'd like VIMC to accept these estimates, or if you """ + \
+                    """will need to provide re-runs
     </li>
 </ul>
 </body>
