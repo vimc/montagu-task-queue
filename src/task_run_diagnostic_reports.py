@@ -8,16 +8,16 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 
 @app.task
-def run_diagnostic_reports(group, disease):
+def run_diagnostic_reports(group, disease, *additional_recipients):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
         wrapper = OrderlyWebClientWrapper(config)
-        return run_reports(wrapper, config, reports)
+        return run_reports(wrapper, config, reports, *additional_recipients)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))
-        return []
+        return {}
 
 
 def publish_report(wrapper, name, version):
@@ -29,7 +29,7 @@ def publish_report(wrapper, name, version):
         return False
 
 
-def run_reports(wrapper, config, reports):
+def run_reports(wrapper, config, reports, *additional_recipients):
     running_reports = {}
     new_versions = {}
     emailer = Emailer(config.smtp_host, config.smtp_port,
@@ -62,6 +62,7 @@ def run_reports(wrapper, config, reports):
                     if result.success:
                         logging.info("Success for key {}. New version is {}"
                                      .format(key, result.version))
+
                         version = result.version
                         name = report.name
                         published = publish_report(wrapper, name, version)
@@ -72,7 +73,8 @@ def run_reports(wrapper, config, reports):
                             send_success_email(emailer,
                                                report,
                                                version,
-                                               config)
+                                               config,
+                                               additional_recipients)
                         else:
                             logging.error(
                                 "Failed to publish report version {}-{}"
@@ -93,7 +95,8 @@ def run_reports(wrapper, config, reports):
     return new_versions
 
 
-def send_success_email(emailer, report, version, config):
+def send_success_email(emailer, report, version, config,
+                       additional_recipients):
     r_enc = urlencode(report.name)
     v_enc = urlencode(version)
     version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc,
@@ -112,6 +115,8 @@ def send_success_email(emailer, report, version, config):
         "report_params": report_params
     }
 
-    emailer.send(config.smtp_from, report.success_email_recipients,
+    recipients = report.success_email_recipients + list(additional_recipients)
+
+    emailer.send(config.smtp_from, recipients,
                  report.success_email_subject, "diagnostic_report",
                  template_values)

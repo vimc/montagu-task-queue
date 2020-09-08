@@ -14,7 +14,11 @@ def mod_header(request):
 
 
 def test_run_diagnostic_reports():
-    versions = list(run_diagnostic_reports("testGroup", "testDisease").keys())
+    result = run_diagnostic_reports("testGroup",
+                                    "testDisease",
+                                    "estimate_uploader@example.com",
+                                    "estimate_uploader2@example.com")
+    versions = list(result.keys())
     assert len(versions) == 2
 
     expected_text = """Hi
@@ -52,13 +56,17 @@ Have a great day!"""
     smtp.assert_emails_match([
         FakeEmailProperties(
             "New version of Orderly report: minimal",
-            ["minimal_modeller@example.com", "science@example.com"],
+            ["minimal_modeller@example.com", "science@example.com",
+             "estimate_uploader@example.com",
+             "estimate_uploader2@example.com"],
             "noreply@example.com",
             expected_text.format(report_1, url_1, params_1),
             expected_html.format(report_1, url_1, params_1)),
         FakeEmailProperties(
             "New version of another Orderly report: other",
-            ["other_modeller@example.com", "science@example.com"],
+            ["other_modeller@example.com", "science@example.com",
+             "estimate_uploader@example.com",
+             "estimate_uploader2@example.com"],
             "noreply@example.com",
             expected_text.format(report_2, url_2, params_2),
             expected_html.format(report_2, url_2, params_2))
