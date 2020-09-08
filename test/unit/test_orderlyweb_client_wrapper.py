@@ -1,4 +1,4 @@
-from src.task_run_diagnostic_reports import run_reports
+from src.utils.run_reports import run_reports
 from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
@@ -51,7 +51,7 @@ class MockReturnAuthorisedClient:
             return MockOrderlyWebAPIWithValidToken()
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_retries_when_token_expired(logging):
     auth = MockReturnAuthorisedClient().auth
     wrapper = OrderlyWebClientWrapper(None, auth)

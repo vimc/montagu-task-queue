@@ -1,9 +1,6 @@
-from src.task_run_diagnostic_reports import run_diagnostic_reports, \
-    run_reports
-from src.config import Config, ReportConfig
+from src.task_run_diagnostic_reports import run_diagnostic_reports
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
 import pytest
-from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 smtp = FakeSmtpUtils()
 
@@ -83,25 +80,6 @@ Please reply to this email to let us know:
             expected_text.format(url_2),
             expected_html.format(url_2, url_2))
     ])
-
-
-def test_run_reports_handles_error():
-    reports = [
-        ReportConfig("nonexistent", None, ["test1@test.com"], "subject1"),
-        ReportConfig("minimal", {}, ["test2@test.com"], "subject2")]
-    config = Config()
-    wrapper = OrderlyWebClientWrapper(config)
-    success = {}
-
-    def success_callback(report, version):
-        success[report.name] = version
-
-    versions = run_reports(wrapper, config, reports, success_callback)
-    keys = list(versions.keys())
-    assert len(keys) == 1
-    assert versions[keys[0]]["published"] is True
-    assert success["minimal"] == keys[0]
-    assert len(success) == 1
 
 
 def test_run_reports_no_group_config():

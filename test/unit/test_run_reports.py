@@ -1,4 +1,4 @@
-from src.task_run_diagnostic_reports import run_reports
+from src.utils.run_reports import run_reports
 from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
@@ -8,7 +8,7 @@ reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1"),
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2")]
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
@@ -47,7 +47,7 @@ def test_run_reports(logging):
     assert success["called"] is True
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports_with_additional_recipients(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
@@ -85,7 +85,7 @@ def test_run_reports_with_additional_recipients(logging):
     assert success["called"] is True
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports_finish_on_different_poll_cycles(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
@@ -130,7 +130,7 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
     assert success["called"] is True
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports_with_run_error(logging):
     run_successfully = ["r2"]
     report_responses = {
@@ -161,7 +161,7 @@ def test_run_reports_with_run_error(logging):
     assert success["called"] is True
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports_with_status_error(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
@@ -194,7 +194,7 @@ def test_run_reports_with_status_error(logging):
     assert success["called"] is True
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports_with_status_failure(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
@@ -232,7 +232,7 @@ def test_run_reports_with_status_failure(logging):
     assert success["called"] is True
 
 
-@patch("src.task_run_diagnostic_reports.logging")
+@patch("src.utils.run_reports.logging")
 def test_run_reports_with_publish_failure(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
