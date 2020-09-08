@@ -56,8 +56,10 @@ def send_email(emailer,
                template_values,
                config,
                additional_recipients):
-
-    recipients = report.success_email_recipients + additional_recipients
-    emailer.send(config.smtp_from, recipients,
-                 report.success_email_subject, template_name,
-                 template_values)
+    try:
+        recipients = report.success_email_recipients + additional_recipients
+        emailer.send(config.smtp_from, recipients,
+                     report.success_email_subject, template_name,
+                     template_values)
+    except Exception as ex:
+        logging.exception(ex)
