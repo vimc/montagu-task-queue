@@ -37,7 +37,8 @@ Please reply to this email to let us know:
 </head>
 <body>
 <p>
-    Thank you for uploading your estimates for testDisease for the tid touchstone.
+    Thank you for uploading your estimates for testDisease for the """ + \
+                    """tid touchstone.
     This is an automated email with a link to your diagnostic report:
 </p>
 
@@ -51,7 +52,8 @@ Please reply to this email to let us know:
         whether the estimates in the report make sense to you
     </li>
     <li>
-        whether you'd like VIMC to accept these estimates, or if you will need to provide re-runs
+        whether you'd like VIMC to accept these estimates, or if you """ + \
+                    """will need to provide re-runs
     </li>
 </ul>
 </body>
