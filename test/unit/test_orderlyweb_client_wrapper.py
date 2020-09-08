@@ -12,7 +12,6 @@ report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",
                                       "output": None})
 
-
 class MockOrderlyWebAPIWithExpiredToken:
 
     def run_report(self, name, params):

@@ -1,7 +1,7 @@
 import celery
 
 app = celery.Celery(broker="pyamqp://guest@localhost//", backend="rpc://")
-sig = "src.task_run_diagnostic_reports.run_diagnostic_reports"
+sig = "run-diagnostic-reports"
 
 
 def test_run_diagnostic_reports():

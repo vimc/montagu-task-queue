@@ -49,12 +49,12 @@ def run_reports(wrapper, config, reports, success_callback):
                         if published:
                             logging.info(
                                 "Successfully published report version {}-{}"
-                                    .format(name, version))
+                                .format(name, version))
                             success_callback(report, version)
                         else:
                             logging.error(
                                 "Failed to publish report version {}-{}"
-                                    .format(name, version))
+                                .format(name, version))
                         new_versions[version] = {"published": published}
                     else:
                         logging.error("Failure for key {}.".format(key))

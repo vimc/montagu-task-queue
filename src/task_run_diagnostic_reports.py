@@ -1,13 +1,13 @@
 from src.utils.run_reports import run_reports
 from .celery import app
 from .config import Config
-from src.utils.email import Emailer, send_email
-import logging
+from src.utils.email import send_email, Emailer
 from urllib.parse import quote as urlencode
+import logging
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 
-@app.task
+@app.task(name="run-diagnostic-reports")
 def run_diagnostic_reports(group,
                            disease,
                            touchstone,
@@ -65,4 +65,3 @@ def send_diagnostic_report_email(emailer,
                template_values,
                config,
                list(additional_recipients))
-
