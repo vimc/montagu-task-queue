@@ -73,18 +73,6 @@ Have a great day!"""
     ])
 
 
-def test_run_reports_handles_error():
-    reports = [
-        ReportConfig("nonexistent", None, ["test1@test.com"], "subject1"),
-        ReportConfig("minimal", {}, ["test2@test.com"], "subject2")]
-    config = Config()
-    wrapper = OrderlyWebClientWrapper(config)
-    versions = run_reports(wrapper, config, reports)
-    keys = list(versions.keys())
-    assert len(keys) == 1
-    assert versions[keys[0]]["published"] is True
-
-
 def test_run_reports_no_group_config():
     versions = run_diagnostic_reports("noGroup", "noDisease")
     assert len(versions) == 0

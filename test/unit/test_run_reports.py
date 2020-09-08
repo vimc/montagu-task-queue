@@ -1,4 +1,4 @@
-from src.task_run_diagnostic_reports import run_reports
+from src.utils.run_reports import run_reports
 from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
@@ -7,22 +7,9 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1"),
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2")]
 
-send_email_call_r1 = call(
-    "test@test.com", ["r1@example.com"], "Subj: r1", "diagnostic_report",
-    {"report_name": "r1",
-     "report_version_url": "http://orderly-web/report/r1/r1-version/",
-     "report_params": "no parameters"})
 
-send_email_call_r2 = call(
-    "test@test.com", ["r2@example.com"], "Subj: r2", "diagnostic_report",
-    {"report_name": "r2",
-     "report_version_url": "http://orderly-web/report/r2/r2-version/",
-     "report_params": "p1=v1"})
-
-
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "success",
@@ -34,7 +21,12 @@ def test_run_reports(logging, emailer_send):
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r1-version": {"published": True},
@@ -52,12 +44,11 @@ def test_run_reports(logging, emailer_send):
         call("Successfully published report version r2-r2-version")
     ], any_order=False)
 
-    emailer_send.assert_has_calls([send_email_call_r1, send_email_call_r2])
+    assert success["called"] is True
 
 
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_additional_recipients(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports_with_additional_recipients(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "success",
@@ -69,8 +60,11 @@ def test_run_reports_with_additional_recipients(logging, emailer_send):
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports,
-                           "another@recipient.com")
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r1-version": {"published": True},
@@ -88,27 +82,11 @@ def test_run_reports_with_additional_recipients(logging, emailer_send):
         call("Successfully published report version r2-r2-version")
     ], any_order=False)
 
-    send_email_call_r1_additional = call(
-        "test@test.com", ["r1@example.com", "another@recipient.com"],
-        "Subj: r1", "diagnostic_report",
-        {"report_name": "r1",
-         "report_version_url": "http://orderly-web/report/r1/r1-version/",
-         "report_params": "no parameters"})
-
-    send_email_call_r2_additional = call(
-        "test@test.com", ["r2@example.com", "another@recipient.com"],
-        "Subj: r2", "diagnostic_report",
-        {"report_name": "r2",
-         "report_version_url": "http://orderly-web/report/r2/r2-version/",
-         "report_params": "p1=v1"})
-
-    emailer_send.assert_has_calls([send_email_call_r1_additional,
-                                   send_email_call_r2_additional])
+    assert success["called"] is True
 
 
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports_finish_on_different_poll_cycles(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "running",
@@ -127,7 +105,11 @@ def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r2-version": {"published": True},
@@ -145,12 +127,11 @@ def test_run_reports_finish_on_different_poll_cycles(logging, emailer_send):
         call("Successfully published report version r1-r1-version")
     ], any_order=False)
 
-    emailer_send.assert_has_calls([send_email_call_r2, send_email_call_r1])
+    assert success["called"] is True
 
 
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_run_error(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports_with_run_error(logging):
     run_successfully = ["r2"]
     report_responses = {
         "r2-key": [ReportStatusResult({"status": "success",
@@ -159,7 +140,11 @@ def test_run_reports_with_run_error(logging, emailer_send):
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r2-version": {"published": True}
@@ -173,13 +158,11 @@ def test_run_reports_with_run_error(logging, emailer_send):
     ], any_order=False)
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-run-error: r1"
+    assert success["called"] is True
 
-    emailer_send.assert_has_calls([send_email_call_r2])
 
-
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_status_error(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports_with_status_error(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r2-key": [ReportStatusResult({"status": "success",
@@ -189,7 +172,11 @@ def test_run_reports_with_status_error(logging, emailer_send):
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r2-version": {"published": True}
@@ -204,13 +191,11 @@ def test_run_reports_with_status_error(logging, emailer_send):
     ], any_order=False)
     args, kwargs = logging.exception.call_args
     assert str(args[0]) == "test-status-error: r1-key"
+    assert success["called"] is True
 
-    emailer_send.assert_has_calls([send_email_call_r2])
 
-
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_status_failure(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports_with_status_failure(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "success",
@@ -223,7 +208,11 @@ def test_run_reports_with_status_failure(logging, emailer_send):
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r1-version": {"published": True}
@@ -240,12 +229,11 @@ def test_run_reports_with_status_failure(logging, emailer_send):
         call("Failure for key r2-key.")
     ], any_order=False)
 
-    emailer_send.assert_has_calls([send_email_call_r1])
+    assert success["called"] is True
 
 
-@patch("src.utils.email.Emailer.send")
-@patch("src.task_run_diagnostic_reports.logging")
-def test_run_reports_with_publish_failure(logging, emailer_send):
+@patch("src.utils.run_reports.logging")
+def test_run_reports_with_publish_failure(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [ReportStatusResult({"status": "success",
@@ -258,7 +246,11 @@ def test_run_reports_with_publish_failure(logging, emailer_send):
     fail_publish = ["r2"]
     ow = MockOrderlyWebAPI(run_successfully, report_responses, fail_publish)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    versions = run_reports(wrapper, MockConfig(), reports)
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
         "r1-version": {"published": True},
@@ -278,30 +270,7 @@ def test_run_reports_with_publish_failure(logging, emailer_send):
         call("Failed to publish report version r2-r2-version")
     ], any_order=False)
 
-    emailer_send.assert_has_calls([send_email_call_r1])
-
-
-@patch("src.utils.email.Emailer.send")
-def test_url_encodes_url_in_email(emailer_send):
-    name = "'A silly, report"
-    encoded = "%27A%20silly%2C%20report"
-    report = ReportConfig(name, {}, ["to@example.com"], "Hi")
-
-    run_successfully = [name]
-    report_responses = {
-        name + "-key": [ReportStatusResult({"status": "success",
-                                            "version": name + "-version",
-                                            "output": None})]
-    }
-    ow = MockOrderlyWebAPI(run_successfully, report_responses)
-    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
-    run_reports(wrapper, MockConfig(), [report])
-    url = "http://orderly-web/report/{}/{}-version/".format(encoded, encoded)
-    emailer_send.assert_has_calls([
-        call("test@test.com", ["to@example.com"], "Hi", "diagnostic_report",
-             {"report_name": "'A silly, report",
-              "report_version_url": url,
-              "report_params": "no parameters"})])
+    assert success["called"] is True
 
 
 class MockOrderlyWebAPI:
