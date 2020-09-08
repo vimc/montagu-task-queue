@@ -1,13 +1,18 @@
 import montagu
 import orderlyweb_api
+import logging
 
 
 def get_authorised_client(config):
-    monty = montagu.MontaguAPI(config.montagu_url, config.montagu_user,
+    try:
+        monty = montagu.MontaguAPI(config.montagu_url, config.montagu_user,
                                config.montagu_password)
-    ow = orderlyweb_api.OrderlyWebAPI(config.orderlyweb_url,
+        ow = orderlyweb_api.OrderlyWebAPI(config.orderlyweb_url,
                                       monty.token)
-    return ow
+        return ow
+    except Exception as ex:
+        logging.exception(ex)
+        return None
 
 
 class OrderlyWebClientWrapper:
