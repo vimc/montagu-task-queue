@@ -7,7 +7,7 @@ from urllib.parse import quote as urlencode
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 
-@app.task
+@app.task(name="run-diagnostic-reports")
 def run_diagnostic_reports(group, disease, *additional_recipients):
     config = Config()
     reports = config.diagnostic_reports(group, disease)
