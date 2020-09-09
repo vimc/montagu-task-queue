@@ -12,8 +12,13 @@ def publish_report(wrapper, name, version):
 
 
 def run_reports(wrapper, config, reports, success_callback):
+
     running_reports = {}
     new_versions = {}
+
+    if wrapper.ow is None:
+        logging.error("Orderlyweb authentication failed; could not begin task")
+        return new_versions
 
     # Start configured reports
     for report in reports:
