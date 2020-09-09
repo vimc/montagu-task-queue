@@ -1,5 +1,6 @@
 from unittest.mock import patch, call
-from src.utils.email import Emailer
+from src.utils.email import Emailer, send_email
+from test import ExceptionMatching
 
 
 @patch("smtplib.SMTP")
@@ -30,3 +31,12 @@ def test_send_without_login(smtp):
                   "group": "group1",
                   "touchstone": "tid"})
     smtp.return_value.login.assert_not_called()
+
+
+@patch("src.utils.email.logging")
+def test_send_handles_exceptions(logging):
+    send_email(None, None, None, None, None, None)
+    expected_error = AttributeError(
+        "'NoneType' object has no attribute 'success_email_recipients'")
+    logging.exception.assert_called_once_with(
+        ExceptionMatching(expected_error))

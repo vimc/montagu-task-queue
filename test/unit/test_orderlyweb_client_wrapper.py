@@ -3,10 +3,10 @@ from src.config import ReportConfig
 from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from test import ExceptionMatching
 from test.unit.test_run_reports import MockConfig
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1")]
-
 
 report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",
@@ -71,3 +71,28 @@ def test_retries_when_token_expired(logging):
     ], any_order=False)
 
     assert success["called"] is True
+
+
+@patch("src.utils.run_reports.logging")
+@patch("src.orderlyweb_client_wrapper.logging")
+def test_handles_auth_errors(logging_ow, logging_reports):
+    wrapper = OrderlyWebClientWrapper({})
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+
+    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
+
+    # the wrapper will have an auth failure because no auth config
+    # supplied
+    expected_error = AttributeError(
+        "'dict' object has no attribute 'montagu_url'")
+    logging_ow.exception.assert_called_once_with(
+        ExceptionMatching(expected_error))
+
+    logging_reports.error.assert_called_once_with(
+        "Orderlyweb authentication failed; could not begin task")
+
+    assert len(success) == 0
+    assert len(versions) == 0
