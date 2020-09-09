@@ -7,6 +7,7 @@ from test.unit.test_run_reports import MockConfig
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1")]
 
+
 report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",
                                       "output": None})

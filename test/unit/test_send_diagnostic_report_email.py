@@ -17,6 +17,9 @@ def test_url_encodes_url_in_email(send_email):
     send_diagnostic_report_email(fake_emailer,
                                  report,
                                  "1234-abcd",
+                                 "groupId",
+                                 "diseaseId",
+                                 "touchstoneId",
                                  mock_config)
     url = "http://orderly-web/report/{}/1234-abcd/".format(encoded, encoded)
     send_email.assert_has_calls([
@@ -24,8 +27,9 @@ def test_url_encodes_url_in_email(send_email):
              report,
              "diagnostic_report",
              {
-                 "report_name": "'A silly, report",
                  "report_version_url": url,
-                 "report_params": "no parameters"
+                 "disease": "diseaseId",
+                 "group": "groupId",
+                 "touchstone": "touchstoneId"
              },
              mock_config, list())])

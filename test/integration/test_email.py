@@ -2,7 +2,6 @@ import pytest
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
 from src.utils.email import Emailer
 
-
 smtp = FakeSmtpUtils()
 
 
@@ -15,39 +14,54 @@ def test_send():
     emailer = Emailer("localhost", 1025, None, None)
     emailer.send("from@example.com",
                  ["to1@example.com", "to2@example.com"],
-                 "New version of Orderly report: {report_name}",
+                 "VIMC diagnostic report: {touchstone} - {group} - {disease}",
                  "diagnostic_report",
-                 {"report_name": "TEST REPORT",
+                 {"disease": "d1",
                   "report_version_url": "http://test.com/test_report_version",
-                  "report_params": "p1=v1, p2=v2"})
+                  "touchstone": "tid",
+                  "group": "G1"})
 
-    expected_text = """Hi
+    expected_text = """Thank you for uploading your estimates for d1 """ + \
+                    """for the tid touchstone.
+This is an automated email with a link to your diagnostic report:
 
-A new version of Orderly report TEST REPORT is available to view at """ + \
-                    """http://test.com/test_report_version
+http://test.com/test_report_version
 
-This version was run with parameters: p1=v1, p2=v2
+Please reply to this email to let us know:
+- whether the estimates in the report make sense to you
+- whether you'd like VIMC to accept these estimates, or if you will """ + \
+                    """need to provide re-runs
+"""
 
-Have a great day!"""
-
-    expected_html = """ <html>
+    expected_html = """<html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p>Hi,</p>
 <p>
-    A new version of Orderly report TEST REPORT is available to view """ + \
-                    """<a href="http://test.com/test_report_version">here</a>.
+    Thank you for uploading your estimates for d1 for the tid touchstone.
+    This is an automated email with a link to your diagnostic report:
 </p>
+
+<a href="http://test.com/test_report_version">""" + \
+                    """http://test.com/test_report_version</a>
+
 <p>
-    This version was run with parameters: p1=v1, p2=v2
+    Please reply to this email to let us know:
 </p>
-<p>Have a great day!</p>
+<ul>
+    <li>
+        whether the estimates in the report make sense to you
+    </li>
+    <li>
+        whether you'd like VIMC to accept these estimates, or if you """ + \
+                    """will need to provide re-runs
+    </li>
+</ul>
 </body>
 </html>"""
 
     smtp.assert_emails_match([FakeEmailProperties(
-        "New version of Orderly report: TEST REPORT",
+        "VIMC diagnostic report: tid - G1 - d1",
         ["to1@example.com", "to2@example.com"], "from@example.com",
         expected_text, expected_html)])

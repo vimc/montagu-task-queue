@@ -60,7 +60,7 @@ def test_diagnostic_reports():
     assert reports[0].success_email_recipients == \
            ["minimal_modeller@example.com", "science@example.com"]
     assert reports[0].success_email_subject == \
-        "New version of Orderly report: {report_name}"
+        "VIMC diagnostic report: {touchstone} - {group} - {disease}"
 
     assert reports[1].name == "other"
     assert len(reports[1].parameters.keys()) == 1
@@ -68,7 +68,7 @@ def test_diagnostic_reports():
     assert reports[1].success_email_recipients == \
         ["other_modeller@example.com", "science@example.com"]
     assert reports[1].success_email_subject == \
-        "New version of another Orderly report: {report_name}"
+        "New version of another Orderly report"
 
 
 def test_diagnostic_reports_nonexistent():
