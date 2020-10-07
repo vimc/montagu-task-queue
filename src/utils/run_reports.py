@@ -25,7 +25,8 @@ def run_reports(wrapper, config, reports, success_callback):
         try:
             key = wrapper.execute(wrapper.ow.run_report,
                                   report.name,
-                                  report.parameters)
+                                  report.parameters,
+                                  report.timeout)
 
             running_reports[key] = report
             logging.info("Running report: {}. Key is {}".format(report.name,
