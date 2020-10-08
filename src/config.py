@@ -2,7 +2,10 @@ import yaml
 
 
 class ReportConfig:
-    def __init__(self, name, parameters, success_email_recipients,
+    def __init__(self,
+                 name,
+                 parameters,
+                 success_email_recipients,
                  success_email_subject):
         self.name = name
         self.parameters = parameters
@@ -44,6 +47,10 @@ class Config:
         return self.__task("diagnostic_reports")["poll_seconds"]
 
     @property
+    def use_additional_recipients(self):
+        return self.__task("diagnostic_reports")["use_additional_recipients"]
+
+    @property
     def smtp_host(self):
         return self.__smtp()["host"]
 
@@ -74,8 +81,10 @@ class Config:
                 recipients = self.__value_or_default(email, "recipients", [])
                 subject = self.__value_or_default(email, "subject", "")
 
-                result.append(ReportConfig(r["report_name"], params,
-                                           recipients, subject))
+                result.append(ReportConfig(r["report_name"],
+                                           params,
+                                           recipients,
+                                           subject))
         return result
 
     def __server(self, name):

@@ -59,9 +59,12 @@ def send_diagnostic_report_email(emailer,
         "touchstone": touchstone
     }
 
+    additional_emails = list(additional_recipients) if \
+        config.use_additional_recipients else []
+
     send_email(emailer,
                report,
                "diagnostic_report",
                template_values,
                config,
-               list(additional_recipients))
+               additional_emails)
