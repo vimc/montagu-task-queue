@@ -61,6 +61,7 @@ def test_diagnostic_reports():
            ["minimal_modeller@example.com", "science@example.com"]
     assert reports[0].success_email_subject == \
         "VIMC diagnostic report: {touchstone} - {group} - {disease}"
+    assert reports[0].timeout == 300
 
     assert reports[1].name == "other"
     assert len(reports[1].parameters.keys()) == 1
@@ -69,6 +70,7 @@ def test_diagnostic_reports():
         ["other_modeller@example.com", "science@example.com"]
     assert reports[1].success_email_subject == \
         "New version of another Orderly report"
+    assert reports[1].timeout == 1200
 
 
 def test_diagnostic_reports_nonexistent():

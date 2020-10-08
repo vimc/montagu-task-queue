@@ -29,8 +29,8 @@ def run_reports(wrapper, config, reports, success_callback):
                                   report.timeout)
 
             running_reports[key] = report
-            logging.info("Running report: {}. Key is {}".format(report.name,
-                                                                key))
+            logging.info("Running report: {}. Key is {}. Timeout is {}s."
+                         .format(report.name, key, report.timeout))
         except Exception as ex:
             logging.exception(ex)
 
