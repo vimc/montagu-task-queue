@@ -6,7 +6,7 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from test import ExceptionMatching
 from test.unit.test_run_reports import MockConfig
 
-reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1")]
+reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1", 1000)]
 
 report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",
@@ -15,7 +15,7 @@ report_response = ReportStatusResult({"status": "success",
 
 class MockOrderlyWebAPIWithExpiredToken:
 
-    def run_report(self, name, params):
+    def run_report(self, name, params, timeout):
         raise Exception("Token expired")
 
     def report_status(self, key):
@@ -27,7 +27,7 @@ class MockOrderlyWebAPIWithExpiredToken:
 
 class MockOrderlyWebAPIWithValidToken:
 
-    def run_report(self, name, params):
+    def run_report(self, name, params, timeout):
         return "r1-key"
 
     def report_status(self, key):
@@ -64,7 +64,7 @@ def test_retries_when_token_expired(logging):
 
     assert versions == {"r1-version": {"published": True}}
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key"),
+        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version")
