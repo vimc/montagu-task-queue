@@ -3,8 +3,10 @@ from src.config import ReportConfig
 from unittest.mock import patch, call
 from test.unit.test_run_reports import MockConfig
 
-reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1", 1000),
-           ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2", 2000)]
+reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
+                        1000),
+           ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2",
+                        2000)]
 
 
 @patch("src.task_run_diagnostic_reports.send_email")
