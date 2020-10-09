@@ -75,6 +75,7 @@ def test_run_reports_with_additional_recipients(logging):
 
     def success_callback(report, version):
         success["called"] = True
+
     versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
@@ -121,6 +122,7 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
 
     def success_callback(report, version):
         success["called"] = True
+
     versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
@@ -157,6 +159,7 @@ def test_run_reports_with_run_error(logging):
 
     def success_callback(report, version):
         success["called"] = True
+
     versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
@@ -190,6 +193,7 @@ def test_run_reports_with_status_error(logging):
 
     def success_callback(report, version):
         success["called"] = True
+
     versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
@@ -227,6 +231,7 @@ def test_run_reports_with_status_failure(logging):
 
     def success_callback(report, version):
         success["called"] = True
+
     versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
@@ -266,6 +271,7 @@ def test_run_reports_with_publish_failure(logging):
 
     def success_callback(report, version):
         success["called"] = True
+
     versions = run_reports(wrapper, MockConfig(), reports, success_callback)
 
     assert versions == {
@@ -322,6 +328,10 @@ class MockOrderlyWebAPI:
 
 
 class MockConfig:
+
+    def __init__(self, use_additional_recipients=True):
+        self.use_additional_recipients = use_additional_recipients
+
     @property
     def report_poll_seconds(self):
         return 1
