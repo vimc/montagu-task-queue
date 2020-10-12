@@ -26,6 +26,7 @@ tasks:
                 - minimal_modeller@example.com
                 - science@example.com
               subject: "VIMC diagnostic report: {touchstone} - {group} - {disease}"
+            timeout: 300
           - report_name: other
             parameters:
               nmin: 0
@@ -34,4 +35,5 @@ tasks:
                 - other_modeller@example.com
                 - science@example.com
               subject: "New version of another Orderly report"
+            timeout: 1200
 

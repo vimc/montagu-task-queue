@@ -5,8 +5,8 @@ from src.utils.run_reports import run_reports
 
 def test_run_reports_handles_error():
     reports = [
-        ReportConfig("nonexistent", None, ["test1@test.com"], "subject1"),
-        ReportConfig("minimal", {}, ["test2@test.com"], "subject2")]
+        ReportConfig("nonexistent", None, ["test1@test.com"], "subject1", 600),
+        ReportConfig("minimal", {}, ["test2@test.com"], "subject2", 600)]
     config = Config()
     wrapper = OrderlyWebClientWrapper(config)
     success = {}

@@ -2,15 +2,18 @@ import yaml
 
 
 class ReportConfig:
+
     def __init__(self,
                  name,
                  parameters,
                  success_email_recipients,
-                 success_email_subject):
+                 success_email_subject,
+                 timeout):
         self.name = name
         self.parameters = parameters
         self.success_email_recipients = success_email_recipients
         self.success_email_subject = success_email_subject
+        self.timeout = timeout
 
 
 class Config:
@@ -80,11 +83,13 @@ class Config:
                 email = self.__value_or_default(r, "success_email", {})
                 recipients = self.__value_or_default(email, "recipients", [])
                 subject = self.__value_or_default(email, "subject", "")
+                timeout = self.__value_or_default(r, "timeout", 600)
 
                 result.append(ReportConfig(r["report_name"],
                                            params,
                                            recipients,
-                                           subject))
+                                           subject,
+                                           timeout))
         return result
 
     def __server(self, name):
