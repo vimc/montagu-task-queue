@@ -15,4 +15,4 @@ COPY --chown=worker:worker src ./src
 COPY --chown=worker:worker config/docker_config.yml ./config/config.yml
 COPY --chown=worker:worker config/email_templates ./config/email_templates
 
-ENTRYPOINT ["celery", "-A", "src", "worker", "-l", "info"]
+ENTRYPOINT ["celery", "-A", "src", "worker", "-l", "INFO"]
