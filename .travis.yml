@@ -20,10 +20,10 @@ install:
 script:
   - pip3 install -r requirements.txt
   - ./scripts/run-dependencies.sh
-  - ./scripts/run-dev-worker.sh &
+  - ./scripts/build-docker.sh
+  - ./scripts/run-docker-worker.sh
   - pytest --cov=src
   - pycodestyle .
-  - ./scripts/build-docker.sh
 
 after_script:
   - ./scripts/clear-docker.sh
