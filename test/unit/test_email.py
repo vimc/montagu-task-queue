@@ -3,12 +3,14 @@ from src.utils.email import Emailer, send_email
 from test import ExceptionMatching
 
 test_template_values = {"disease": "d1",
-                  "report_version_url": "http://test.com/test_report_version",
-                  "group": "group1",
-                  "touchstone": "tid",
-                  "scenario": "no vaccination",
-                  "utc_time": "Wed 03 Nov 2020 12:21:53 UTC",
-                  "eastern_time": "Wed 03 Nov 2020 07:21:53 ET"}
+                        "report_version_url":
+                            "http://test.com/test_report_version",
+                        "group": "group1",
+                        "touchstone": "tid",
+                        "scenario": "no vaccination",
+                        "utc_time": "Wed 03 Nov 2020 12:21:53 UTC",
+                        "eastern_time": "Wed 03 Nov 2020 07:21:53 ET"}
+
 
 @patch("smtplib.SMTP")
 def test_send_with_login(smtp):

@@ -31,7 +31,8 @@ This is an automated email with a link to your diagnostic report:
 
 http://test.com/test_report_version
 
-These estimates were received for scenario: no vaccination, on Wed 04 Nov 2020 12:22:53 UTC (Wed 04 Nov 2020 07:22:53 ET).
+These estimates were received for scenario: no vaccination, on Wed 04 """ +\
+                    """Nov 2020 12:22:53 UTC (Wed 04 Nov 2020 07:22:53 ET).
 
 Please reply to this email to let us know:
 - whether the estimates in the report make sense to you
@@ -53,7 +54,8 @@ Please reply to this email to let us know:
                     """http://test.com/test_report_version</a>
 </p>
 <p>
-    These estimates were received for scenario: no vaccination, on Wed 04 Nov 2020 12:22:53 UTC (Wed 04 Nov 2020 07:22:53 ET).
+    These estimates were received for scenario: no vaccination, on Wed """ +\
+                    """04 Nov 2020 12:22:53 UTC (Wed 04 Nov 2020 07:22:53 ET).
 </p>
 <p>
     Please reply to this email to let us know:

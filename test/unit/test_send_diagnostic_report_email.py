@@ -8,6 +8,7 @@ reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2",
                         2000)]
 
+
 def get_test_template_values(url):
     return {
              "report_version_url": url,
@@ -18,6 +19,7 @@ def get_test_template_values(url):
              "utc_time": "Wed 04 Nov 2020 12:22:53 UTC",
              "eastern_time": "Wed 04 Nov 2020 07:22:53 ET"
              }
+
 
 @patch("src.task_run_diagnostic_reports.send_email")
 def test_url_encodes_url_in_email(send_email):

@@ -12,7 +12,7 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 def run_diagnostic_reports(group,
                            disease,
                            touchstone,
-                           utc_time, #ISO string e.g 2020-11-03T10:15:30
+                           utc_time,  # ISO string e.g 2020-11-03T10:15:30
                            scenario,
                            *additional_recipients):
 
