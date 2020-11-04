@@ -1,4 +1,5 @@
 from src.utils.run_reports import run_reports
+from datetime import datetime, timedelta
 from .celery import app
 from .config import Config
 from src.utils.email import send_email, Emailer
@@ -11,7 +12,10 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 def run_diagnostic_reports(group,
                            disease,
                            touchstone,
+                           utc_time, #ISO string e.g 2020-11-03T10:15:30
+                           scenario,
                            *additional_recipients):
+
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
@@ -26,6 +30,8 @@ def run_diagnostic_reports(group,
                                          group,
                                          disease,
                                          touchstone,
+                                         utc_time,
+                                         scenario,
                                          config,
                                          *additional_recipients)
 
@@ -45,6 +51,8 @@ def send_diagnostic_report_email(emailer,
                                  group,
                                  disease,
                                  touchstone,
+                                 utc_time,
+                                 scenario,
                                  config,
                                  *additional_recipients):
     r_enc = urlencode(report.name)
@@ -56,8 +64,10 @@ def send_diagnostic_report_email(emailer,
         "report_version_url": version_url,
         "disease": disease,
         "group": group,
-        "touchstone": touchstone
+        "touchstone": touchstone,
+        "scenario": scenario
     }
+    template_values.update(get_time_strings(utc_time))
 
     additional_emails = list(additional_recipients) if \
         config.use_additional_recipients else []
@@ -68,3 +78,16 @@ def send_diagnostic_report_email(emailer,
                template_values,
                config,
                additional_emails)
+
+
+def get_time_strings(utc_time):
+    utc_dt = datetime.strptime(utc_time, "%Y-%m-%dT%H:%M:%S")
+    et_dt = utc_dt - timedelta(hours=5)
+
+    friendly_format = "%a %d %b %Y %H:%M:%S"
+    utc_friendly = utc_dt.strftime(friendly_format) + " UTC"
+    et_friendly = et_dt.strftime(friendly_format) + " ET"
+    return {
+        "utc_time": utc_friendly,
+        "eastern_time": et_friendly
+    }

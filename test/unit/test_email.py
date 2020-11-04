@@ -2,6 +2,13 @@ from unittest.mock import patch, call
 from src.utils.email import Emailer, send_email
 from test import ExceptionMatching
 
+test_template_values = {"disease": "d1",
+                  "report_version_url": "http://test.com/test_report_version",
+                  "group": "group1",
+                  "touchstone": "tid",
+                  "scenario": "no vaccination",
+                  "utc_time": "Wed 03 Nov 2020 12:21:53 UTC",
+                  "eastern_time": "Wed 03 Nov 2020 07:21:53 ET"}
 
 @patch("smtplib.SMTP")
 def test_send_with_login(smtp):
@@ -10,10 +17,7 @@ def test_send_with_login(smtp):
                  ["to1@example.com"],
                  "New version of Orderly report",
                  "diagnostic_report",
-                 {"disease": "d1",
-                  "report_version_url": "http://test.com/test_report_version",
-                  "group": "group1",
-                  "touchstone": "tid"})
+                 test_template_values)
     smtp.return_value.login.assert_has_calls([
         call("username", "password"),
     ])
@@ -26,10 +30,7 @@ def test_send_without_login(smtp):
                  ["to1@example.com"],
                  "New version of Orderly report",
                  "diagnostic_report",
-                 {"disease": "d1",
-                  "report_version_url": "http://test.com/test_report_version",
-                  "group": "group1",
-                  "touchstone": "tid"})
+                 test_template_values)
     smtp.return_value.login.assert_not_called()
 
 
