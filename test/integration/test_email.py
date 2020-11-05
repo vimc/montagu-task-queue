@@ -19,13 +19,20 @@ def test_send():
                  {"disease": "d1",
                   "report_version_url": "http://test.com/test_report_version",
                   "touchstone": "tid",
-                  "group": "G1"})
+                  "group": "G1",
+                  "scenario": "no vaccination",
+                  "utc_time": "Wed 04 Nov 2020 12:22:53 UTC",
+                  "eastern_time": "Wed 04 Nov 2020 07:22:53 ET"
+                  })
 
     expected_text = """Thank you for uploading your estimates for d1 """ + \
                     """for the tid touchstone.
 This is an automated email with a link to your diagnostic report:
 
 http://test.com/test_report_version
+
+These estimates were received for scenario: no vaccination, on Wed 04 """ +\
+                    """Nov 2020 12:22:53 UTC (Wed 04 Nov 2020 07:22:53 ET).
 
 Please reply to this email to let us know:
 - whether the estimates in the report make sense to you
@@ -42,10 +49,14 @@ Please reply to this email to let us know:
     Thank you for uploading your estimates for d1 for the tid touchstone.
     This is an automated email with a link to your diagnostic report:
 </p>
-
-<a href="http://test.com/test_report_version">""" + \
+<p>
+    <a href="http://test.com/test_report_version">""" + \
                     """http://test.com/test_report_version</a>
-
+</p>
+<p>
+    These estimates were received for scenario: no vaccination, on Wed """ +\
+                    """04 Nov 2020 12:22:53 UTC (Wed 04 Nov 2020 07:22:53 ET).
+</p>
 <p>
     Please reply to this email to let us know:
 </p>

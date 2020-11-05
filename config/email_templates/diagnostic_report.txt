@@ -3,6 +3,8 @@ This is an automated email with a link to your diagnostic report:
 
 {report_version_url}
 
+These estimates were received for scenario: {scenario}, on {utc_time} ({eastern_time}).
+
 Please reply to this email to let us know:
 - whether the estimates in the report make sense to you
 - whether you'd like VIMC to accept these estimates, or if you will need to provide re-runs

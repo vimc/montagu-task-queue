@@ -14,6 +14,8 @@ def test_run_diagnostic_reports():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
                                     "tid",
+                                    "2020-11-01T01:02:03",
+                                    "s1",
                                     "estimate_uploader@example.com",
                                     "estimate_uploader2@example.com")
     versions = list(result.keys())
@@ -24,6 +26,9 @@ def test_run_diagnostic_reports():
 This is an automated email with a link to your diagnostic report:
 
 {}
+
+These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ +\
+                    """01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
 
 Please reply to this email to let us know:
 - whether the estimates in the report make sense to you
@@ -41,9 +46,13 @@ Please reply to this email to let us know:
                     """tid touchstone.
     This is an automated email with a link to your diagnostic report:
 </p>
-
-<a href="{}">{}</a>
-
+<p>
+    <a href="{}">{}</a>
+</p>
+<p>
+    These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ +\
+                    """01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
+</p>
 <p>
     Please reply to this email to let us know:
 </p>
@@ -85,10 +94,12 @@ Please reply to this email to let us know:
 
 
 def test_run_reports_no_group_config():
-    versions = run_diagnostic_reports("noGroup", "noDisease", "t1")
+    versions = run_diagnostic_reports("noGroup", "noDisease", "t1",
+                                      "2020-11-01 01:02:03", "s1")
     assert len(versions) == 0
 
 
 def test_run_reports_no_disease_config():
-    versions = run_diagnostic_reports("testGroup", "noDisease", "t1")
+    versions = run_diagnostic_reports("testGroup", "noDisease", "t1",
+                                      "2020-11-01 01:02:03", "s1")
     assert len(versions) == 0

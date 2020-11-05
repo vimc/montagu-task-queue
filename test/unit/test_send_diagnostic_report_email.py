@@ -9,6 +9,18 @@ reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
                         2000)]
 
 
+def get_test_template_values(url):
+    return {
+             "report_version_url": url,
+             "disease": "diseaseId",
+             "group": "groupId",
+             "touchstone": "touchstoneId",
+             "scenario": "no_vaccination",
+             "utc_time": "Wed 04 Nov 2020 12:22:53 UTC",
+             "eastern_time": "Wed 04 Nov 2020 07:22:53 ET"
+             }
+
+
 @patch("src.task_run_diagnostic_reports.send_email")
 def test_url_encodes_url_in_email(send_email):
     name = "'A silly, report"
@@ -22,18 +34,15 @@ def test_url_encodes_url_in_email(send_email):
                                  "groupId",
                                  "diseaseId",
                                  "touchstoneId",
+                                 "2020-11-04T12:22:53",
+                                 "no_vaccination",
                                  mock_config)
     url = "http://orderly-web/report/{}/1234-abcd/".format(encoded, encoded)
     send_email.assert_has_calls([
         call(fake_emailer,
              report,
              "diagnostic_report",
-             {
-                 "report_version_url": url,
-                 "disease": "diseaseId",
-                 "group": "groupId",
-                 "touchstone": "touchstoneId"
-             },
+             get_test_template_values(url),
              mock_config, list())])
 
 
@@ -49,6 +58,8 @@ def test_additional_recipients_used(send_email):
                                  "groupId",
                                  "diseaseId",
                                  "touchstoneId",
+                                 "2020-11-04T12:22:53",
+                                 "no_vaccination",
                                  mock_config,
                                  "someone@example.com")
     url = "http://orderly-web/report/{}/1234-abcd/".format(name)
@@ -56,12 +67,7 @@ def test_additional_recipients_used(send_email):
         call(fake_emailer,
              report,
              "diagnostic_report",
-             {
-                 "report_version_url": url,
-                 "disease": "diseaseId",
-                 "group": "groupId",
-                 "touchstone": "touchstoneId"
-             },
+             get_test_template_values(url),
              mock_config, ["someone@example.com"])])
 
 
@@ -77,6 +83,8 @@ def test_additional_recipients_not_used(send_email):
                                  "groupId",
                                  "diseaseId",
                                  "touchstoneId",
+                                 "2020-11-04T12:22:53",
+                                 "no_vaccination",
                                  mock_config,
                                  "someone@example.com")
     url = "http://orderly-web/report/{}/1234-abcd/".format(name)
@@ -84,10 +92,5 @@ def test_additional_recipients_not_used(send_email):
         call(fake_emailer,
              report,
              "diagnostic_report",
-             {
-                 "report_version_url": url,
-                 "disease": "diseaseId",
-                 "group": "groupId",
-                 "touchstone": "touchstoneId"
-             },
+             get_test_template_values(url),
              mock_config, list())])
