@@ -27,7 +27,8 @@ This is an automated email with a link to your diagnostic report:
 
 {}
 
-These estimates were received for scenario: s1, on Sun 01 Nov 2020 01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
+These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ +\
+                    """01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
 
 Please reply to this email to let us know:
 - whether the estimates in the report make sense to you
@@ -49,7 +50,8 @@ Please reply to this email to let us know:
     <a href="{}">{}</a>
 </p>
 <p>
-    These estimates were received for scenario: s1, on Sun 01 Nov 2020 01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
+    These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ +\
+                    """01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
 </p>
 <p>
     Please reply to this email to let us know:
