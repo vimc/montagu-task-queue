@@ -14,7 +14,7 @@ def test_run_reports_handles_error():
     def success_callback(report, version):
         success[report.name] = version
 
-    versions = run_reports(wrapper, config, reports, success_callback)
+    versions = run_reports(wrapper, "testGroup", "testDisease", config, reports, success_callback)
     keys = list(versions.keys())
     assert len(keys) == 1
     assert versions[keys[0]]["published"] is True

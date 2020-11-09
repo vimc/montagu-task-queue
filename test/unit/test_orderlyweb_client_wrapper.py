@@ -12,6 +12,9 @@ report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",
                                       "output": None})
 
+group = "test_group"
+disease = "test_disease"
+
 
 class MockOrderlyWebAPIWithExpiredToken:
 
@@ -60,7 +63,7 @@ def test_retries_when_token_expired(logging):
     def success_callback(report, version):
         success["called"] = True
 
-    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
+    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback)
 
     assert versions == {"r1-version": {"published": True}}
     logging.info.assert_has_calls([
@@ -82,7 +85,7 @@ def test_handles_auth_errors(logging_ow, logging_reports):
     def success_callback(report, version):
         success["called"] = True
 
-    versions = run_reports(wrapper, MockConfig(), reports, success_callback)
+    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback)
 
     # the wrapper will have an auth failure because no auth config
     # supplied

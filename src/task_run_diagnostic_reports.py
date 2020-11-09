@@ -36,6 +36,8 @@ def run_diagnostic_reports(group,
                                          *additional_recipients)
 
         return run_reports(wrapper,
+                           group,
+                           disease,
                            config,
                            reports,
                            success_callback)
