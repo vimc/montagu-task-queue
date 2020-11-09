@@ -4,7 +4,7 @@ config = Config()
 
 
 def test_broker():
-    assert config.broker == "pyamqp://guest@localhost//"
+    assert config.broker == "redis://guest@localhost//"
 
 
 def test_backend():

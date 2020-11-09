@@ -13,6 +13,8 @@ def publish_report(wrapper, name, version):
 
 def run_reports(wrapper, config, reports, success_callback):
 
+    # https://stackoverflow.com/questions/4188350/connecting-and-saving-data-with-redis-inside-celery-task
+
     running_reports = {}
     new_versions = {}
 

@@ -1,9 +1,9 @@
 version: '3'
 services:
   mq:
-    image: rabbitmq
+    image: redis
     ports:
-      - "5672:5672"
+      - "6379:6379"
   api:
     image: ${REGISTRY}/montagu-api:master
     ports:

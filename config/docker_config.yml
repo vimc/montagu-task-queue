@@ -1,4 +1,4 @@
-broker: pyamqp://guest@montagu_mq_1//
+broker: redis://guest@montagu_mq_1//
 backend: rpc://
 servers:
   montagu:

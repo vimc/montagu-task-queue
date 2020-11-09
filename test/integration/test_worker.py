@@ -1,6 +1,6 @@
 import celery
 
-app = celery.Celery(broker="pyamqp://guest@localhost//", backend="rpc://")
+app = celery.Celery(broker="redis://guest@localhost//", backend="rpc://")
 sig = "run-diagnostic-reports"
 
 
