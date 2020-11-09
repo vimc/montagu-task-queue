@@ -4,7 +4,7 @@ from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from test import ExceptionMatching
-from test.unit.test_run_reports import MockConfig
+from test.unit.test_run_reports import MockConfig, MockRunningReportRepository
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1", 1000)]
 
@@ -63,7 +63,8 @@ def test_retries_when_token_expired(logging):
     def success_callback(report, version):
         success["called"] = True
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback)
+    mock_running_reports = MockRunningReportRepository()
+    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback, mock_running_reports)
 
     assert versions == {"r1-version": {"published": True}}
     logging.info.assert_has_calls([
@@ -85,7 +86,8 @@ def test_handles_auth_errors(logging_ow, logging_reports):
     def success_callback(report, version):
         success["called"] = True
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback)
+    mock_running_reports = MockRunningReportRepository()
+    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback, mock_running_reports)
 
     # the wrapper will have an auth failure because no auth config
     # supplied

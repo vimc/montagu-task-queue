@@ -6,6 +6,7 @@ from src.utils.email import send_email, Emailer
 from urllib.parse import quote as urlencode
 import logging
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from src.utils.running_reports_repository import RunningReportsRepository
 
 
 @app.task(name="run-diagnostic-reports")
@@ -35,12 +36,15 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
 
+        running_reports_repo = RunningReportsRepository()
+
         return run_reports(wrapper,
                            group,
                            disease,
                            config,
                            reports,
-                           success_callback)
+                           success_callback,
+                           running_reports_repo)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
         logging.warning(msg.format(group, disease))

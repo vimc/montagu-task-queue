@@ -1,6 +1,5 @@
 import logging
 import time
-from src.utils.running_reports_repository import RunningReportsRepository
 
 
 def publish_report(wrapper, name, version):
@@ -12,10 +11,7 @@ def publish_report(wrapper, name, version):
         return False
 
 
-def run_reports(wrapper, group, disease, config, reports, success_callback):
-
-    # https://stackoverflow.com/questions/4188350/connecting-and-saving-data-with-redis-inside-celery-task
-
+def run_reports(wrapper, group, disease, config, reports, success_callback, running_reports_repo):
     running_reports = {}
     new_versions = {}
 
@@ -26,10 +22,11 @@ def run_reports(wrapper, group, disease, config, reports, success_callback):
     # Start configured reports
     for report in reports:
         # Kill any currently running report for this group/disease/report
-        running_reports_repo = RunningReportsRepository()
         already_running = running_reports_repo.get(group, disease, report.name)
         if already_running is not None:
             try:
+                logging.info("Killing already running report: {}. Key is {}"
+                             .format(report.name, already_running))
                 wrapper.execute(wrapper.ow.kill_report, already_running)
             except Exception as ex:
                 logging.exception(ex)
@@ -42,7 +39,7 @@ def run_reports(wrapper, group, disease, config, reports, success_callback):
 
             running_reports[key] = report
             # Save key to shared data - may be killed by subsequent task
-            running_reports_repo.set(group, disease, key, report.name)
+            running_reports_repo.set(group, disease, report.name, key)
             logging.info("Running report: {}. Key is {}. Timeout is {}s."
                          .format(report.name, key, report.timeout))
         except Exception as ex:
