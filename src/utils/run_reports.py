@@ -83,6 +83,7 @@ def run_reports(wrapper, group, disease, config, reports, success_callback,
                 logging.exception(ex)
 
         for key in finished:
+            report = running_reports[key]
             running_reports.pop(key)
             # delete finished report, unless it's been updated by another task
             running_reports_repo.delete_if_matches(group, disease, report.name,
