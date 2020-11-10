@@ -1,3 +1,4 @@
+import re
 from src.utils.run_reports import run_reports
 from datetime import datetime, timedelta
 from .celery import app
@@ -36,7 +37,10 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
 
-        running_reports_repo = RunningReportsRepository()
+        # get broker host
+        match = re.match(r".*\@([^\/]*)\/*.*", config.broker)
+        broker_host = match.group(1)
+        running_reports_repo = RunningReportsRepository(host=broker_host)
 
         return run_reports(wrapper,
                            group,

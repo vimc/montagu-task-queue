@@ -2,8 +2,8 @@ import redis
 
 
 class RunningReportsRepository:
-    def __init__(self):
-        self.redis = redis.Redis()  # default localhost, port 6379
+    def __init__(self, host="localhost"):
+        self.redis = redis.Redis(host=host)  # default port 6379
         self.prefix = "running_report"
 
     def set(self, group, disease, report_name, report_key):
