@@ -64,7 +64,8 @@ def test_retries_when_token_expired(logging):
         success["called"] = True
 
     mock_running_reports = MockRunningReportRepository()
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
+                           success_callback, mock_running_reports)
 
     assert versions == {"r1-version": {"published": True}}
     logging.info.assert_has_calls([
@@ -87,7 +88,8 @@ def test_handles_auth_errors(logging_ow, logging_reports):
         success["called"] = True
 
     mock_running_reports = MockRunningReportRepository()
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports, success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
+                           success_callback, mock_running_reports)
 
     # the wrapper will have an auth failure because no auth config
     # supplied

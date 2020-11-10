@@ -11,7 +11,8 @@ def publish_report(wrapper, name, version):
         return False
 
 
-def run_reports(wrapper, group, disease, config, reports, success_callback, running_reports_repo):
+def run_reports(wrapper, group, disease, config, reports, success_callback,
+                running_reports_repo):
     running_reports = {}
     new_versions = {}
 
@@ -83,8 +84,9 @@ def run_reports(wrapper, group, disease, config, reports, success_callback, runn
 
         for key in finished:
             running_reports.pop(key)
-            # delete finished report, unless it has been updated by another task
-            running_reports_repo.delete_if_matches(group, disease, report.name, key)
+            # delete finished report, unless it's been updated by another task
+            running_reports_repo.delete_if_matches(group, disease, report.name,
+                                                   key)
         time.sleep(report_poll_seconds)
 
     return new_versions

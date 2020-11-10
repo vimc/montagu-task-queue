@@ -17,7 +17,9 @@ def test_run_reports_handles_error():
 
     running_reports_repository = RunningReportsRepository()
 
-    versions = run_reports(wrapper, "testGroup", "testDisease", config, reports, success_callback, running_reports_repository)
+    versions = run_reports(wrapper, "testGroup", "testDisease", config,
+                           reports, success_callback,
+                           running_reports_repository)
     keys = list(versions.keys())
     assert len(keys) == 1
     assert versions[keys[0]]["published"] is True

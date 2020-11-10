@@ -36,4 +36,3 @@ class TestRunningReportsRepository:
     def test_can_create_expected_db_key(self):
         value = repo.db_key(group, disease, report)
         assert value == "running_report_test_group_test_disease_test_report"
-

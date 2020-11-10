@@ -39,8 +39,9 @@ def test_later_task_kills_earlier_task_report():
     first_report_key = None
     tries = 0
     while first_report_key is None and tries < 60:
-        time.sleep(1)
-        first_report_key = running_repo.get("testGroup", "testDisease", "minimal")
+        time.sleep(0.5)
+        first_report_key = running_repo.get("testGroup", "testDisease",
+                                            "minimal")
         tries += 1
 
     assert first_report_key is not None
@@ -58,10 +59,7 @@ def test_later_task_kills_earlier_task_report():
     wrapper = OrderlyWebClientWrapper(config)
     result = wrapper.execute(wrapper.ow.report_status, first_report_key)
     assert result.status == "killed"
-    assert result.finished == True
+    assert result.finished
 
     # Check redis key has been tidied up
     assert running_repo.get("testGroup", "testDisease", "minimal") is None
-
-
-

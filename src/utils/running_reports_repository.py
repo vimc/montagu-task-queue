@@ -15,14 +15,16 @@ class RunningReportsRepository:
             result = result.decode("utf-8")
         return result
 
-    def delete_if_matches(self, group, disease, report_name, expected_report_key):
+    def delete_if_matches(self, group, disease, report_name,
+                          expected_report_key):
         # Delete a running report value, but only if it matches an expected
         # value - i.e. has not been overwritten by a subsequent task
         db_key = self.db_key(group, disease, report_name)
 
         def transaction_method(pipe: redis.client.Pipeline) -> None:
             value = pipe.get(db_key)
-            if value is not None and value.decode("utf-8") == expected_report_key:
+            if value is not None and \
+                    value.decode("utf-8") == expected_report_key:
                 pipe.delete(db_key)
         self.redis.transaction(transaction_method, *[db_key])
 
