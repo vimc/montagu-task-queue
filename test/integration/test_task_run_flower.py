@@ -3,10 +3,10 @@ import requests
 
 def test_run_task_through_flower():
     args = ["testGroup",
-                              "testDisease",
-                              "touchstone",
-                              "2020-11-04T12:21:15",
-                              "no_vaccination"]
+            "testDisease",
+            "touchstone",
+            "2020-11-04T12:21:15",
+            "no_vaccination"]
     result = requests.post(
         "http://localhost:5555/api/task/send-task/run-diagnostic-reports",
         json={"args": args}

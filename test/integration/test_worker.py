@@ -66,5 +66,3 @@ def test_run_diagnostic_reports_nowait():
                         "touchstone",
                         "2020-11-04T12:21:15",
                         "no_vaccination"])
-
-
