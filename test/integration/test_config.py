@@ -8,7 +8,7 @@ def test_broker():
 
 
 def test_backend():
-    assert config.backend == "rpc://"
+    assert config.backend == "redis://"
 
 
 def test_montagu_url():

@@ -4,7 +4,7 @@ from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
-app = celery.Celery(broker="redis://guest@localhost//", backend="rpc://")
+app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
 sig = "run-diagnostic-reports"
 
 
@@ -66,3 +66,5 @@ def test_run_diagnostic_reports_nowait():
                         "touchstone",
                         "2020-11-04T12:21:15",
                         "no_vaccination"])
+
+

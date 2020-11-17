@@ -1,5 +1,5 @@
 broker: redis://guest@localhost//
-backend: rpc://
+backend: redis://
 servers:
   montagu:
     url: http://localhost:8080

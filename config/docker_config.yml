@@ -1,5 +1,5 @@
 broker: redis://guest@montagu_mq_1//
-backend: rpc://
+backend: redis://guest@montagu_mq_1/0/
 servers:
   montagu:
     url: http://montagu_api_1:8080
