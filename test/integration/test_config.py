@@ -3,12 +3,8 @@ from src.config import Config
 config = Config()
 
 
-def test_broker():
-    assert config.broker == "redis://guest@localhost//"
-
-
-def test_backend():
-    assert config.backend == "redis://"
+def test_host():
+    assert config.host == "localhost"
 
 
 def test_montagu_url():

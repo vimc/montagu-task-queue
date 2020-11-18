@@ -37,10 +37,7 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
 
-        # get broker host
-        match = re.match(r".*\@([^\/]*)\/*.*", config.broker)
-        broker_host = match.group(1)
-        running_reports_repo = RunningReportsRepository(host=broker_host)
+        running_reports_repo = RunningReportsRepository(host=config.host)
 
         return run_reports(wrapper,
                            group,

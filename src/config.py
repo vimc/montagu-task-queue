@@ -22,12 +22,8 @@ class Config:
             self.cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
 
     @property
-    def broker(self):
-        return self.cfg["broker"]
-
-    @property
-    def backend(self):
-        return self.cfg["backend"]
+    def host(self):
+        return self.cfg["host"]
 
     @property
     def montagu_url(self):

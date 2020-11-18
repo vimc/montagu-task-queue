@@ -1,5 +1,4 @@
-broker: redis://guest@localhost//
-backend: redis://
+host: localhost
 servers:
   montagu:
     url: http://localhost:8080
