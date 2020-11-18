@@ -3,12 +3,8 @@ from src.config import Config
 config = Config()
 
 
-def test_broker():
-    assert config.broker == "pyamqp://guest@localhost//"
-
-
-def test_backend():
-    assert config.backend == "rpc://"
+def test_host():
+    assert config.host == "localhost"
 
 
 def test_montagu_url():

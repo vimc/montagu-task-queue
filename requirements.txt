@@ -1,5 +1,5 @@
-celery
+celery[redis]
 future
 pyyaml
 montagu>=0.0.2
-orderlyweb-api>=0.0.8
+orderlyweb-api>=0.0.9

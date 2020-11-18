@@ -11,8 +11,8 @@ def publish_report(wrapper, name, version):
         return False
 
 
-def run_reports(wrapper, config, reports, success_callback):
-
+def run_reports(wrapper, group, disease, config, reports, success_callback,
+                running_reports_repo):
     running_reports = {}
     new_versions = {}
 
@@ -22,6 +22,16 @@ def run_reports(wrapper, config, reports, success_callback):
 
     # Start configured reports
     for report in reports:
+        # Kill any currently running report for this group/disease/report
+        already_running = running_reports_repo.get(group, disease, report.name)
+        if already_running is not None:
+            try:
+                logging.info("Killing already running report: {}. Key is {}"
+                             .format(report.name, already_running))
+                wrapper.execute(wrapper.ow.kill_report, already_running)
+            except Exception as ex:
+                logging.exception(ex)
+
         try:
             key = wrapper.execute(wrapper.ow.run_report,
                                   report.name,
@@ -29,6 +39,8 @@ def run_reports(wrapper, config, reports, success_callback):
                                   report.timeout)
 
             running_reports[key] = report
+            # Save key to shared data - may be killed by subsequent task
+            running_reports_repo.set(group, disease, report.name, key)
             logging.info("Running report: {}. Key is {}. Timeout is {}s."
                          .format(report.name, key, report.timeout))
         except Exception as ex:
@@ -71,7 +83,11 @@ def run_reports(wrapper, config, reports, success_callback):
                 logging.exception(ex)
 
         for key in finished:
+            report = running_reports[key]
             running_reports.pop(key)
+            # delete finished report, unless it's been updated by another task
+            running_reports_repo.delete_if_matches(group, disease, report.name,
+                                                   key)
         time.sleep(report_poll_seconds)
 
     return new_versions

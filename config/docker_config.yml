@@ -1,5 +1,4 @@
-broker: pyamqp://guest@montagu_mq_1//
-backend: rpc://
+host: montagu_mq_1
 servers:
   montagu:
     url: http://montagu_api_1:8080

@@ -1,5 +1,4 @@
-broker: pyamqp://guest@localhost//
-backend: rpc://
+host: localhost
 servers:
   montagu:
     url: http://localhost:8080
