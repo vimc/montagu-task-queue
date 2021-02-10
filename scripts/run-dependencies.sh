@@ -17,7 +17,7 @@ docker-compose --project-name montagu up -d
 docker exec -it montagu_mq_1 redis-cli FLUSHALL
 
 # Install orderly-web
-pip3 install orderly-web
+pip install git+https://github.com/vimc/orderly-web-deploy@vimc-4558
 orderly-web start $here
 
 # Start the APIs
