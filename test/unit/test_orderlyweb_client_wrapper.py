@@ -67,7 +67,7 @@ def test_retries_when_token_expired(logging):
     versions = run_reports(wrapper, group, disease, MockConfig(), reports,
                            success_callback, mock_running_reports)
 
-    assert versions == {"r1-version": {"published": True}}
+    assert versions == {"r1-version": {"published": True, "report": "r1"}}
     logging.info.assert_has_calls([
         call("Running report: r1. Key is r1-key. Timeout is 1000s."),
         call("Success for key r1-key. New version is r1-version"),

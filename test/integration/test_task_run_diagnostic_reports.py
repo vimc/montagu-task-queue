@@ -68,25 +68,45 @@ Please reply to this email to let us know:
 </body>
 </html>"""
 
-    report_1 = "minimal"
-    report_2 = "other"
+    minimal_email_props = {
+        "subject": "VIMC diagnostic report: tid - testGroup - testDisease",
+        "recipients": ["minimal_modeller@example.com", "science@example.com",
+                       "estimate_uploader@example.com",
+                       "estimate_uploader2@example.com"]
+    }
+
+    other_email_props = {
+        "subject": "New version of another Orderly report",
+        "recipients": ["other_modeller@example.com", "science@example.com",
+                       "estimate_uploader@example.com",
+                       "estimate_uploader2@example.com"]
+    }
+
+    minimal_is_first = (result[versions[0]]["report"]) == "minimal"
+
+    if minimal_is_first:
+        report_1 = "minimal"
+        report_2 = "other"
+        email_props = [minimal_email_props, other_email_props]
+    else:
+        report_1 = "other"
+        report_2 = "minimal"
+        email_props = [other_email_props, minimal_email_props]
+
     url_template = "http://localhost:8888/report/{}/{}/"
     url_1 = url_template.format(report_1, versions[0])
     url_2 = url_template.format(report_2, versions[1])
+
     smtp.assert_emails_match([
         FakeEmailProperties(
-            "VIMC diagnostic report: tid - testGroup - testDisease",
-            ["minimal_modeller@example.com", "science@example.com",
-             "estimate_uploader@example.com",
-             "estimate_uploader2@example.com"],
+            email_props[0]["subject"],
+            email_props[0]["recipients"],
             "noreply@example.com",
             expected_text.format(url_1),
             expected_html.format(url_1, url_1)),
         FakeEmailProperties(
-            "New version of another Orderly report",
-            ["other_modeller@example.com", "science@example.com",
-             "estimate_uploader@example.com",
-             "estimate_uploader2@example.com"],
+            email_props[1]["subject"],
+            email_props[1]["recipients"],
             "noreply@example.com",
             expected_text.format(url_2),
             expected_html.format(url_2, url_2))

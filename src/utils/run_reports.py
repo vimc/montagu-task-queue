@@ -73,7 +73,10 @@ def run_reports(wrapper, group, disease, config, reports, success_callback,
                             logging.error(
                                 "Failed to publish report version {}-{}"
                                 .format(name, version))
-                        new_versions[version] = {"published": published}
+                        new_versions[version] = {
+                            "published": published,
+                            "report": name
+                        }
                     else:
                         logging.error("Failure for key {}.".format(key))
 
