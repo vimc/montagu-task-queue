@@ -35,6 +35,10 @@ jobs:
         uses: codecov/codecov-action@v1
 
       - name: Push docker
+        env:
+          VAULT_DOCKERHUB_USERNAME: ${{ secrets.VAULT_DOCKERHUB_USERNAME }}
+          VAULT_DOCKERHUB_PASSWORD: ${{ secrets.VAULT_DOCKERHUB_PASSWORD }}
         run: |
-          echo ${{secrets.VAULT_DOCKERHUB_USERNAME}} | docker login -u ${{secrets.VAULT_DOCKERHUB_PASSWORD}} --password-stdin
+          echo $VAULT_DOCKERHUB_USERNAME | \
+            docker login -u $VAULT_DOCKERHUB_PASSWORD --password-stdin
           ./scripts/push-docker.sh
