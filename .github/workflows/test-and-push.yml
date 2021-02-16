@@ -39,6 +39,6 @@ jobs:
           VAULT_DOCKERHUB_USERNAME: ${{ secrets.VAULT_DOCKERHUB_USERNAME }}
           VAULT_DOCKERHUB_PASSWORD: ${{ secrets.VAULT_DOCKERHUB_PASSWORD }}
         run: |
-          echo $VAULT_DOCKERHUB_USERNAME | \
-            docker login -u $VAULT_DOCKERHUB_PASSWORD --password-stdin
+          echo $VAULT_DOCKERHUB_PASSWORD | \
+            docker login -u $VAULT_DOCKERHUB_USERNAME --password-stdin
           ./scripts/push-docker.sh
