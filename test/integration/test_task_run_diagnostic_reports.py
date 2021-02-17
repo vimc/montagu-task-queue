@@ -82,7 +82,7 @@ Please reply to this email to let us know:
                        "estimate_uploader2@example.com"]
     }
 
-    minimal_is_first = (result[versions[0]]["report"]) == "minimal"
+    minimal_is_first = result[versions[0]]["report"] == "minimal"
 
     if minimal_is_first:
         report_1 = "minimal"
