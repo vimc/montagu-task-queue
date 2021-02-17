@@ -53,7 +53,7 @@ def test_later_task_kills_earlier_task_report():
     config = Config()
     wrapper = OrderlyWebClientWrapper(config)
     result = wrapper.execute(wrapper.ow.report_status, first_report_key)
-    assert result.status == "killed"
+    assert result.status == "interrupted"
     assert result.finished
 
     # Check redis key has been tidied up

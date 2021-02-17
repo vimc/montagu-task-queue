@@ -44,8 +44,8 @@ def test_run_reports(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r1-version": {"published": True},
-        "r2-version": {"published": True}
+        "r1-version": {"published": True, "report": "r1"},
+        "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
@@ -92,8 +92,8 @@ def test_run_reports_kills_currently_running(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r1-version": {"published": True},
-        "r2-version": {"published": True}
+        "r1-version": {"published": True, "report": "r1"},
+        "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
@@ -145,8 +145,8 @@ def test_run_reports_with_additional_recipients(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r1-version": {"published": True},
-        "r2-version": {"published": True}
+        "r1-version": {"published": True, "report": "r1"},
+        "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
@@ -198,8 +198,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r2-version": {"published": True},
-        "r1-version": {"published": True}
+        "r2-version": {"published": True, "report": "r2"},
+        "r1-version": {"published": True, "report": "r1"}
     }
 
     logging.info.assert_has_calls([
@@ -241,7 +241,7 @@ def test_run_reports_with_run_error(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r2-version": {"published": True}
+        "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
@@ -295,7 +295,7 @@ def test_run_reports_with_status_error(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r2-version": {"published": True}
+        "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
@@ -339,7 +339,7 @@ def test_run_reports_with_status_failure(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r1-version": {"published": True}
+        "r1-version": {"published": True, "report": "r1"}
     }
 
     logging.info.assert_has_calls([
@@ -384,8 +384,8 @@ def test_run_reports_with_publish_failure(logging):
                            success_callback, mock_running_reports)
 
     assert versions == {
-        "r1-version": {"published": True},
-        "r2-version": {"published": False}
+        "r1-version": {"published": True, "report": "r1"},
+        "r2-version": {"published": False, "report": "r2"}
     }
 
     logging.info.assert_has_calls([

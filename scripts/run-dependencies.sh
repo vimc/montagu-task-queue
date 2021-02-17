@@ -14,7 +14,7 @@ docker-compose pull
 docker-compose --project-name montagu up -d
 
 # Clear redis
-docker exec -it montagu_mq_1 redis-cli FLUSHALL
+docker exec montagu_mq_1 redis-cli FLUSHALL
 
 # Install orderly-web
 pip3 install orderly-web
