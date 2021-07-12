@@ -2,7 +2,8 @@ from celery import Celery
 from .config import Config
 
 config = Config()
-redis_db = "redis://guest@{}/0".format(config.host)
+redis_db = "redis://{}/0".format(config.host)
+
 app = Celery('tasks',
              broker=redis_db,
              backend=redis_db,

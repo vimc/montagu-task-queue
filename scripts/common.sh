@@ -1,11 +1,7 @@
 PACKAGE_ROOT=$(readlink -f $(dirname $0)/..)
 GIT_ID=$(git -C "$PACKAGE_ROOT" rev-parse --short=7 HEAD)
 
-if [ -z "$TRAVIS_BRANCH" ]; then
-    GIT_BRANCH=$(git -C "$PACKAGE_ROOT" symbolic-ref --short HEAD)
-else
-    GIT_BRANCH=$TRAVIS_BRANCH
-fi
+GIT_BRANCH=$(git -C "$PACKAGE_ROOT" symbolic-ref --short HEAD)
 
 REGISTRY=vimc
 NAME=task-queue-worker
