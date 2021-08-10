@@ -11,7 +11,11 @@ def publish_report(wrapper, name, version):
         return False
 
 
-def run_reports(wrapper, group, disease, config, reports, success_callback,
+def params_to_string(params):
+    return ", ".join([f"{key}={value}" for key, value in params.items()])
+
+
+def run_reports(wrapper, group, disease, touchstone, config, reports, success_callback,
                 running_reports_repo):
     running_reports = {}
     new_versions = {}
@@ -32,17 +36,22 @@ def run_reports(wrapper, group, disease, config, reports, success_callback,
             except Exception as ex:
                 logging.exception(ex)
 
+        # Assume report requires touchstone and touchstone_name parameters
+        parameters = report.parameters or {}
+        parameters["touchstone"] = touchstone
+        parameters["touchstone_name"] = touchstone.split("-")[0]
+
         try:
             key = wrapper.execute(wrapper.ow.run_report,
                                   report.name,
-                                  report.parameters,
+                                  parameters,
                                   report.timeout)
 
             running_reports[key] = report
             # Save key to shared data - may be killed by subsequent task
             running_reports_repo.set(group, disease, report.name, key)
-            logging.info("Running report: {}. Key is {}. Timeout is {}s."
-                         .format(report.name, key, report.timeout))
+            logging.info("Running report: {} with parameters {}. Key is {}. Timeout is {}s."
+                         .format(report.name, params_to_string(parameters), key, report.timeout))
         except Exception as ex:
             logging.exception(ex)
 
