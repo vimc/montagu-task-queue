@@ -15,8 +15,8 @@ def params_to_string(params):
     return ", ".join([f"{key}={value}" for key, value in params.items()])
 
 
-def run_reports(wrapper, group, disease, touchstone, config, reports, success_callback,
-                running_reports_repo):
+def run_reports(wrapper, group, disease, touchstone, config, reports,
+                success_callback, running_reports_repo):
     running_reports = {}
     new_versions = {}
 
@@ -50,8 +50,10 @@ def run_reports(wrapper, group, disease, touchstone, config, reports, success_ca
             running_reports[key] = report
             # Save key to shared data - may be killed by subsequent task
             running_reports_repo.set(group, disease, report.name, key)
-            logging.info("Running report: {} with parameters {}. Key is {}. Timeout is {}s."
-                         .format(report.name, params_to_string(parameters), key, report.timeout))
+            logging.info("Running report: {} with parameters {}. Key is {}. "
+                         "Timeout is {}s."
+                         .format(report.name, params_to_string(parameters),
+                                 key, report.timeout))
         except Exception as ex:
             logging.exception(ex)
 

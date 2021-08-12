@@ -7,7 +7,7 @@ from src.utils.running_reports_repository import RunningReportsRepository
 def test_run_reports_handles_error():
     reports = [
         ReportConfig("nonexistent", None, ["test1@test.com"], "subject1", 600),
-        ReportConfig("minimal", {}, ["test2@test.com"], "subject2", 600)]
+        ReportConfig("diagnostic", {}, ["test2@test.com"], "subject2", 600)]
     config = Config()
     wrapper = OrderlyWebClientWrapper(config)
     success = {}
@@ -17,11 +17,11 @@ def test_run_reports_handles_error():
 
     running_reports_repository = RunningReportsRepository()
 
-    versions = run_reports(wrapper, "testGroup", "testDisease", config,
-                           reports, success_callback,
-                           running_reports_repository)
+    versions = run_reports(wrapper, "testGroup", "testDisease",
+                           "testTouchstone", config, reports,
+                           success_callback, running_reports_repository)
     keys = list(versions.keys())
     assert len(keys) == 1
     assert versions[keys[0]]["published"] is True
-    assert success["minimal"] == keys[0]
+    assert success["diagnostic"] == keys[0]
     assert len(success) == 1

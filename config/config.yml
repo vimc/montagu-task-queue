@@ -19,14 +19,14 @@ tasks:
     reports:
       testGroup:
         testDisease:
-          - report_name: minimal
+          - report_name: diagnostic
             success_email:
               recipients:
                 - minimal_modeller@example.com
                 - science@example.com
               subject: "VIMC diagnostic report: {touchstone} - {group} - {disease}"
             timeout: 300
-          - report_name: other
+          - report_name: diagnostic-param
             parameters:
               nmin: 0
             success_email:

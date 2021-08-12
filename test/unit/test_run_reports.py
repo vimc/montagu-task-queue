@@ -11,7 +11,8 @@ reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
 
 expected_params = {
     "r1": {"touchstone": "2021test-1", "touchstone_name": "2021test"},
-    "r2": {"p1": "v1", "touchstone": "2021test-1", "touchstone_name": "2021test"}
+    "r2": {"p1": "v1", "touchstone": "2021test-1",
+           "touchstone_name": "2021test"}
 }
 
 expected_timeouts = {
@@ -23,10 +24,12 @@ group = "test_group"
 disease = "test_disease"
 touchstone = "2021test-1"
 
-expected_run_rpt_1_log = "Running report: r1 with parameters touchstone=2021test-1, touchstone_name=2021test. " \
+expected_run_rpt_1_log = "Running report: r1 with parameters " \
+                         "touchstone=2021test-1, touchstone_name=2021test. " \
                             "Key is r1-key. Timeout is 1000s."
 
-expected_run_rpt_2_log = "Running report: r2 with parameters p1=v1, touchstone=2021test-1, touchstone_name=2021test. " \
+expected_run_rpt_2_log = "Running report: r2 with parameters p1=v1, " \
+                         "touchstone=2021test-1, touchstone_name=2021test. " \
                             "Key is r2-key. Timeout is 2000s."
 
 
@@ -52,8 +55,8 @@ def test_run_reports(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -100,8 +103,8 @@ def test_run_reports_kills_currently_running(logging):
     mock_running_reports = \
         MockRunningReportRepository(["r1-old-key", "r2-old-key"])
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -153,8 +156,8 @@ def test_run_reports_with_additional_recipients(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -206,8 +209,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"},
@@ -249,8 +252,8 @@ def test_run_reports_with_run_error(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"}
@@ -303,8 +306,8 @@ def test_run_reports_with_status_error(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"}
@@ -347,8 +350,8 @@ def test_run_reports_with_status_failure(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"}
@@ -392,8 +395,8 @@ def test_run_reports_with_publish_failure(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},

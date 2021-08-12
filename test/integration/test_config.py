@@ -51,7 +51,7 @@ def test_diagnostic_reports():
     reports = config.diagnostic_reports("testGroup", "testDisease")
     assert len(reports) == 2
 
-    assert reports[0].name == "minimal"
+    assert reports[0].name == "diagnostic"
     assert len(reports[0].parameters.keys()) == 0
     assert reports[0].success_email_recipients == \
            ["minimal_modeller@example.com", "science@example.com"]
@@ -59,7 +59,7 @@ def test_diagnostic_reports():
         "VIMC diagnostic report: {touchstone} - {group} - {disease}"
     assert reports[0].timeout == 300
 
-    assert reports[1].name == "other"
+    assert reports[1].name == "diagnostic-param"
     assert len(reports[1].parameters.keys()) == 1
     assert reports[1].parameters["nmin"] == 0
     assert reports[1].success_email_recipients == \
