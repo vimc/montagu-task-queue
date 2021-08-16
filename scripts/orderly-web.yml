@@ -21,7 +21,7 @@ orderly:
     worker_name: orderly.server
   initial:
     source: clone
-    url: https://github.com/vimc/orderly-demo
+    url: https://github.com/vimc/montagu-task-queue-orderly
 
 web:
   image:

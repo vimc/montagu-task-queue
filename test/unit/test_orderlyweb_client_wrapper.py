@@ -14,6 +14,7 @@ report_response = ReportStatusResult({"status": "success",
 
 group = "test_group"
 disease = "test_disease"
+touchstone = "2021test-1"
 
 
 class MockOrderlyWebAPIWithExpiredToken:
@@ -64,12 +65,14 @@ def test_retries_when_token_expired(logging):
         success["called"] = True
 
     mock_running_reports = MockRunningReportRepository()
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {"r1-version": {"published": True, "report": "r1"}}
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
+        call("Running report: r1 with parameters touchstone=2021test-1,"
+             " touchstone_name=2021test. "
+             "Key is r1-key. Timeout is 1000s."),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version")
@@ -88,8 +91,8 @@ def test_handles_auth_errors(logging_ow, logging_reports):
         success["called"] = True
 
     mock_running_reports = MockRunningReportRepository()
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     # the wrapper will have an auth failure because no auth config
     # supplied

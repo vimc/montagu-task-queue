@@ -21,7 +21,7 @@ def test_run_diagnostic_reports():
 def test_later_task_kills_earlier_task_report():
     # Check we don't have any rogue running reports
     running_repo = RunningReportsRepository(host="localhost")
-    assert running_repo.get("testGroup", "testDisease", "minimal") is None
+    assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
 
     app.send_task(sig, ["testGroup",
                         "testDisease",
@@ -36,7 +36,7 @@ def test_later_task_kills_earlier_task_report():
     while first_report_key is None and tries < 60:
         time.sleep(0.5)
         first_report_key = running_repo.get("testGroup", "testDisease",
-                                            "minimal")
+                                            "diagnostic")
         tries += 1
 
     assert first_report_key is not None
@@ -57,7 +57,7 @@ def test_later_task_kills_earlier_task_report():
     assert result.finished
 
     # Check redis key has been tidied up
-    assert running_repo.get("testGroup", "testDisease", "minimal") is None
+    assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
 
 
 def test_run_diagnostic_reports_nowait():

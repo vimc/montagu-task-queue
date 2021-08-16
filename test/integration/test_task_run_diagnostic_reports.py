@@ -68,30 +68,30 @@ Please reply to this email to let us know:
 </body>
 </html>"""
 
-    minimal_email_props = {
+    diagnostic_email_props = {
         "subject": "VIMC diagnostic report: tid - testGroup - testDisease",
         "recipients": ["minimal_modeller@example.com", "science@example.com",
                        "estimate_uploader@example.com",
                        "estimate_uploader2@example.com"]
     }
 
-    other_email_props = {
+    diagnostic_param_email_props = {
         "subject": "New version of another Orderly report",
         "recipients": ["other_modeller@example.com", "science@example.com",
                        "estimate_uploader@example.com",
                        "estimate_uploader2@example.com"]
     }
 
-    minimal_is_first = result[versions[0]]["report"] == "minimal"
+    diagnostic_is_first = result[versions[0]]["report"] == "diagnostic"
 
-    if minimal_is_first:
-        report_1 = "minimal"
-        report_2 = "other"
-        email_props = [minimal_email_props, other_email_props]
+    if diagnostic_is_first:
+        report_1 = "diagnostic"
+        report_2 = "diagnostic-param"
+        email_props = [diagnostic_email_props, diagnostic_param_email_props]
     else:
-        report_1 = "other"
-        report_2 = "minimal"
-        email_props = [other_email_props, minimal_email_props]
+        report_1 = "diagnostic-param"
+        report_2 = "diagnostic"
+        email_props = [diagnostic_param_email_props, diagnostic_email_props]
 
     url_template = "http://localhost:8888/report/{}/{}/"
     url_1 = url_template.format(report_1, versions[0])

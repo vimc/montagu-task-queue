@@ -9,13 +9,28 @@ reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2",
                         2000)]
 
+expected_params = {
+    "r1": {"touchstone": "2021test-1", "touchstone_name": "2021test"},
+    "r2": {"p1": "v1", "touchstone": "2021test-1",
+           "touchstone_name": "2021test"}
+}
+
 expected_timeouts = {
-        "r1": 1000,
-        "r2": 2000
-    }
+    "r1": 1000,
+    "r2": 2000
+}
 
 group = "test_group"
 disease = "test_disease"
+touchstone = "2021test-1"
+
+expected_run_rpt_1_log = "Running report: r1 with parameters " \
+                         "touchstone=2021test-1, touchstone_name=2021test. " \
+                            "Key is r1-key. Timeout is 1000s."
+
+expected_run_rpt_2_log = "Running report: r2 with parameters p1=v1, " \
+                         "touchstone=2021test-1, touchstone_name=2021test. " \
+                            "Key is r2-key. Timeout is 2000s."
 
 
 @patch("src.utils.run_reports.logging")
@@ -31,7 +46,7 @@ def test_run_reports(logging):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -40,8 +55,8 @@ def test_run_reports(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -49,8 +64,8 @@ def test_run_reports(logging):
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version"),
@@ -62,6 +77,46 @@ def test_run_reports(logging):
     mock_running_reports.assert_expected_calls()
     ow.kill_report.assert_not_called()
 
+    assert success["called"] is True
+
+
+def test_run_reports_with_multi_hyphen_touchstone():
+    run_successfully = ["r1", "r2"]
+    report_responses = {
+        "r1-key": [ReportStatusResult({"status": "success",
+                                       "version": "r1-version",
+                                       "output": None})],
+        "r2-key": [ReportStatusResult({"status": "success",
+                                       "version": "r2-version",
+                                       "output": None})]
+    }
+
+    multi_touchstone = "2021test-extra-1"
+    expected_multi_params = {
+        "r1": {"touchstone": "2021test-extra-1",
+               "touchstone_name": "2021test-extra"},
+        "r2": {"p1": "v1", "touchstone": "2021test-extra-1",
+               "touchstone_name": "2021test-extra"}
+    }
+    ow = MockOrderlyWebAPI(run_successfully, report_responses,
+                           expected_multi_params, expected_timeouts)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+
+    mock_running_reports = MockRunningReportRepository()
+
+    versions = run_reports(wrapper, group, disease, multi_touchstone,
+                           MockConfig(), reports, success_callback,
+                           mock_running_reports)
+
+    assert versions == {
+        "r1-version": {"published": True, "report": "r1"},
+        "r2-version": {"published": True, "report": "r2"}
+    }
     assert success["called"] is True
 
 
@@ -78,7 +133,7 @@ def test_run_reports_kills_currently_running(logging):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -88,8 +143,8 @@ def test_run_reports_kills_currently_running(logging):
     mock_running_reports = \
         MockRunningReportRepository(["r1-old-key", "r2-old-key"])
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -98,9 +153,9 @@ def test_run_reports_kills_currently_running(logging):
 
     logging.info.assert_has_calls([
         call("Killing already running report: r1. Key is r1-old-key"),
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
+        call(expected_run_rpt_1_log),
         call("Killing already running report: r2. Key is r2-old-key"),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_2_log),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version"),
@@ -132,7 +187,7 @@ def test_run_reports_with_additional_recipients(logging):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -141,8 +196,8 @@ def test_run_reports_with_additional_recipients(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -150,8 +205,8 @@ def test_run_reports_with_additional_recipients(logging):
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version"),
@@ -185,7 +240,7 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
                                        "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -194,8 +249,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"},
@@ -203,8 +258,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
         call("Success for key r2-key. New version is r2-version"),
         call("Publishing report version r2-r2-version"),
         call("Successfully published report version r2-r2-version"),
@@ -228,7 +283,7 @@ def test_run_reports_with_run_error(logging):
                                        "output": None})]
     }
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -237,15 +292,15 @@ def test_run_reports_with_run_error(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_2_log),
         call("Success for key r2-key. New version is r2-version"),
         call("Publishing report version r2-r2-version"),
         call("Successfully published report version r2-r2-version")
@@ -282,7 +337,7 @@ def test_run_reports_with_status_error(logging):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -291,16 +346,16 @@ def test_run_reports_with_status_error(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"}
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
         call("Success for key r2-key. New version is r2-version"),
         call("Publishing report version r2-r2-version"),
         call("Successfully published report version r2-r2-version")
@@ -326,7 +381,7 @@ def test_run_reports_with_status_failure(logging):
     }
 
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts)
+                           expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -335,16 +390,16 @@ def test_run_reports_with_status_failure(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"}
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version")
@@ -371,7 +426,7 @@ def test_run_reports_with_publish_failure(logging):
     }
     fail_publish = ["r2"]
     ow = MockOrderlyWebAPI(run_successfully, report_responses,
-                           expected_timeouts, fail_publish)
+                           expected_params, expected_timeouts, fail_publish)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
 
@@ -380,8 +435,8 @@ def test_run_reports_with_publish_failure(logging):
 
     mock_running_reports = MockRunningReportRepository()
 
-    versions = run_reports(wrapper, group, disease, MockConfig(), reports,
-                           success_callback, mock_running_reports)
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -389,8 +444,8 @@ def test_run_reports_with_publish_failure(logging):
     }
 
     logging.info.assert_has_calls([
-        call("Running report: r1. Key is r1-key. Timeout is 1000s."),
-        call("Running report: r2. Key is r2-key. Timeout is 2000s."),
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
         call("Success for key r1-key. New version is r1-version"),
         call("Publishing report version r1-r1-version"),
         call("Successfully published report version r1-r1-version"),
@@ -430,23 +485,24 @@ class MockRunningReportRepository:
 
 
 class MockOrderlyWebAPI:
-    def __init__(self, run_successfully, report_responses, expected_timeouts,
-                 fail_publish=None):
+    def __init__(self, run_successfully, report_responses, expected_params,
+                 expected_timeouts, fail_publish=None):
         if fail_publish is None:
             fail_publish = []
         self.run_successfully = run_successfully
         self.report_responses = report_responses
+        self.expected_params = expected_params
         self.expected_timeouts = expected_timeouts
         self.fail_publish = fail_publish
         self.kill_report = Mock()
 
     def run_report(self, name, params, timeout):
+        assert params == self.expected_params[name]
+        assert timeout == self.expected_timeouts[name]
         if name in self.run_successfully:
             return name + "-key"
         else:
             raise Exception("test-run-error: " + name)
-
-        assert timeout == self.expected_timeouts[name]
 
     def report_status(self, key):
         if key in self.report_responses and \
