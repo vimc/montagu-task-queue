@@ -80,6 +80,46 @@ def test_run_reports(logging):
     assert success["called"] is True
 
 
+def test_run_reports_with_multi_hyphen_touchstone():
+    run_successfully = ["r1", "r2"]
+    report_responses = {
+        "r1-key": [ReportStatusResult({"status": "success",
+                                       "version": "r1-version",
+                                       "output": None})],
+        "r2-key": [ReportStatusResult({"status": "success",
+                                       "version": "r2-version",
+                                       "output": None})]
+    }
+
+    multi_touchstone = "2021test-extra-1"
+    expected_multi_params = {
+        "r1": {"touchstone": "2021test-extra-1",
+               "touchstone_name": "2021test-extra"},
+        "r2": {"p1": "v1", "touchstone": "2021test-extra-1",
+               "touchstone_name": "2021test-extra"}
+    }
+    ow = MockOrderlyWebAPI(run_successfully, report_responses,
+                           expected_multi_params, expected_timeouts)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+
+    success = {}
+
+    def success_callback(report, version):
+        success["called"] = True
+
+    mock_running_reports = MockRunningReportRepository()
+
+    versions = run_reports(wrapper, group, disease, multi_touchstone,
+                           MockConfig(), reports, success_callback,
+                           mock_running_reports)
+
+    assert versions == {
+        "r1-version": {"published": True, "report": "r1"},
+        "r2-version": {"published": True, "report": "r2"}
+    }
+    assert success["called"] is True
+
+
 @patch("src.utils.run_reports.logging")
 def test_run_reports_kills_currently_running(logging):
     run_successfully = ["r1", "r2"]

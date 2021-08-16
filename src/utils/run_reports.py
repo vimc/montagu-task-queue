@@ -39,7 +39,7 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
         # Assume report requires touchstone and touchstone_name parameters
         parameters = report.parameters or {}
         parameters["touchstone"] = touchstone
-        parameters["touchstone_name"] = touchstone.split("-")[0]
+        parameters["touchstone_name"] = touchstone.rsplit('-', 1)[0]
 
         try:
             key = wrapper.execute(wrapper.ow.run_report,
