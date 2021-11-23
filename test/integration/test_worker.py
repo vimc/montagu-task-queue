@@ -47,6 +47,7 @@ def test_later_task_kills_earlier_task_report():
                               "touchstone",
                               "2020-11-04T12:21:16",
                               "no_vaccination"]).delay().get()
+
     assert len(versions) == 2
 
     # Check first report key's status with OrderlyWeb - should have been killed

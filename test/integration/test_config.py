@@ -23,6 +23,10 @@ def test_orderlyweb_url():
     assert config.orderlyweb_url == "http://localhost:8888"
 
 
+def test_youtrack_token():
+        assert config.youtrack_token == "<TOKEN HERE>"
+
+
 def test_report_poll_seconds():
     assert config.report_poll_seconds == 5
 

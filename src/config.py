@@ -8,12 +8,14 @@ class ReportConfig:
                  parameters,
                  success_email_recipients,
                  success_email_subject,
-                 timeout):
+                 timeout,
+                 assignee):
         self.name = name
         self.parameters = parameters
         self.success_email_recipients = success_email_recipients
         self.success_email_subject = success_email_subject
         self.timeout = timeout
+        self.assignee = assignee
 
 
 class Config:
@@ -40,6 +42,10 @@ class Config:
     @property
     def orderlyweb_url(self):
         return self.__server("orderlyweb")["url"]
+
+    @property
+    def youtrack_token(self):
+        return self.__server("youtrack")["token"]
 
     @property
     def report_poll_seconds(self):
@@ -80,12 +86,14 @@ class Config:
                 recipients = self.__value_or_default(email, "recipients", [])
                 subject = self.__value_or_default(email, "subject", "")
                 timeout = self.__value_or_default(r, "timeout", 600)
+                assignee = r["assignee"]
 
                 result.append(ReportConfig(r["report_name"],
                                            params,
                                            recipients,
                                            subject,
-                                           timeout))
+                                           timeout,
+                                           assignee))
         return result
 
     def __server(self, name):

@@ -6,6 +6,8 @@ servers:
     password: password
   orderlyweb:
     url: http://montagu_orderly_web:8888
+  youtrack:
+    token:
   smtp:
     host: montagu_smtp_server_1
     port: 1025
@@ -23,6 +25,7 @@ tasks:
                 - minimal_modeller@example.com
                 - science@example.com
               subject:  "VIMC diagnostic report: {touchstone} - {group} - {disease}"
+            assignee: a.hill
           - report_name: diagnostic-param
             parameters:
               nmin: 0
@@ -31,3 +34,4 @@ tasks:
                 - other_modeller@example.com
                 - science@example.com
               subject: "New version of another Orderly report"
+            assignee: a.hill

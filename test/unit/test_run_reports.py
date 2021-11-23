@@ -5,9 +5,9 @@ from unittest.mock import patch, call, Mock
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
-                        1000),
+                        1000, "a.ssignee"),
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2",
-                        2000)]
+                        2000, "a.ssignee")]
 
 expected_params = {
     "r1": {"touchstone": "2021test-1", "touchstone_name": "2021test"},
@@ -550,3 +550,7 @@ class MockConfig:
     @property
     def orderlyweb_url(self):
         return "http://orderly-web"
+
+    @property
+    def youtrack_token(self):
+        return "12345"
