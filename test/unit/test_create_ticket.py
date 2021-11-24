@@ -14,10 +14,19 @@ def test_create_ticket():
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
     create_ticket("g1", "d1", "t1", report, "1234", mock_client, mock_config)
-    expected_create = call(Project(id='78-0'),
-                           'Check & share diag report with g1 (d1) t1',
-                           'http://orderly-web/report/TEST/1234/')
+    expected_create = call(Project(id="78-0"),
+                           "Check & share diag report with g1 (d1) t1",
+                           "http://orderly-web/report/TEST/1234/")
     mock_client.create_issue.assert_has_calls([expected_create])
     expected_assign = call(Command(issues=["ISSUE"],
-                                   query='Assignee a.ssignee'))
-    mock_client.run_command.assert_has_calls([expected_assign])
+                                   query="Assignee a.ssignee"))
+    expected_tag_group = call(Command(issues=["ISSUE"],
+                                      query="tag g1"))
+    expected_tag_disease = call(Command(issues=["ISSUE"],
+                                        query="tag d1"))
+    expected_tag_touchstone = call(Command(issues=["ISSUE"],
+                                           query="tag t1"))
+    mock_client.run_command.assert_has_calls([expected_assign,
+                                              expected_tag_group,
+                                              expected_tag_disease,
+                                              expected_tag_touchstone])
