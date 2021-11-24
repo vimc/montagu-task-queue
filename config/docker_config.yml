@@ -34,4 +34,4 @@ tasks:
                 - other_modeller@example.com
                 - science@example.com
               subject: "New version of another Orderly report"
-            assignee: a.hill
+            assignee: e.russell

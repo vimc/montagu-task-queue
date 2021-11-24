@@ -3,7 +3,7 @@ from YTClient.YTDataClasses import Project, Command
 
 from src.task_run_diagnostic_reports import create_ticket
 from src.config import ReportConfig, Config
-from unittest.mock import call, Mock
+from unittest.mock import call, Mock, patch
 from test.unit.test_run_reports import MockConfig
 
 
@@ -30,3 +30,15 @@ def test_create_ticket():
                                               expected_tag_group,
                                               expected_tag_disease,
                                               expected_tag_touchstone])
+
+
+@patch("src.task_run_diagnostic_reports.logging")
+def test_create_ticket_logs_errors(logging):
+    report = ReportConfig("TEST", {}, ["to@example.com"],
+                          "Hi", 100, "a.ssignee")
+    mock_config: Config = MockConfig()
+    mock_client = Mock(spec=YTClient("", ""))
+    test_ex = Exception("TEST EX")
+    mock_client.create_issue = Mock(side_effect=test_ex)
+    create_ticket("g1", "d1", "t1", report, "1234", mock_client, mock_config)
+    logging.exception.assert_has_calls([call(test_ex)])

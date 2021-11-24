@@ -24,7 +24,7 @@ def test_orderlyweb_url():
 
 
 def test_youtrack_token():
-    assert config.youtrack_token == "<TOKEN HERE>"
+    assert config.youtrack_token == "None"
 
 
 def test_report_poll_seconds():

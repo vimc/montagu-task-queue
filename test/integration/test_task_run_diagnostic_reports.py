@@ -1,24 +1,37 @@
-from unittest.mock import patch, call
+import os
+import pytest
 
 from YTClient.YTClient import YTClient
+from YTClient.YTDataClasses import Command
 
-from src.config import Config, ReportConfig
 from src.task_run_diagnostic_reports import run_diagnostic_reports
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
-import pytest
+
 
 smtp = FakeSmtpUtils()
 
+yt_token = os.environ["YOUTRACK_TOKEN"]
+yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
+              token=yt_token)
+test_touchstone = "touchstone-task-runner-test"
+
 
 @pytest.fixture(scope="module", autouse=True)
-def mod_header(request):
+def cleanup_emails():
     smtp.delete_all()
+
+
+@pytest.fixture(autouse=True)
+def cleanup_tickets():
+    issues = yt.get_issues("summary: {}".format(test_touchstone))
+    if len(issues) > 0:
+        yt.run_command(Command(issues, "delete"))
 
 
 def test_run_diagnostic_reports():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
-                                    "tid",
+                                    test_touchstone,
                                     "2020-11-01T01:02:03",
                                     "s1",
                                     "estimate_uploader@example.com",
@@ -27,7 +40,8 @@ def test_run_diagnostic_reports():
     assert len(versions) == 2
 
     expected_text = """Thank you for uploading your estimates for """ + \
-                    """testDisease for the tid touchstone.
+                    """testDisease for the touchstone-task-runner-test""" + \
+                    """ touchstone.
 This is an automated email with a link to your diagnostic report:
 
 {}
@@ -48,7 +62,7 @@ Please reply to this email to let us know:
 <body>
 <p>
     Thank you for uploading your estimates for testDisease for the """ + \
-                    """tid touchstone.
+                    """touchstone-task-runner-test touchstone.
     This is an automated email with a link to your diagnostic report:
 </p>
 <p>
@@ -73,8 +87,10 @@ Please reply to this email to let us know:
 </body>
 </html>"""
 
+    subject = "VIMC diagnostic report: {} - testGroup - testDisease" \
+        .format(test_touchstone)
     diagnostic_email_props = {
-        "subject": "VIMC diagnostic report: tid - testGroup - testDisease",
+        "subject": subject,
         "recipients": ["minimal_modeller@example.com", "science@example.com",
                        "estimate_uploader@example.com",
                        "estimate_uploader2@example.com"]
@@ -119,31 +135,73 @@ Please reply to this email to let us know:
 
 
 def test_run_reports_no_group_config():
-    versions = run_diagnostic_reports("noGroup", "noDisease", "t1",
+    versions = run_diagnostic_reports("noGroup", "noDisease",
+                                      test_touchstone,
                                       "2020-11-01 01:02:03", "s1")
+    issues = yt.get_issues("summary: {}".format(test_touchstone))
     assert len(versions) == 0
+    assert len(issues) == 0
 
 
 def test_run_reports_no_disease_config():
-    versions = run_diagnostic_reports("testGroup", "noDisease", "t1",
+    versions = run_diagnostic_reports("testGroup", "noDisease",
+                                      test_touchstone,
                                       "2020-11-01 01:02:03", "s1")
+    issues = yt.get_issues("summary: {}".format(test_touchstone))
     assert len(versions) == 0
+    assert len(issues) == 0
 
 
-@patch("src.task_run_diagnostic_reports.create_ticket")
-def test_ticket_created(create_ticket):
+def test_ticket_created():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
-                                    "tid",
+                                    test_touchstone,
                                     "2020-11-01T01:02:03",
                                     "s1",
                                     "estimate_uploader@example.com")
     versions = list(result.keys())
-    args, kwargs = create_ticket.call_args
-    assert args[0] == "testGroup"
-    assert args[1] == "testDisease"
-    assert args[2] == "tid"
-    assert isinstance(args[3], ReportConfig)
-    assert args[4] in versions
-    assert isinstance(args[5], YTClient)
-    assert isinstance(args[6], Config)
+    issues = yt.get_issues("summary: {}".format(test_touchstone),
+                           fields=["summary",
+                                   "description",
+                                   "tags(name)",
+                                   "customFields(name,value(id,login))"])
+
+    assert len(versions) == 2
+    assert len(issues) == 2
+
+    v1 = versions[0]
+    r1 = result[v1]["report"]
+    i1 = [i for i in issues if v1 in i["description"]][0]
+
+    v2 = versions[1]
+    r2 = result[v2]["report"]
+    i2 = [i for i in issues if v2 in i["description"]][0]
+
+    expected_summary = \
+        "Check & share diag report with testGroup (testDisease) {}" \
+        .format(test_touchstone)
+    expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    assert i1["summary"] == expected_summary
+    assert i1["description"] == expected_link1
+    assignee = [f for f in i1["customFields"] if f["name"] == "Assignee"][0]
+    assert assignee["value"]["login"] == \
+           ("a.hill" if r1 == "diagnostic" else "e.russell")
+
+    tags = [i["name"] for i in i1["tags"]]
+    assert len(tags) == 3
+    assert "testGroup" in tags
+    assert "testDisease" in tags
+    assert test_touchstone in tags
+
+    expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    assert i2["summary"] == expected_summary
+    assert i2["description"] == expected_link2
+    assignee = [f for f in i2["customFields"] if f["name"] == "Assignee"][0]
+    assert assignee["value"]["login"] == \
+           ("a.hill" if r2 == "diagnostic" else "e.russell")
+
+    tags = [i["name"] for i in i2["tags"]]
+    assert len(tags) == 3
+    assert "testGroup" in tags
+    assert "testDisease" in tags
+    assert test_touchstone in tags

@@ -1,3 +1,5 @@
+import os
+
 from YTClient.YTDataClasses import Project, Command
 
 from src.utils.run_reports import run_reports
@@ -10,6 +12,8 @@ import logging
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from src.utils.running_reports_repository import RunningReportsRepository
 from YTClient.YTClient import YTClient
+
+vimc_project_id = "78-0"
 
 
 @app.task(name="run-diagnostic-reports")
@@ -25,8 +29,13 @@ def run_diagnostic_reports(group,
         wrapper = OrderlyWebClientWrapper(config)
         emailer = Emailer(config.smtp_host, config.smtp_port,
                           config.smtp_user, config.smtp_password)
+        yt_token = config.youtrack_token
+        if yt_token is None or yt_token == "None":
+            # allow yt token passed as env var when running locally
+            # or during CI tests
+            yt_token = os.environ["YOUTRACK_TOKEN"]
         yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
-                      token=config.youtrack_token)
+                      token=yt_token)
 
         def success_callback(report, version):
             send_diagnostic_report_email(emailer,
@@ -63,7 +72,7 @@ def create_ticket(group, disease, touchstone,
                   yt: YTClient,
                   config: Config):
     try:
-        issue = yt.create_issue(Project("78-0"),
+        issue = yt.create_issue(Project(vimc_project_id),
                                 "Check & share diag report with {} ({}) {}"
                                 .format(group, disease, touchstone),
                                 get_version_url(report, version, config))

@@ -7,7 +7,7 @@ servers:
   orderlyweb:
     url: http://localhost:8888
   youtrack:
-    token: <TOKEN HERE>
+    token: None
   smtp:
     host: localhost
     port: 1025
