@@ -26,11 +26,11 @@ touchstone = "2021test-1"
 
 expected_run_rpt_1_log = "Running report: r1 with parameters " \
                          "touchstone=2021test-1, touchstone_name=2021test. " \
-                            "Key is r1-key. Timeout is 1000s."
+                         "Key is r1-key. Timeout is 1000s."
 
 expected_run_rpt_2_log = "Running report: r2 with parameters p1=v1, " \
                          "touchstone=2021test-1, touchstone_name=2021test. " \
-                            "Key is r2-key. Timeout is 2000s."
+                         "Key is r2-key. Timeout is 2000s."
 
 
 @patch("src.utils.run_reports.logging")

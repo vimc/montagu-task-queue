@@ -1,3 +1,8 @@
+from unittest.mock import patch, call
+
+from YTClient.YTClient import YTClient
+
+from src.config import Config, ReportConfig
 from src.task_run_diagnostic_reports import run_diagnostic_reports
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
 import pytest
@@ -27,7 +32,7 @@ This is an automated email with a link to your diagnostic report:
 
 {}
 
-These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ +\
+These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ + \
                     """01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
 
 Please reply to this email to let us know:
@@ -50,7 +55,7 @@ Please reply to this email to let us know:
     <a href="{}">{}</a>
 </p>
 <p>
-    These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ +\
+    These estimates were received for scenario: s1, on Sun 01 Nov 2020 """ + \
                     """01:02:03 UTC (Sat 31 Oct 2020 20:02:03 ET).
 </p>
 <p>
@@ -123,3 +128,22 @@ def test_run_reports_no_disease_config():
     versions = run_diagnostic_reports("testGroup", "noDisease", "t1",
                                       "2020-11-01 01:02:03", "s1")
     assert len(versions) == 0
+
+
+@patch("src.task_run_diagnostic_reports.create_ticket")
+def test_ticket_created(create_ticket):
+    result = run_diagnostic_reports("testGroup",
+                                    "testDisease",
+                                    "tid",
+                                    "2020-11-01T01:02:03",
+                                    "s1",
+                                    "estimate_uploader@example.com")
+    versions = list(result.keys())
+    args, kwargs = create_ticket.call_args
+    assert args[0] == "testGroup"
+    assert args[1] == "testDisease"
+    assert args[2] == "tid"
+    assert isinstance(args[3], ReportConfig)
+    assert args[4] in versions
+    assert isinstance(args[5], YTClient)
+    assert isinstance(args[6], Config)

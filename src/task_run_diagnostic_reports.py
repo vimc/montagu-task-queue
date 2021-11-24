@@ -26,7 +26,7 @@ def run_diagnostic_reports(group,
         emailer = Emailer(config.smtp_host, config.smtp_port,
                           config.smtp_user, config.smtp_password)
         yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
-                          token=config.youtrack_token)
+                      token=config.youtrack_token)
 
         def success_callback(report, version):
             send_diagnostic_report_email(emailer,
@@ -60,14 +60,15 @@ def run_diagnostic_reports(group,
 
 def create_ticket(group, disease, touchstone,
                   report: ReportConfig, version,
-                  client: YTClient,
+                  yt: YTClient,
                   config: Config):
     try:
-        issue = client.create_issue(Project("78-0"),
+        issue = yt.create_issue(Project("78-0"),
                                 "Check & share diag report with {} ({}) {}"
                                 .format(group, disease, touchstone),
                                 get_version_url(report, version, config))
-        client.run_command(Command([issue], "Assignee {}".format(report.assignee)))
+        yt.run_command(
+            Command([issue], "Assignee {}".format(report.assignee)))
     except Exception as ex:
         logging.exception(ex)
 

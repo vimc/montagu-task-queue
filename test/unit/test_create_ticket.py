@@ -7,7 +7,7 @@ from unittest.mock import call, Mock
 from test.unit.test_run_reports import MockConfig
 
 
-def test_create_ticket_on_success():
+def test_create_ticket():
     report = ReportConfig("TEST", {}, ["to@example.com"],
                           "Hi", 100, "a.ssignee")
     mock_config: Config = MockConfig()
