@@ -1,11 +1,29 @@
 import celery
+import pytest
 import time
+import os
+
+from YTClient.YTClient import YTClient
+from YTClient.YTDataClasses import Command
+
 from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
 sig = "run-diagnostic-reports"
+
+yt_token = os.environ["YOUTRACK_TOKEN"]
+yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
+              token=yt_token)
+test_touchstone = "touchstone-task-runner-test"
+
+
+@pytest.fixture(autouse=True)
+def cleanup_tickets():
+    issues = yt.get_issues("tag: {}".format(test_touchstone))
+    if len(issues) > 0:
+        yt.run_command(Command(issues, "delete"))
 
 
 def test_run_diagnostic_reports():
