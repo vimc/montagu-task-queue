@@ -1,27 +1,20 @@
 import requests
-import os
 import pytest
 
-from YTClient.YTClient import YTClient
-from YTClient.YTDataClasses import Command
+from test.integration.yt_utils import YouTrackUtils
 
-yt_token = os.environ["YOUTRACK_TOKEN"]
-yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
-              token=yt_token)
-test_touchstone = "touchstone-task-runner-test"
+yt = YouTrackUtils()
 
 
 @pytest.fixture(autouse=True)
 def cleanup_tickets():
-    issues = yt.get_issues("tag: {}".format(test_touchstone))
-    if len(issues) > 0:
-        yt.run_command(Command(issues, "delete"))
+    yt.cleanup()
 
 
 def test_run_task_through_flower():
     args = ["testGroup",
             "testDisease",
-            test_touchstone,
+            yt.test_touchstone,
             "2020-11-04T12:21:15",
             "no_vaccination"]
     result = requests.post(
