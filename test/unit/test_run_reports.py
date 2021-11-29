@@ -407,7 +407,7 @@ def test_run_reports_with_status_error(logging):
     mock_running_reports.assert_expected_calls()
     ow.kill_report.assert_not_called()
     assert success["called"] == "r2-version"
-    assert error["called"] == None
+    assert error["called"] is None
 
 
 @patch("src.utils.run_reports.logging")
