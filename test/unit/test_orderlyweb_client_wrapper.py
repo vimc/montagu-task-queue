@@ -6,7 +6,8 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from test import ExceptionMatching
 from test.unit.test_run_reports import MockConfig, MockRunningReportRepository
 
-reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1", 1000)]
+reports = [ReportConfig("r1", None, ["r1@example.com"],
+                        "Subj: r1", 1000, "a.ssignee")]
 
 report_response = ReportStatusResult({"status": "success",
                                       "version": "r1-version",

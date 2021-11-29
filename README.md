@@ -30,7 +30,8 @@ If you end
 up with an old worker still running (which causes new workers to complain that another node is already listening), you
 kill all dev workers with `pkill -9 -f 'celery -A src worker'`.
 
-
+YouTrack tickets will be created if you have an environment variable `YOUTRACK_TOKEN` in your environment with a valid 
+YouTrack permanent API token.
 
 ## Testing
 
@@ -54,3 +55,7 @@ The worker expects to find a config file at `config/config.yml`.
 The Dockerfile copies `config/docker_config.yml` to `config/config.yml`.
 This allows the worker running on metal to use a broker on `localhost` while the worker in docker needs to use
 `montagu_mq`, the container name of the broker, to access its port. 
+
+Note that if a YouTrack token is not provided in the config the app will look for an environment variable called `YOUTRACK_TOKEN`. 
+This makes local and automated testing of the YouTrack integration possible. 
+During `montagu` deployment a token from the vault will be added to the config.

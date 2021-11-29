@@ -5,9 +5,9 @@ from unittest.mock import patch, call, Mock
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
-                        1000),
+                        1000, "a.ssignee"),
            ReportConfig("r2", {"p1": "v1"}, ["r2@example.com"], "Subj: r2",
-                        2000)]
+                        2000, "a.ssignee")]
 
 expected_params = {
     "r1": {"touchstone": "2021test-1", "touchstone_name": "2021test"},
@@ -26,11 +26,11 @@ touchstone = "2021test-1"
 
 expected_run_rpt_1_log = "Running report: r1 with parameters " \
                          "touchstone=2021test-1, touchstone_name=2021test. " \
-                            "Key is r1-key. Timeout is 1000s."
+                         "Key is r1-key. Timeout is 1000s."
 
 expected_run_rpt_2_log = "Running report: r2 with parameters p1=v1, " \
                          "touchstone=2021test-1, touchstone_name=2021test. " \
-                            "Key is r2-key. Timeout is 2000s."
+                         "Key is r2-key. Timeout is 2000s."
 
 
 @patch("src.utils.run_reports.logging")
@@ -550,3 +550,7 @@ class MockConfig:
     @property
     def orderlyweb_url(self):
         return "http://orderly-web"
+
+    @property
+    def youtrack_token(self):
+        return "12345"

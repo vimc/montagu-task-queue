@@ -3,6 +3,8 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      YOUTRACK_TOKEN: ${{ secrets.YOUTRACK_TOKEN }}
     steps:
       - uses: actions/checkout@v2
 

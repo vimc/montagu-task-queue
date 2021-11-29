@@ -6,8 +6,10 @@ from src.utils.running_reports_repository import RunningReportsRepository
 
 def test_run_reports_handles_error():
     reports = [
-        ReportConfig("nonexistent", None, ["test1@test.com"], "subject1", 600),
-        ReportConfig("diagnostic", {}, ["test2@test.com"], "subject2", 600)]
+        ReportConfig("nonexistent", None, ["test1@test.com"], "subject1",
+                     600, "a.ssignee"),
+        ReportConfig("diagnostic", {}, ["test2@test.com"], "subject2", 600,
+                     "a.ssignee")]
     config = Config()
     wrapper = OrderlyWebClientWrapper(config)
     success = {}

@@ -1,13 +1,19 @@
-import re
+import os
+
+from YTClient.YTDataClasses import Project, Command
+
 from src.utils.run_reports import run_reports
 from datetime import datetime, timedelta
 from .celery import app
-from .config import Config
+from .config import Config, ReportConfig
 from src.utils.email import send_email, Emailer
 from urllib.parse import quote as urlencode
 import logging
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from src.utils.running_reports_repository import RunningReportsRepository
+from YTClient.YTClient import YTClient
+
+vimc_project_id = "78-0"
 
 
 @app.task(name="run-diagnostic-reports")
@@ -17,13 +23,19 @@ def run_diagnostic_reports(group,
                            utc_time,  # ISO string e.g 2020-11-03T10:15:30
                            scenario,
                            *additional_recipients):
-
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
         wrapper = OrderlyWebClientWrapper(config)
         emailer = Emailer(config.smtp_host, config.smtp_port,
                           config.smtp_user, config.smtp_password)
+        yt_token = config.youtrack_token
+        if yt_token is None or yt_token == "None":
+            # allow yt token passed as env var when running locally
+            # or during CI tests
+            yt_token = os.environ["YOUTRACK_TOKEN"]
+        yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
+                      token=yt_token)
 
         def success_callback(report, version):
             send_diagnostic_report_email(emailer,
@@ -36,6 +48,8 @@ def run_diagnostic_reports(group,
                                          scenario,
                                          config,
                                          *additional_recipients)
+            create_ticket(group, disease, touchstone,
+                          report, version, yt, config)
 
         running_reports_repo = RunningReportsRepository(host=config.host)
 
@@ -53,6 +67,24 @@ def run_diagnostic_reports(group,
         return {}
 
 
+def create_ticket(group, disease, touchstone,
+                  report: ReportConfig, version,
+                  yt: YTClient,
+                  config: Config):
+    try:
+        issue = yt.create_issue(Project(vimc_project_id),
+                                "Check & share diag report with {} ({}) {}"
+                                .format(group, disease, touchstone),
+                                get_version_url(report, version, config))
+        yt.run_command(
+            Command([issue],
+                    "for {} tag {} tag {} tag {}".format(report.assignee,
+                                                         group, disease,
+                                                         touchstone)))
+    except Exception as ex:
+        logging.exception(ex)
+
+
 def send_diagnostic_report_email(emailer,
                                  report,
                                  version,
@@ -63,13 +95,8 @@ def send_diagnostic_report_email(emailer,
                                  scenario,
                                  config,
                                  *additional_recipients):
-    r_enc = urlencode(report.name)
-    v_enc = urlencode(version)
-    version_url = "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc,
-                                            v_enc)
-
     template_values = {
-        "report_version_url": version_url,
+        "report_version_url": get_version_url(report, version, config),
         "disease": disease,
         "group": group,
         "touchstone": touchstone,
@@ -99,3 +126,9 @@ def get_time_strings(utc_time):
         "utc_time": utc_friendly,
         "eastern_time": et_friendly
     }
+
+
+def get_version_url(report, version, config):
+    r_enc = urlencode(report.name)
+    v_enc = urlencode(version)
+    return "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc, v_enc)
