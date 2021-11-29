@@ -30,7 +30,7 @@ def test_run_diagnostic_reports():
     versions = app.signature(sig,
                              ["testGroup",
                               "testDisease",
-                              "touchstone",
+                              test_touchstone,
                               "2020-11-04T12:21:15",
                               "no_vaccination"]).delay().get()
     assert len(versions) == 2
@@ -43,7 +43,7 @@ def test_later_task_kills_earlier_task_report():
 
     app.send_task(sig, ["testGroup",
                         "testDisease",
-                        "touchstone",
+                        test_touchstone,
                         "2020-11-04T12:21:15",
                         "no_vaccination"])
 
@@ -62,7 +62,7 @@ def test_later_task_kills_earlier_task_report():
     versions = app.signature(sig,
                              ["testGroup",
                               "testDisease",
-                              "touchstone",
+                              test_touchstone,
                               "2020-11-04T12:21:16",
                               "no_vaccination"]).delay().get()
 
@@ -82,6 +82,6 @@ def test_later_task_kills_earlier_task_report():
 def test_run_diagnostic_reports_nowait():
     app.send_task(sig, ["testGroup",
                         "testDisease",
-                        "touchstone",
+                        test_touchstone,
                         "2020-11-04T12:21:15",
                         "no_vaccination"])

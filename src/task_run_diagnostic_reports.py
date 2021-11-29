@@ -51,6 +51,10 @@ def run_diagnostic_reports(group,
             create_ticket(group, disease, touchstone,
                           report, version, yt, config)
 
+        def error_callback(report, version=None):
+            create_ticket(group, disease, touchstone,
+                          report, version, yt, config)
+
         running_reports_repo = RunningReportsRepository(host=config.host)
 
         return run_reports(wrapper,
@@ -60,6 +64,7 @@ def run_diagnostic_reports(group,
                            config,
                            reports,
                            success_callback,
+                           error_callback,
                            running_reports_repo)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
@@ -72,18 +77,18 @@ def create_ticket(group, disease, touchstone,
                   yt: YTClient,
                   config: Config):
     try:
+        report_success = version is not None
+        summary = "Check & share diag report with {} ({}) {}" if \
+            report_success else \
+            "Run, check & share diag report with {} ({}) {}"
+        description = get_version_url(report, version, config) if \
+            report_success else ""
         issue = yt.create_issue(Project(vimc_project_id),
-                                "Check & share diag report with {} ({}) {}"
-                                .format(group, disease, touchstone),
-                                get_version_url(report, version, config))
+                                summary.format(group, disease, touchstone),
+                                description)
         yt.run_command(
-            Command([issue], "Assignee {}".format(report.assignee)))
-        yt.run_command(
-            Command([issue], "tag {}".format(group)))
-        yt.run_command(
-            Command([issue], "tag {}".format(disease)))
-        yt.run_command(
-            Command([issue], "tag {}".format(touchstone)))
+            Command([issue], "for {} tag {} tag {} tag {}"
+                    .format(report.assignee, group, disease, touchstone)))
     except Exception as ex:
         logging.exception(ex)
 

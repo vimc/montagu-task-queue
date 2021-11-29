@@ -13,17 +13,24 @@ def test_run_reports_handles_error():
     config = Config()
     wrapper = OrderlyWebClientWrapper(config)
     success = {}
+    error = {}
 
     def success_callback(report, version):
         success[report.name] = version
+
+    def error_callback(report, version=None):
+        error[report.name] = True
 
     running_reports_repository = RunningReportsRepository()
 
     versions = run_reports(wrapper, "testGroup", "testDisease",
                            "testTouchstone", config, reports,
-                           success_callback, running_reports_repository)
+                           success_callback, error_callback,
+                           running_reports_repository)
     keys = list(versions.keys())
     assert len(keys) == 1
     assert versions[keys[0]]["published"] is True
     assert success["diagnostic"] == keys[0]
+    assert error["nonexistent"]
     assert len(success) == 1
+    assert len(error) == 1

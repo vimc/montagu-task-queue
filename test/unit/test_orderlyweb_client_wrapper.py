@@ -61,13 +61,18 @@ def test_retries_when_token_expired(logging):
     auth = MockReturnAuthorisedClient().auth
     wrapper = OrderlyWebClientWrapper(None, auth)
     success = {}
+    error = {}
 
     def success_callback(report, version):
         success["called"] = True
 
+    def error_callback(report, version=None):
+        error["called"] = True
+
     mock_running_reports = MockRunningReportRepository()
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {"r1-version": {"published": True, "report": "r1"}}
     logging.info.assert_has_calls([
@@ -80,6 +85,7 @@ def test_retries_when_token_expired(logging):
     ], any_order=False)
 
     assert success["called"] is True
+    assert len(error) == 0
 
 
 @patch("src.utils.run_reports.logging")
@@ -87,13 +93,18 @@ def test_retries_when_token_expired(logging):
 def test_handles_auth_errors(logging_ow, logging_reports):
     wrapper = OrderlyWebClientWrapper({})
     success = {}
+    error = {}
 
     def success_callback(report, version):
         success["called"] = True
 
+    def error_callback(report, version=None):
+        error["called"] = True
+
     mock_running_reports = MockRunningReportRepository()
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     # the wrapper will have an auth failure because no auth config
     # supplied
@@ -107,3 +118,4 @@ def test_handles_auth_errors(logging_ow, logging_reports):
 
     assert len(success) == 0
     assert len(versions) == 0
+    assert error["called"] is True

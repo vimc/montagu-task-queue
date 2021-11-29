@@ -21,7 +21,7 @@ def cleanup_tickets():
 def test_run_task_through_flower():
     args = ["testGroup",
             "testDisease",
-            "touchstone",
+            test_touchstone,
             "2020-11-04T12:21:15",
             "no_vaccination"]
     result = requests.post(

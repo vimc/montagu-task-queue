@@ -16,11 +16,13 @@ def params_to_string(params):
 
 
 def run_reports(wrapper, group, disease, touchstone, config, reports,
-                success_callback, running_reports_repo):
+                success_callback, error_callback, running_reports_repo):
     running_reports = {}
     new_versions = {}
 
     if wrapper.ow is None:
+        for report in reports:
+            error_callback(report)
         logging.error("Orderlyweb authentication failed; could not begin task")
         return new_versions
 
@@ -55,6 +57,7 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                          .format(report.name, params_to_string(parameters),
                                  key, report.timeout))
         except Exception as ex:
+            error_callback(report)
             logging.exception(ex)
 
     # Poll running reports until they complete
@@ -84,14 +87,17 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                             logging.error(
                                 "Failed to publish report version {}-{}"
                                 .format(name, version))
+                            error_callback(report, version)
                         new_versions[version] = {
                             "published": published,
                             "report": name
                         }
                     else:
                         logging.error("Failure for key {}.".format(key))
+                        error_callback(report)
 
             except Exception as ex:
+                error_callback(report)
                 if key not in finished:
                     finished.append(key)
                 logging.exception(ex)

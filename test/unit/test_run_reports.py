@@ -49,14 +49,19 @@ def test_run_reports(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
         success["called"] = True
 
+    def error_callback(report, version=None):
+        error["called"] = True
+
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -78,6 +83,7 @@ def test_run_reports(logging):
     ow.kill_report.assert_not_called()
 
     assert success["called"] is True
+    assert error["called"] is False
 
 
 def test_run_reports_with_multi_hyphen_touchstone():
@@ -103,14 +109,19 @@ def test_run_reports_with_multi_hyphen_touchstone():
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
 
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
         success["called"] = True
+
+    def error_callback(report, version=None):
+        error["called"] = True
 
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, multi_touchstone,
                            MockConfig(), reports, success_callback,
+                           error_callback,
                            mock_running_reports)
 
     assert versions == {
@@ -118,6 +129,7 @@ def test_run_reports_with_multi_hyphen_touchstone():
         "r2-version": {"published": True, "report": "r2"}
     }
     assert success["called"] is True
+    assert error["called"] is False
 
 
 @patch("src.utils.run_reports.logging")
@@ -136,15 +148,20 @@ def test_run_reports_kills_currently_running(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
         success["called"] = True
+
+    def error_callback(report, version=None):
+        error["called"] = True
 
     mock_running_reports = \
         MockRunningReportRepository(["r1-old-key", "r2-old-key"])
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -172,6 +189,7 @@ def test_run_reports_kills_currently_running(logging):
     ], any_order=False)
 
     assert success["called"] is True
+    assert error["called"] is False
 
 
 @patch("src.utils.run_reports.logging")
@@ -190,14 +208,19 @@ def test_run_reports_with_additional_recipients(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
         success["called"] = True
 
+    def error_callback(report, version=None):
+        error["called"] = True
+
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -219,6 +242,7 @@ def test_run_reports_with_additional_recipients(logging):
     ow.kill_report.assert_not_called()
 
     assert success["called"] is True
+    assert error["called"] is False
 
 
 @patch("src.utils.run_reports.logging")
@@ -243,14 +267,19 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
         success["called"] = True
 
+    def error_callback(report, version=None):
+        error["called"] = True
+
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"},
@@ -272,6 +301,7 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
     ow.kill_report.assert_not_called()
 
     assert success["called"] is True
+    assert error["called"] is False
 
 
 @patch("src.utils.run_reports.logging")
@@ -286,14 +316,19 @@ def test_run_reports_with_run_error(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
         success["called"] = True
 
+    def error_callback(report, version=None):
+        error["called"] = True
+
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"}
@@ -325,6 +360,7 @@ def test_run_reports_with_run_error(logging):
     ow.kill_report.assert_not_called()
 
     assert success["called"] is True
+    assert error["called"] is True
 
 
 @patch("src.utils.run_reports.logging")
@@ -340,14 +376,19 @@ def test_run_reports_with_status_error(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
-        success["called"] = True
+        success["called"] = version
+
+    def error_callback(report, version=None):
+        error["called"] = version
 
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r2-version": {"published": True, "report": "r2"}
@@ -365,7 +406,8 @@ def test_run_reports_with_status_error(logging):
 
     mock_running_reports.assert_expected_calls()
     ow.kill_report.assert_not_called()
-    assert success["called"] is True
+    assert success["called"] == "r2-version"
+    assert error["called"] == None
 
 
 @patch("src.utils.run_reports.logging")
@@ -384,14 +426,19 @@ def test_run_reports_with_status_failure(logging):
                            expected_params, expected_timeouts)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {"called": False}
 
     def success_callback(report, version):
-        success["called"] = True
+        success["called"] = version
+
+    def error_callback(report, version=None):
+        error["called"] = version
 
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"}
@@ -410,7 +457,8 @@ def test_run_reports_with_status_failure(logging):
 
     mock_running_reports.assert_expected_calls()
     ow.kill_report.assert_not_called()
-    assert success["called"] is True
+    assert success["called"] == "r1-version"
+    assert error["called"] is None
 
 
 @patch("src.utils.run_reports.logging")
@@ -429,14 +477,19 @@ def test_run_reports_with_publish_failure(logging):
                            expected_params, expected_timeouts, fail_publish)
     wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
     success = {}
+    error = {}
 
     def success_callback(report, version):
-        success["called"] = True
+        success["called"] = version
+
+    def error_callback(report, version=None):
+        error["called"] = version
 
     mock_running_reports = MockRunningReportRepository()
 
     versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
-                           reports, success_callback, mock_running_reports)
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
 
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
@@ -458,7 +511,8 @@ def test_run_reports_with_publish_failure(logging):
 
     mock_running_reports.assert_expected_calls()
     ow.kill_report.assert_not_called()
-    assert success["called"] is True
+    assert success["called"] == "r1-version"
+    assert error["called"] == "r2-version"
 
 
 class MockRunningReportRepository:
