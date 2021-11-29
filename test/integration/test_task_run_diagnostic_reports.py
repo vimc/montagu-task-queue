@@ -23,7 +23,7 @@ def cleanup_emails():
 
 @pytest.fixture(autouse=True)
 def cleanup_tickets():
-    issues = yt.get_issues("summary: {}".format(test_touchstone))
+    issues = yt.get_issues("tag: {}".format(test_touchstone))
     if len(issues) > 0:
         yt.run_command(Command(issues, "delete"))
 
