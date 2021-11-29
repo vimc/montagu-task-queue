@@ -7,8 +7,8 @@ yt = YouTrackUtils()
 
 
 @pytest.fixture(autouse=True)
-def cleanup_tickets():
-    yt.cleanup()
+def cleanup_tickets(request):
+    request.addfinalizer(yt.cleanup)
 
 
 def test_run_task_through_flower():

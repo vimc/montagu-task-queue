@@ -14,8 +14,8 @@ def cleanup_emails():
 
 
 @pytest.fixture(autouse=True)
-def cleanup_tickets():
-    yt.cleanup()
+def cleanup_tickets(request):
+    request.addfinalizer(yt.cleanup)
 
 
 def test_run_diagnostic_reports():
@@ -169,7 +169,7 @@ def test_ticket_created():
 
     expected_summary = \
         "Check & share diag report with testGroup (testDisease) {}" \
-            .format(yt.test_touchstone)
+        .format(yt.test_touchstone)
     expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
     assert i1["description"] == expected_link1

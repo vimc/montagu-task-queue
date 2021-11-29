@@ -13,8 +13,8 @@ yt = YouTrackUtils()
 
 
 @pytest.fixture(autouse=True)
-def cleanup_tickets():
-    yt.cleanup()
+def cleanup_tickets(request):
+    request.addfinalizer(yt.cleanup)
 
 
 def test_run_diagnostic_reports():
@@ -34,7 +34,6 @@ def test_later_task_kills_earlier_task_report():
 
     app.send_task(sig, ["testGroup",
                         "testDisease",
-                        yt.test_touchstone,
                         yt.test_touchstone,
                         "2020-11-04T12:21:15",
                         "no_vaccination"])
@@ -69,11 +68,3 @@ def test_later_task_kills_earlier_task_report():
 
     # Check redis key has been tidied up
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
-
-
-def test_run_diagnostic_reports_nowait():
-    app.send_task(sig, ["testGroup",
-                        "testDisease",
-                        yt.test_touchstone,
-                        "2020-11-04T12:21:15",
-                        "no_vaccination"])
