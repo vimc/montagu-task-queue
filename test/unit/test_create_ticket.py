@@ -18,18 +18,10 @@ def test_create_ticket():
                            "Check & share diag report with g1 (d1) t1",
                            "http://orderly-web/report/TEST/1234/")
     mock_client.create_issue.assert_has_calls([expected_create])
-    expected_assign = call(Command(issues=["ISSUE"],
-                                   query="Assignee a.ssignee"))
-    expected_tag_group = call(Command(issues=["ISSUE"],
-                                      query="tag g1"))
-    expected_tag_disease = call(Command(issues=["ISSUE"],
-                                        query="tag d1"))
-    expected_tag_touchstone = call(Command(issues=["ISSUE"],
-                                           query="tag t1"))
-    mock_client.run_command.assert_has_calls([expected_assign,
-                                              expected_tag_group,
-                                              expected_tag_disease,
-                                              expected_tag_touchstone])
+    expected_command_query = "for a.ssignee tag g1 tag d1 tag t1"
+    expected_command = call(Command(issues=["ISSUE"],
+                                    query=expected_command_query))
+    mock_client.run_command.assert_has_calls([expected_command])
 
 
 @patch("src.task_run_diagnostic_reports.logging")

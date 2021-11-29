@@ -1,18 +1,27 @@
 import celery
+import pytest
 import time
+
 from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from test.integration.yt_utils import YouTrackUtils
 
 app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
 sig = "run-diagnostic-reports"
+yt = YouTrackUtils()
+
+
+@pytest.fixture(autouse=True)
+def cleanup_tickets(request):
+    request.addfinalizer(yt.cleanup)
 
 
 def test_run_diagnostic_reports():
     versions = app.signature(sig,
                              ["testGroup",
                               "testDisease",
-                              "touchstone",
+                              yt.test_touchstone,
                               "2020-11-04T12:21:15",
                               "no_vaccination"]).delay().get()
     assert len(versions) == 2
@@ -25,7 +34,7 @@ def test_later_task_kills_earlier_task_report():
 
     app.send_task(sig, ["testGroup",
                         "testDisease",
-                        "touchstone",
+                        yt.test_touchstone,
                         "2020-11-04T12:21:15",
                         "no_vaccination"])
 
@@ -44,7 +53,7 @@ def test_later_task_kills_earlier_task_report():
     versions = app.signature(sig,
                              ["testGroup",
                               "testDisease",
-                              "touchstone",
+                              yt.test_touchstone,
                               "2020-11-04T12:21:16",
                               "no_vaccination"]).delay().get()
 
@@ -64,6 +73,6 @@ def test_later_task_kills_earlier_task_report():
 def test_run_diagnostic_reports_nowait():
     app.send_task(sig, ["testGroup",
                         "testDisease",
-                        "touchstone",
+                        yt.test_touchstone,
                         "2020-11-04T12:21:15",
                         "no_vaccination"])
