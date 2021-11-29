@@ -1,3 +1,5 @@
+from unittest import mock
+from unittest.mock import PropertyMock
 import pytest
 
 from src.task_run_diagnostic_reports import run_diagnostic_reports
@@ -142,7 +144,7 @@ def test_run_reports_no_disease_config():
     assert len(issues) == 0
 
 
-def test_ticket_created():
+def test_ticket_created_on_success():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
                                     yt.test_touchstone,
@@ -189,6 +191,51 @@ def test_ticket_created():
     assignee = [f for f in i2["customFields"] if f["name"] == "Assignee"][0]
     assert assignee["value"]["login"] == \
            ("a.hill" if r2 == "diagnostic" else "e.russell")
+
+    tags = [i["name"] for i in i2["tags"]]
+    assert len(tags) == 3
+    assert "testGroup" in tags
+    assert "testDisease" in tags
+    assert yt.test_touchstone in tags
+
+
+@mock.patch('src.config.Config.orderlyweb_url', new_callable=PropertyMock)
+def test_ticket_created_on_error(mock_orderlyweb_url):
+    mock_orderlyweb_url.return_value = "http://bad-url"
+    result = run_diagnostic_reports("testGroup",
+                                    "testDisease",
+                                    yt.test_touchstone,
+                                    "2020-11-01T01:02:03",
+                                    "s1",
+                                    "estimate_uploader@example.com")
+    versions = list(result.keys())
+    issues = yt.get_issues("tag: {}".format(yt.test_touchstone),
+                           fields=["summary",
+                                   "description",
+                                   "tags(name)",
+                                   "customFields(name,value(id,login))"])
+
+    assert len(versions) == 0
+    assert len(issues) == 2
+
+    expected_summary = \
+        "Run, check & share diag report with testGroup (testDisease) {}" \
+        .format(yt.test_touchstone)
+
+    i1 = issues[0]
+    i2 = issues[1]
+
+    assert i1["summary"] == expected_summary
+    assert i1["description"] is None
+
+    tags = [i["name"] for i in i1["tags"]]
+    assert len(tags) == 3
+    assert "testGroup" in tags
+    assert "testDisease" in tags
+    assert yt.test_touchstone in tags
+
+    assert i2["summary"] == expected_summary
+    assert i2["description"] is None
 
     tags = [i["name"] for i in i2["tags"]]
     assert len(tags) == 3
