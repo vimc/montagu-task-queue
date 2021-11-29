@@ -1,19 +1,11 @@
-import os
 import pytest
-
-from YTClient.YTClient import YTClient
-from YTClient.YTDataClasses import Command
 
 from src.task_run_diagnostic_reports import run_diagnostic_reports
 from test.integration.fake_smtp_utils import FakeSmtpUtils, FakeEmailProperties
-
+from test.integration.yt_utils import YouTrackUtils
 
 smtp = FakeSmtpUtils()
-
-yt_token = os.environ["YOUTRACK_TOKEN"]
-yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
-              token=yt_token)
-test_touchstone = "touchstone-task-runner-test"
+yt = YouTrackUtils()
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -23,15 +15,13 @@ def cleanup_emails():
 
 @pytest.fixture(autouse=True)
 def cleanup_tickets():
-    issues = yt.get_issues("tag: {}".format(test_touchstone))
-    if len(issues) > 0:
-        yt.run_command(Command(issues, "delete"))
+    yt.cleanup()
 
 
 def test_run_diagnostic_reports():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
-                                    test_touchstone,
+                                    yt.test_touchstone,
                                     "2020-11-01T01:02:03",
                                     "s1",
                                     "estimate_uploader@example.com",
@@ -88,7 +78,7 @@ Please reply to this email to let us know:
 </html>"""
 
     subject = "VIMC diagnostic report: {} - testGroup - testDisease" \
-        .format(test_touchstone)
+        .format(yt.test_touchstone)
     diagnostic_email_props = {
         "subject": subject,
         "recipients": ["minimal_modeller@example.com", "science@example.com",
@@ -136,18 +126,18 @@ Please reply to this email to let us know:
 
 def test_run_reports_no_group_config():
     versions = run_diagnostic_reports("noGroup", "noDisease",
-                                      test_touchstone,
+                                      yt.test_touchstone,
                                       "2020-11-01 01:02:03", "s1")
-    issues = yt.get_issues("summary: {}".format(test_touchstone))
+    issues = yt.get_issues()
     assert len(versions) == 0
     assert len(issues) == 0
 
 
 def test_run_reports_no_disease_config():
     versions = run_diagnostic_reports("testGroup", "noDisease",
-                                      test_touchstone,
+                                      yt.test_touchstone,
                                       "2020-11-01 01:02:03", "s1")
-    issues = yt.get_issues("summary: {}".format(test_touchstone))
+    issues = yt.get_issues()
     assert len(versions) == 0
     assert len(issues) == 0
 
@@ -155,12 +145,12 @@ def test_run_reports_no_disease_config():
 def test_ticket_created():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
-                                    test_touchstone,
+                                    yt.test_touchstone,
                                     "2020-11-01T01:02:03",
                                     "s1",
                                     "estimate_uploader@example.com")
     versions = list(result.keys())
-    issues = yt.get_issues("summary: {}".format(test_touchstone),
+    issues = yt.get_issues("summary: {}".format(yt.test_touchstone),
                            fields=["summary",
                                    "description",
                                    "tags(name)",
@@ -179,7 +169,7 @@ def test_ticket_created():
 
     expected_summary = \
         "Check & share diag report with testGroup (testDisease) {}" \
-        .format(test_touchstone)
+            .format(yt.test_touchstone)
     expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
     assert i1["description"] == expected_link1
@@ -191,7 +181,7 @@ def test_ticket_created():
     assert len(tags) == 3
     assert "testGroup" in tags
     assert "testDisease" in tags
-    assert test_touchstone in tags
+    assert yt.test_touchstone in tags
 
     expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
@@ -204,4 +194,4 @@ def test_ticket_created():
     assert len(tags) == 3
     assert "testGroup" in tags
     assert "testDisease" in tags
-    assert test_touchstone in tags
+    assert yt.test_touchstone in tags

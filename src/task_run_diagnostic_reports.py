@@ -87,8 +87,10 @@ def create_ticket(group, disease, touchstone,
                                 summary.format(group, disease, touchstone),
                                 description)
         yt.run_command(
-            Command([issue], "for {} tag {} tag {} tag {}"
-                    .format(report.assignee, group, disease, touchstone)))
+            Command([issue],
+                    "for {} tag {} tag {} tag {}".format(report.assignee,
+                                                         group, disease,
+                                                         touchstone)))
     except Exception as ex:
         logging.exception(ex)
 
