@@ -222,11 +222,14 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
         "Run, check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
 
+    expected_err = "Auto-run failed with error: " + \
+                   "Orderlyweb authentication failed; could not begin task"
+
     i1 = issues[0]
     i2 = issues[1]
 
     assert i1["summary"] == expected_summary
-    assert i1["description"] is None
+    assert i1["description"] == expected_err
 
     tags = [i["name"] for i in i1["tags"]]
     assert len(tags) == 3
@@ -235,7 +238,7 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
     assert yt.test_touchstone in tags
 
     assert i2["summary"] == expected_summary
-    assert i2["description"] is None
+    assert i2["description"] == expected_err
 
     tags = [i["name"] for i in i2["tags"]]
     assert len(tags) == 3

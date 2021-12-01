@@ -18,8 +18,8 @@ def test_run_reports_handles_error():
     def success_callback(report, version):
         success[report.name] = version
 
-    def error_callback(report, version=None):
-        error[report.name] = True
+    def error_callback(report, message):
+        error[report.name] = message
 
     running_reports_repository = RunningReportsRepository()
 
@@ -31,6 +31,6 @@ def test_run_reports_handles_error():
     assert len(keys) == 1
     assert versions[keys[0]]["published"] is True
     assert success["diagnostic"] == keys[0]
-    assert error["nonexistent"]
+    assert "Failure for key" in error["nonexistent"]
     assert len(success) == 1
     assert len(error) == 1

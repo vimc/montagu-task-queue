@@ -13,7 +13,8 @@ def test_create_ticket_with_version():
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
-    create_ticket("g1", "d1", "t1", report, "1234", mock_client, mock_config)
+    create_ticket("g1", "d1", "t1", report, "1234", None,
+                  mock_client, mock_config)
     expected_create = call(Project(id="78-0"),
                            "Check & share diag report with g1 (d1) t1",
                            "http://orderly-web/report/TEST/1234/")
@@ -30,10 +31,11 @@ def test_create_ticket_without_version():
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
-    create_ticket("g1", "d1", "t1", report, None, mock_client, mock_config)
+    create_ticket("g1", "d1", "t1", report, None, "Error message",
+                  mock_client, mock_config)
     expected_create = call(Project(id="78-0"),
                            "Run, check & share diag report with g1 (d1) t1",
-                           "")
+                           "Auto-run failed with error: Error message")
     mock_client.create_issue.assert_has_calls([expected_create])
 
     expected_command_query = "for a.ssignee tag g1 tag d1 tag t1"
@@ -50,5 +52,6 @@ def test_create_ticket_logs_errors(logging):
     mock_client = Mock(spec=YTClient("", ""))
     test_ex = Exception("TEST EX")
     mock_client.create_issue = Mock(side_effect=test_ex)
-    create_ticket("g1", "d1", "t1", report, "1234", mock_client, mock_config)
+    create_ticket("g1", "d1", "t1", report, "1234", None,
+                  mock_client, mock_config)
     logging.exception.assert_has_calls([call(test_ex)])

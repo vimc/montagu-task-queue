@@ -21,9 +21,10 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
     new_versions = {}
 
     if wrapper.ow is None:
+        error = "Orderlyweb authentication failed; could not begin task"
         for report in reports:
-            error_callback(report)
-        logging.error("Orderlyweb authentication failed; could not begin task")
+            error_callback(report, error)
+        logging.error(error)
         return new_versions
 
     # Start configured reports
@@ -57,7 +58,7 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                          .format(report.name, params_to_string(parameters),
                                  key, report.timeout))
         except Exception as ex:
-            error_callback(report)
+            error_callback(report, str(ex))
             logging.exception(ex)
 
     # Poll running reports until they complete
@@ -84,20 +85,21 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                                 .format(name, version))
                             success_callback(report, version)
                         else:
-                            logging.error(
-                                "Failed to publish report version {}-{}"
-                                .format(name, version))
-                            error_callback(report, version)
+                            error = "Failed to publish report version {}-{}"\
+                                .format(name, version)
+                            logging.error(error)
+                            error_callback(report, error)
                         new_versions[version] = {
                             "published": published,
                             "report": name
                         }
                     else:
-                        logging.error("Failure for key {}.".format(key))
-                        error_callback(report)
+                        error = "Failure for key {}.".format(key)
+                        logging.error(error)
+                        error_callback(report, error)
 
             except Exception as ex:
-                error_callback(report)
+                error_callback(report, str(ex))
                 if key not in finished:
                     finished.append(key)
                 logging.exception(ex)

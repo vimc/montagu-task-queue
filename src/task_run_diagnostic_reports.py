@@ -49,11 +49,11 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
             create_ticket(group, disease, touchstone,
-                          report, version, yt, config)
+                          report, version, None, yt, config)
 
-        def error_callback(report, version=None):
+        def error_callback(report, error):
             create_ticket(group, disease, touchstone,
-                          report, version, yt, config)
+                          report, None, error, yt, config)
 
         running_reports_repo = RunningReportsRepository(host=config.host)
 
@@ -74,6 +74,7 @@ def run_diagnostic_reports(group,
 
 def create_ticket(group, disease, touchstone,
                   report: ReportConfig, version,
+                  error,
                   yt: YTClient,
                   config: Config):
     try:
@@ -82,7 +83,8 @@ def create_ticket(group, disease, touchstone,
             report_success else \
             "Run, check & share diag report with {} ({}) {}"
         description = get_version_url(report, version, config) if \
-            report_success else ""
+            report_success else \
+            "Auto-run failed with error: {}".format(error)
         issue = yt.create_issue(Project(vimc_project_id),
                                 summary.format(group, disease, touchstone),
                                 description)
