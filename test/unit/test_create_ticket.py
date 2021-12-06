@@ -19,7 +19,8 @@ def test_create_ticket_with_version():
                            "Check & share diag report with g1 (d1) t1",
                            "http://orderly-web/report/TEST/1234/")
     mock_client.create_issue.assert_has_calls([expected_create])
-    expected_command_query = "for a.ssignee tag g1 tag d1 tag t1"
+    expected_command_query =\
+        "for a.ssignee implementer a.ssignee tag g1 tag d1 tag t1"
     expected_command = call(Command(issues=["ISSUE"],
                                     query=expected_command_query))
     mock_client.run_command.assert_has_calls([expected_command])
@@ -38,7 +39,8 @@ def test_create_ticket_without_version():
                            "Auto-run failed with error: Error message")
     mock_client.create_issue.assert_has_calls([expected_create])
 
-    expected_command_query = "for a.ssignee tag g1 tag d1 tag t1"
+    expected_command_query =\
+        "for a.ssignee implementer a.ssignee tag g1 tag d1 tag t1"
     expected_command = call(Command(issues=["ISSUE"],
                                     query=expected_command_query))
     mock_client.run_command.assert_has_calls([expected_command])

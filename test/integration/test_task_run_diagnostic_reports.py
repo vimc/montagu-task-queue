@@ -20,6 +20,11 @@ def cleanup_tickets(request):
     request.addfinalizer(yt.cleanup)
 
 
+def get_field(issue, name):
+    f = [f for f in issue["customFields"] if f["name"] == name][0]
+    return f["value"]["login"]
+
+
 def test_run_diagnostic_reports():
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
@@ -175,9 +180,11 @@ def test_ticket_created_on_success():
     expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
     assert i1["description"] == expected_link1
-    assignee = [f for f in i1["customFields"] if f["name"] == "Assignee"][0]
-    assert assignee["value"]["login"] == \
-           ("a.hill" if r1 == "diagnostic" else "e.russell")
+    assignee = get_field(i1, "Assignee")
+    assert assignee == ("a.hill" if r1 == "diagnostic" else "e.russell")
+
+    implementer = get_field(i1, "Implementer")
+    assert implementer == ("a.hill" if r1 == "diagnostic" else "e.russell")
 
     tags = [i["name"] for i in i1["tags"]]
     assert len(tags) == 3
@@ -188,9 +195,11 @@ def test_ticket_created_on_success():
     expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
     assert i2["description"] == expected_link2
-    assignee = [f for f in i2["customFields"] if f["name"] == "Assignee"][0]
-    assert assignee["value"]["login"] == \
-           ("a.hill" if r2 == "diagnostic" else "e.russell")
+    assignee = get_field(i2, "Assignee")
+    assert assignee == ("a.hill" if r2 == "diagnostic" else "e.russell")
+
+    implementer = get_field(i2, "Implementer")
+    assert implementer == ("a.hill" if r2 == "diagnostic" else "e.russell")
 
     tags = [i["name"] for i in i2["tags"]]
     assert len(tags) == 3
