@@ -454,13 +454,65 @@ def test_run_reports_with_status_failure(logging):
         call("Successfully published report version r1-r1-version")
     ], any_order=False)
     logging.error.assert_has_calls([
-        call("Failure for key r2-key.")
+        call("Failure for key r2-key. Status: error")
     ], any_order=False)
 
     mock_running_reports.assert_expected_calls()
     ow.kill_report.assert_not_called()
     assert success["called"] == "r1-version"
-    assert error["called"] == "Failure for key r2-key."
+    assert error["called"] == "Failure for key r2-key. Status: error"
+
+
+@patch("src.utils.run_reports.logging")
+def test_run_reports_with_run_cancelled(logging):
+    run_successfully = ["r1", "r2"]
+    report_responses = {
+        "r1-key": [ReportStatusResult({"status": "success",
+                                       "version": "r1-version",
+                                       "output": None})],
+        "r2-key": [ReportStatusResult({"status": "interrupted",
+                                       "version": None,
+                                       "output": None})]
+    }
+
+    ow = MockOrderlyWebAPI(run_successfully, report_responses,
+                           expected_params, expected_timeouts)
+    wrapper = OrderlyWebClientWrapper(None, lambda x: ow)
+    success = {}
+    error = {"called": False}
+
+    def success_callback(report, version):
+        success["called"] = version
+
+    def error_callback(report, message):
+        error["called"] = message
+
+    mock_running_reports = MockRunningReportRepository()
+
+    versions = run_reports(wrapper, group, disease, touchstone, MockConfig(),
+                           reports, success_callback, error_callback,
+                           mock_running_reports)
+
+    assert versions == {
+        "r1-version": {"published": True, "report": "r1"}
+    }
+
+    logging.info.assert_has_calls([
+        call(expected_run_rpt_1_log),
+        call(expected_run_rpt_2_log),
+        call("Success for key r1-key. New version is r1-version"),
+        call("Publishing report version r1-r1-version"),
+        call("Successfully published report version r1-r1-version")
+    ], any_order=False)
+    logging.error.assert_has_calls([
+        call("Failure for key r2-key. Status: interrupted")
+    ], any_order=False)
+
+    mock_running_reports.assert_expected_calls()
+    ow.kill_report.assert_not_called()
+    assert success["called"] == "r1-version"
+    # expect error callback not called for cancelled runs
+    assert error["called"] is False
 
 
 @patch("src.utils.run_reports.logging")

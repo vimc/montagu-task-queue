@@ -94,9 +94,12 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                             "report": name
                         }
                     else:
-                        error = "Failure for key {}.".format(key)
+                        error = "Failure for key {}. Status: {}"\
+                            .format(key, result.status)
                         logging.error(error)
-                        error_callback(report, error)
+                        # don't invoke error callback for cancelled runs
+                        if result.status != "interrupted":
+                            error_callback(report, error)
 
             except Exception as ex:
                 error_callback(report, str(ex))
