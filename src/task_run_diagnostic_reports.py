@@ -49,7 +49,11 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
             create_ticket(group, disease, touchstone,
-                          report, version, yt, config)
+                          report, version, None, yt, config)
+
+        def error_callback(report, error):
+            create_ticket(group, disease, touchstone,
+                          report, None, error, yt, config)
 
         running_reports_repo = RunningReportsRepository(host=config.host)
 
@@ -60,6 +64,7 @@ def run_diagnostic_reports(group,
                            config,
                            reports,
                            success_callback,
+                           error_callback,
                            running_reports_repo)
     else:
         msg = "No configured diagnostic reports for group {}, disease {}"
@@ -69,18 +74,27 @@ def run_diagnostic_reports(group,
 
 def create_ticket(group, disease, touchstone,
                   report: ReportConfig, version,
+                  error,
                   yt: YTClient,
                   config: Config):
     try:
+        report_success = version is not None
+        summary = "Check & share diag report with {} ({}) {}" if \
+            report_success else \
+            "Run, check & share diag report with {} ({}) {}"
+        description = get_version_url(report, version, config) if \
+            report_success else \
+            "Auto-run failed with error: {}".format(error)
         issue = yt.create_issue(Project(vimc_project_id),
-                                "Check & share diag report with {} ({}) {}"
-                                .format(group, disease, touchstone),
-                                get_version_url(report, version, config))
+                                summary.format(group, disease, touchstone),
+                                description)
         yt.run_command(
             Command([issue],
-                    "for {} tag {} tag {} tag {}".format(report.assignee,
-                                                         group, disease,
-                                                         touchstone)))
+                    "for {} implementer {} tag {} tag {} tag {}".format(
+                        report.assignee,
+                        report.assignee,
+                        group, disease,
+                        touchstone)))
     except Exception as ex:
         logging.exception(ex)
 

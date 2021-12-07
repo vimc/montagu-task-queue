@@ -16,12 +16,15 @@ def params_to_string(params):
 
 
 def run_reports(wrapper, group, disease, touchstone, config, reports,
-                success_callback, running_reports_repo):
+                success_callback, error_callback, running_reports_repo):
     running_reports = {}
     new_versions = {}
 
     if wrapper.ow is None:
-        logging.error("Orderlyweb authentication failed; could not begin task")
+        error = "Orderlyweb authentication failed; could not begin task"
+        for report in reports:
+            error_callback(report, error)
+        logging.error(error)
         return new_versions
 
     # Start configured reports
@@ -55,6 +58,7 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                          .format(report.name, params_to_string(parameters),
                                  key, report.timeout))
         except Exception as ex:
+            error_callback(report, str(ex))
             logging.exception(ex)
 
     # Poll running reports until they complete
@@ -81,17 +85,24 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                                 .format(name, version))
                             success_callback(report, version)
                         else:
-                            logging.error(
-                                "Failed to publish report version {}-{}"
-                                .format(name, version))
+                            error = "Failed to publish report version {}-{}"\
+                                .format(name, version)
+                            logging.error(error)
+                            error_callback(report, error)
                         new_versions[version] = {
                             "published": published,
                             "report": name
                         }
                     else:
-                        logging.error("Failure for key {}.".format(key))
+                        error = "Failure for key {}. Status: {}"\
+                            .format(key, result.status)
+                        logging.error(error)
+                        # don't invoke error callback for cancelled runs
+                        if result.status != "interrupted":
+                            error_callback(report, error)
 
             except Exception as ex:
+                error_callback(report, str(ex))
                 if key not in finished:
                     finished.append(key)
                 logging.exception(ex)
