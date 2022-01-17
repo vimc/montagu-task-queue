@@ -85,16 +85,32 @@ def create_ticket(group, disease, touchstone,
         description = get_version_url(report, version, config) if \
             report_success else \
             "Auto-run failed with error: {}".format(error)
-        issue = yt.create_issue(Project(vimc_project_id),
-                                summary.format(group, disease, touchstone),
-                                description)
-        yt.run_command(
-            Command([issue],
-                    "for {} implementer {} tag {} tag {} tag {}".format(
-                        report.assignee,
-                        report.assignee,
-                        group, disease,
-                        touchstone)))
+        query = "tag: {} tag: {} tag: {} status: Incoming"
+        existing_issues = yt.get_issues(
+            query.format(disease, touchstone, group),
+            ["id"])
+        summary = summary.format(group, disease, touchstone)
+        if len(existing_issues) > 0:
+            existing_issue = existing_issues[0]
+            yt.run_command(
+                Command([existing_issue],
+                        "for {} implementer {} summary {} description {}"
+                        .format(
+                            report.assignee,
+                            report.assignee,
+                            summary,
+                            description)))
+        else:
+            issue = yt.create_issue(Project(vimc_project_id),
+                                    summary,
+                                    description)
+            yt.run_command(
+                Command([issue],
+                        "for {} implementer {} tag {} tag {} tag {}".format(
+                            report.assignee,
+                            report.assignee,
+                            group, disease,
+                            touchstone)))
     except Exception as ex:
         logging.exception(ex)
 
