@@ -1,6 +1,9 @@
+import json
+import urllib.parse
 import os
 
-from YTClient.YTDataClasses import Project, Command
+from YTClient.YTDataClasses import Project, Command, Issue
+from YTClient.RequestEngine import RequestType, RequestEngine
 
 from src.utils.run_reports import run_reports
 from datetime import datetime, timedelta
@@ -11,7 +14,7 @@ from urllib.parse import quote as urlencode
 import logging
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from src.utils.running_reports_repository import RunningReportsRepository
-from YTClient.YTClient import YTClient
+from YTClient.YTClient import YTClient, YTException
 
 vimc_project_id = "78-0"
 
@@ -85,34 +88,42 @@ def create_ticket(group, disease, touchstone,
         description = get_version_url(report, version, config) if \
             report_success else \
             "Auto-run failed with error: {}".format(error)
-        query = "tag: {} tag: {} tag: {} status: Incoming"
+        create_tags(yt, group, disease, touchstone, report)
+        query = "tag: {} AND tag: {} AND tag: {} AND tag: {} " \
+                "AND state: Incoming"
         existing_issues = yt.get_issues(
-            query.format(disease, touchstone, group),
-            ["id"])
+            query.format(disease, touchstone, group, report.name),
+            ["id", "summary", "description", "tags(name)"])
         summary = summary.format(group, disease, touchstone)
         if len(existing_issues) > 0:
             existing_issue = existing_issues[0]
-            yt.run_command(
-                Command([existing_issue],
-                        "for {} implementer {} summary {} description {}"
-                        .format(
-                            report.assignee,
-                            report.assignee,
-                            summary,
-                            description)))
+            yt.update_issue(existing_issue, summary, description)
         else:
             issue = yt.create_issue(Project(vimc_project_id),
                                     summary,
                                     description)
+            comm = "for {} implementer {} tag {} tag {} tag {} tag {}".format(
+                report.assignee,
+                report.assignee,
+                group, disease,
+                touchstone,
+                report.name)
             yt.run_command(
-                Command([issue],
-                        "for {} implementer {} tag {} tag {} tag {}".format(
-                            report.assignee,
-                            report.assignee,
-                            group, disease,
-                            touchstone)))
+                Command([issue], comm))
     except Exception as ex:
         logging.exception(ex)
+
+
+def create_tags(yt, group, disease, touchstone, report):
+    tags = yt.get_tags(fields=["name"])
+    if len([t for t in tags if t["name"] == disease]) == 0:
+        yt.create_tag(disease)
+    if len([t for t in tags if t["name"] == group]) == 0:
+        yt.create_tag(group)
+    if len([t for t in tags if t["name"] == touchstone]) == 0:
+        yt.create_tag(touchstone)
+    if len([t for t in tags if t["name"] == report.name]) == 0:
+        yt.create_tag(report.name)
 
 
 def send_diagnostic_report_email(emailer,
