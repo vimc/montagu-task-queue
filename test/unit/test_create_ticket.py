@@ -20,7 +20,7 @@ def test_tags_created():
     mock_client.create_issue = Mock(return_value="ISSUE")
     mock_client.get_issues = Mock(return_value=[])
     mock_client.get_tags = Mock(return_value=[])
-    create_ticket("g1", "d1", "t1", report, "1234", None,
+    create_ticket("g1", "d1", "t1", "s1", report, "1234", None,
                   mock_client, mock_config)
     mock_client.create_tag.assert_has_calls(
         [call("d1"), call("g1"), call("t1"), call("TEST")])
@@ -34,7 +34,7 @@ def test_tags_not_created_if_exists():
     mock_client.create_issue = Mock(return_value="ISSUE")
     mock_client.get_issues = Mock(return_value=[])
     mock_client.get_tags = Mock(return_value=fake_tags)
-    create_ticket("g1", "d1", "t1", report, "1234", None,
+    create_ticket("g1", "d1", "t1", "s1", report, "1234", None,
                   mock_client, mock_config)
     mock_client.create_tag.assert_has_calls([])
 
@@ -47,10 +47,11 @@ def test_create_ticket_with_version():
     mock_client.create_issue = Mock(return_value="ISSUE")
     mock_client.get_issues = Mock(return_value=[])
     mock_client.get_tags = Mock(return_value=fake_tags)
-    create_ticket("g1", "d1", "t1", report, "1234", None,
+    create_ticket("g1", "d1", "t1", "s1", report, "1234", None,
                   mock_client, mock_config)
     expected_create = call(Project(id="78-0"),
                            "Check & share diag report with g1 (d1) t1",
+                           "Report run triggered by upload to scenario: s1. "
                            "http://orderly-web/report/TEST/1234/")
     mock_client.create_issue.assert_has_calls([expected_create])
     expected_command_query = \
@@ -68,10 +69,11 @@ def test_create_ticket_without_version():
     mock_client.create_issue = Mock(return_value="ISSUE")
     mock_client.get_issues = Mock(return_value=[])
     mock_client.get_tags = Mock(return_value=fake_tags)
-    create_ticket("g1", "d1", "t1", report, None, "Error message",
+    create_ticket("g1", "d1", "t1", "s1", report, None, "Error message",
                   mock_client, mock_config)
     expected_create = call(Project(id="78-0"),
                            "Run, check & share diag report with g1 (d1) t1",
+                           "Report run triggered by upload to scenario: s1. "
                            "Auto-run failed with error: Error message")
     mock_client.create_issue.assert_has_calls([expected_create])
 
@@ -92,7 +94,7 @@ def test_create_ticket_logs_errors(logging):
     mock_client.get_tags = Mock(return_value=fake_tags)
     test_ex = Exception("TEST EX")
     mock_client.create_issue = Mock(side_effect=test_ex)
-    create_ticket("g1", "d1", "t1", report, "1234", None,
+    create_ticket("g1", "d1", "t1", "s1", report, "1234", None,
                   mock_client, mock_config)
     logging.exception.assert_has_calls([call(test_ex)])
 
@@ -104,9 +106,10 @@ def test_update_ticket():
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.get_issues = Mock(return_value=["ISSUE"])
     mock_client.get_tags = Mock(return_value=fake_tags)
-    create_ticket("g1", "d1", "t1", report, "1234", None,
+    create_ticket("g1", "d1", "t1", "s1", report, "1234", None,
                   mock_client, mock_config)
     expected_command = call("ISSUE",
                             "Check & share diag report with g1 (d1) t1",
+                            "Report run triggered by upload to scenario: s1. "
                             "http://orderly-web/report/TEST/1234/")
     mock_client.update_issue.assert_has_calls([expected_command])

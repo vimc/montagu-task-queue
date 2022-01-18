@@ -51,11 +51,11 @@ def run_diagnostic_reports(group,
                                          scenario,
                                          config,
                                          *additional_recipients)
-            create_ticket(group, disease, touchstone,
+            create_ticket(group, disease, touchstone, scenario,
                           report, version, None, yt, config)
 
         def error_callback(report, error):
-            create_ticket(group, disease, touchstone,
+            create_ticket(group, disease, touchstone, scenario,
                           report, None, error, yt, config)
 
         running_reports_repo = RunningReportsRepository(host=config.host)
@@ -75,7 +75,7 @@ def run_diagnostic_reports(group,
         return {}
 
 
-def create_ticket(group, disease, touchstone,
+def create_ticket(group, disease, touchstone, scenario,
                   report: ReportConfig, version,
                   error,
                   yt: YTClient,
@@ -85,9 +85,11 @@ def create_ticket(group, disease, touchstone,
         summary = "Check & share diag report with {} ({}) {}" if \
             report_success else \
             "Run, check & share diag report with {} ({}) {}"
-        description = get_version_url(report, version, config) if \
+        result = get_version_url(report, version, config) if \
             report_success else \
             "Auto-run failed with error: {}".format(error)
+        description = "Report run triggered by upload to scenario: {}. {}"\
+            .format(scenario, result)
         create_tags(yt, group, disease, touchstone, report)
         query = "tag: {} AND tag: {} AND tag: {} AND tag: {} " \
                 "AND state: Incoming"

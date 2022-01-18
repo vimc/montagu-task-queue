@@ -177,9 +177,10 @@ def test_ticket_created_on_success():
     expected_summary = \
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
-    expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    expected_desc1 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
-    assert i1["description"] == expected_link1
+    assert i1["description"] == expected_desc1
     assignee = get_field(i1, "Assignee")
     assert assignee == ("a.hill" if r1 == "diagnostic" else "e.russell")
 
@@ -192,9 +193,10 @@ def test_ticket_created_on_success():
     assert "testDisease" in tags
     assert yt.test_touchstone in tags
 
-    expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    expected_desc2 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
-    assert i2["description"] == expected_link2
+    assert i2["description"] == expected_desc2
     assignee = get_field(i2, "Assignee")
     assert assignee == ("a.hill" if r2 == "diagnostic" else "e.russell")
 
@@ -231,7 +233,8 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
         "Run, check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
 
-    expected_err = "Auto-run failed with error: " + \
+    expected_err = "Report run triggered by upload to scenario: s1. " \
+                   "Auto-run failed with error: " + \
                    "Orderlyweb authentication failed; could not begin task"
 
     i1 = issues[0]
@@ -284,13 +287,15 @@ def test_ticket_update_on_success():
     expected_summary = \
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
-    expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    expected_desc1 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
-    assert i1["description"] == expected_link1
+    assert i1["description"] == expected_desc1
 
-    expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    expected_desc2 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
-    assert i2["description"] == expected_link2
+    assert i2["description"] == expected_desc2
 
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
@@ -319,10 +324,12 @@ def test_ticket_update_on_success():
     expected_summary = \
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
-    expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    expected_desc1 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
-    assert i1["description"] == expected_link1
+    assert i1["description"] == expected_desc1
 
-    expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    expected_desc2 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
-    assert i2["description"] == expected_link2
+    assert i2["description"] == expected_desc2
