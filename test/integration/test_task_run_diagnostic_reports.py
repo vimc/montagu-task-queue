@@ -177,9 +177,10 @@ def test_ticket_created_on_success():
     expected_summary = \
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
-    expected_link1 = "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    expected_desc1 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
-    assert i1["description"] == expected_link1
+    assert i1["description"] == expected_desc1
     assignee = get_field(i1, "Assignee")
     assert assignee == ("a.hill" if r1 == "diagnostic" else "e.russell")
 
@@ -187,14 +188,15 @@ def test_ticket_created_on_success():
     assert implementer == ("a.hill" if r1 == "diagnostic" else "e.russell")
 
     tags = [i["name"] for i in i1["tags"]]
-    assert len(tags) == 3
+    assert len(tags) == 4
     assert "testGroup" in tags
     assert "testDisease" in tags
     assert yt.test_touchstone in tags
 
-    expected_link2 = "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    expected_desc2 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
-    assert i2["description"] == expected_link2
+    assert i2["description"] == expected_desc2
     assignee = get_field(i2, "Assignee")
     assert assignee == ("a.hill" if r2 == "diagnostic" else "e.russell")
 
@@ -202,7 +204,7 @@ def test_ticket_created_on_success():
     assert implementer == ("a.hill" if r2 == "diagnostic" else "e.russell")
 
     tags = [i["name"] for i in i2["tags"]]
-    assert len(tags) == 3
+    assert len(tags) == 4
     assert "testGroup" in tags
     assert "testDisease" in tags
     assert yt.test_touchstone in tags
@@ -231,7 +233,8 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
         "Run, check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
 
-    expected_err = "Auto-run failed with error: " + \
+    expected_err = "Report run triggered by upload to scenario: s1. " \
+                   "Auto-run failed with error: " + \
                    "Orderlyweb authentication failed; could not begin task"
 
     i1 = issues[0]
@@ -241,7 +244,7 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
     assert i1["description"] == expected_err
 
     tags = [i["name"] for i in i1["tags"]]
-    assert len(tags) == 3
+    assert len(tags) == 4
     assert "testGroup" in tags
     assert "testDisease" in tags
     assert yt.test_touchstone in tags
@@ -250,7 +253,83 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
     assert i2["description"] == expected_err
 
     tags = [i["name"] for i in i2["tags"]]
-    assert len(tags) == 3
+    assert len(tags) == 4
     assert "testGroup" in tags
     assert "testDisease" in tags
     assert yt.test_touchstone in tags
+
+
+def test_ticket_update_on_success():
+    result = run_diagnostic_reports("testGroup",
+                                    "testDisease",
+                                    yt.test_touchstone,
+                                    "2020-11-01T01:02:03",
+                                    "s1",
+                                    "estimate_uploader@example.com")
+    versions = list(result.keys())
+    issues = yt.get_issues("summary: {}".format(yt.test_touchstone),
+                           fields=["summary",
+                                   "description",
+                                   "tags(name)",
+                                   "customFields(name,value(id,login))"])
+
+    assert len(versions) == 2
+    assert len(issues) == 2
+
+    v1 = versions[0]
+    r1 = result[v1]["report"]
+    i1 = [i for i in issues if v1 in i["description"]][0]
+
+    v2 = versions[1]
+    r2 = result[v2]["report"]
+    i2 = [i for i in issues if v2 in i["description"]][0]
+
+    expected_summary = \
+        "Check & share diag report with testGroup (testDisease) {}" \
+        .format(yt.test_touchstone)
+    expected_desc1 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    assert i1["summary"] == expected_summary
+    assert i1["description"] == expected_desc1
+
+    expected_desc2 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    assert i2["summary"] == expected_summary
+    assert i2["description"] == expected_desc2
+
+    result = run_diagnostic_reports("testGroup",
+                                    "testDisease",
+                                    yt.test_touchstone,
+                                    "2020-11-01T01:02:03",
+                                    "s1",
+                                    "estimate_uploader@example.com")
+    new_versions = list(result.keys())
+    new_issues = yt.get_issues("summary: {}".format(yt.test_touchstone),
+                               fields=["summary",
+                                       "status",
+                                       "description",
+                                       "tags(name)",
+                                       "customFields(name,value(id,login))"])
+
+    assert len(new_issues) == 2
+
+    v1 = new_versions[0]
+    r1 = result[v1]["report"]
+    i1 = [i for i in new_issues if v1 in i["description"]][0]
+
+    v2 = new_versions[1]
+    r2 = result[v2]["report"]
+    i2 = [i for i in new_issues if v2 in i["description"]][0]
+
+    expected_summary = \
+        "Check & share diag report with testGroup (testDisease) {}" \
+        .format(yt.test_touchstone)
+    expected_desc1 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
+    assert i1["summary"] == expected_summary
+    assert i1["description"] == expected_desc1
+
+    expected_desc2 = "Report run triggered by upload to scenario: s1. " \
+                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
+    assert i2["summary"] == expected_summary
+    assert i2["description"] == expected_desc2
