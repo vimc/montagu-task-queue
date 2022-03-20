@@ -7,7 +7,10 @@ redis_db = "redis://{}/0".format(config.host)
 app = Celery('tasks',
              broker=redis_db,
              backend=redis_db,
-             include=['src.task_run_diagnostic_reports'])
+             include=[
+                 'src.task_run_diagnostic_reports',
+                 'src.task_archive_folder_contents'
+             ])
 
 
 # Optional configuration, see the celery application user guide.
