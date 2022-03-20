@@ -4,10 +4,17 @@ set -ex
 HERE=$(readlink -f "$(dirname $0)")
 . $HERE/common.sh
 
-docker volume create files_to_archive
+
+ARCHIVE_DIR=test_archive_files
+LOCAL_ARCHIVE_DIR=$HERE/../$ARCHIVE_DIR
+
+rm $LOCAL_ARCHIVE_DIR -rf
+mkdir $LOCAL_ARCHIVE_DIR
+
 
 docker run --env YOUTRACK_TOKEN=$YOUTRACK_TOKEN \
     --name $NAME \
     --network=montagu_default \
+    -v $LOCAL_ARCHIVE_DIR:/$ARCHIVE_DIR \
     -d $BRANCH_TAG
-    -v files_to_archive:/files_to_archive
+

@@ -18,6 +18,8 @@ pip3 install --user -r requirements.txt
 
 ## Development
 
+Ensure your default installation of python3 is version 3.6.
+
 Run dependencies (Montagu API and DB, OrderlyWeb and a local Redis message queue in docker) with `scripts/run-dependencies.sh`
 
 Dependencies also include a fake smtp server run from a [docker image](https://hub.docker.com/r/reachfive/fake-smtp-server)
