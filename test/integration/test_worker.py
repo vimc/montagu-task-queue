@@ -2,6 +2,7 @@ import celery
 import pytest
 import time
 import os
+import logging
 
 from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
@@ -74,6 +75,7 @@ def test_later_task_kills_earlier_task_report():
 
 """
 def test_archive_folder_contents():
+
     # Write out files locally to folder which is bind mount when worker running
     # in docker
     cwd = os.getcwd()

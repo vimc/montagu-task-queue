@@ -33,6 +33,9 @@ jobs:
       - name: Extra logging
         run: docker logs task-queue-worker
 
+      - name: More logging
+        run: docker exec task-queue-worker ls -la /home/worker/src/test_archive_files
+
       - name: Lint
         run: pycodestyle .
 
