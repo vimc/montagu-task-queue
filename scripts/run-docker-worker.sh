@@ -15,6 +15,6 @@ mkdir -m a+rw $LOCAL_ARCHIVE_DIR
 docker run --env YOUTRACK_TOKEN=$YOUTRACK_TOKEN \
     --name $NAME \
     --network=montagu_default \
-    -v $LOCAL_ARCHIVE_DIR:/$ARCHIVE_DIR:Z \
+    -v $LOCAL_ARCHIVE_DIR:/$ARCHIVE_DIR \
     -d $BRANCH_TAG
 
