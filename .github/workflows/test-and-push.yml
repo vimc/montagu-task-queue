@@ -30,6 +30,9 @@ jobs:
       - name: Run tests
         run: pytest --cov=src
 
+      - name: Extra logging
+        run: docker logs task-queue-worker
+
       - name: Lint
         run: pycodestyle .
 
