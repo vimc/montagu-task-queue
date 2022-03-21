@@ -89,7 +89,7 @@ def test_archive_folder_contents():
 
 
     # TODO: This will be different if not running for docker - it will be the same as local_folder
-    folder_param = "/test_archive_files"
+    folder_param = "/home/worker/src/test_archive_files"
 
     app.signature(archive_folder_sig,
                   [folder_param]).delay().get()
