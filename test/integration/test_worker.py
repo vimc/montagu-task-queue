@@ -1,6 +1,7 @@
 import celery
 import pytest
 import time
+import os
 
 from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
@@ -8,7 +9,8 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from test.integration.yt_utils import YouTrackUtils
 
 app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
-sig = "run-diagnostic-reports"
+reports_sig = "run-diagnostic-reports"
+archive_folder_sig = "archive_folder_contents"
 yt = YouTrackUtils()
 
 
@@ -18,7 +20,7 @@ def cleanup_tickets(request):
 
 
 def test_run_diagnostic_reports():
-    versions = app.signature(sig,
+    versions = app.signature(reports_sig,
                              ["testGroup",
                               "testDisease",
                               yt.test_touchstone,
@@ -32,7 +34,7 @@ def test_later_task_kills_earlier_task_report():
     running_repo = RunningReportsRepository(host="localhost")
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
 
-    app.send_task(sig, ["testGroup",
+    app.send_task(reports_sig, ["testGroup",
                         "testDisease",
                         yt.test_touchstone,
                         "2020-11-04T12:21:15",
@@ -50,7 +52,7 @@ def test_later_task_kills_earlier_task_report():
 
     assert first_report_key is not None
 
-    versions = app.signature(sig,
+    versions = app.signature(reports_sig,
                              ["testGroup",
                               "testDisease",
                               yt.test_touchstone,
@@ -68,3 +70,28 @@ def test_later_task_kills_earlier_task_report():
 
     # Check redis key has been tidied up
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
+
+
+def test_archive_folder_contents():
+    # Write out files locally to folder which is bind mount when worker running
+    # in docker
+    cwd = os.getcwd()
+    local_folder = "{}/test_archive_files".format(cwd)
+
+    with open("{}/TestFile1.csv".format(local_folder), 'w') as file:
+        file.write("1,2,3")
+
+    with open("{}/TestFile2.csv".format(local_folder), 'w') as file:
+        file.write("a,b,c")
+
+    assert len(os.listdir(local_folder)) == 2
+
+
+    # TODO: This will be different if not running for docker - it will be the same as local_folder
+    folder_param = "/test_archive_files"
+
+    app.signature(archive_folder_sig,
+                  [folder_param]).delay().get()
+
+    # Check that files were removed
+    assert len(os.listdir(local_folder)) == 0
