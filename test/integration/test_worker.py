@@ -8,6 +8,7 @@ from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
 from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from test.integration.yt_utils import YouTrackUtils
+from test.integration.file_utils import writeTextFile
 
 app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
 reports_sig = "run-diagnostic-reports"
@@ -85,11 +86,8 @@ def test_archive_folder_contents(docker):
     test_folder = "/test_archive_files"
     local_folder = "{}{}".format(cwd, test_folder)
 
-    with open("{}/TestFile1.csv".format(local_folder), 'w') as file:
-        file.write("1,2,3")
-
-    with open("{}/TestFile2.csv".format(local_folder), 'w') as file:
-        file.write("a,b,c")
+    writeTextFile("{}/TestFile1.csv".format(local_folder), "1,2,3")
+    writeTextFile("{}/TestFile2.csv".format(local_folder), "a,b,c")
 
     assert len(os.listdir(local_folder)) == 2
 
