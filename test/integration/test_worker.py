@@ -86,8 +86,8 @@ def test_archive_folder_contents(docker):
     test_folder = "/test_archive_files"
     local_folder = "{}{}".format(cwd, test_folder)
 
-    writeTextFile("{}/TestFile1.csv".format(local_folder), "1,2,3")
-    writeTextFile("{}/TestFile2.csv".format(local_folder), "a,b,c")
+    writeTextFile("{}/TestWorkerFile1.csv".format(local_folder), "1,2,3")
+    writeTextFile("{}/TestWorkerFile2.csv".format(local_folder), "a,b,c")
 
     assert len(os.listdir(local_folder)) == 2
 
