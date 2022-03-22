@@ -12,13 +12,17 @@ from test.integration.yt_utils import YouTrackUtils
 app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
 reports_sig = "run-diagnostic-reports"
 archive_folder_sig = "archive_folder_contents"
-"""
 yt = YouTrackUtils()
 
 
 @pytest.fixture(autouse=True)
 def cleanup_tickets(request):
     request.addfinalizer(yt.cleanup)
+
+
+@pytest.fixture(scope="session")
+def docker(pytestconfig):
+    return pytestconfig.getoption("docker")
 
 
 def test_run_diagnostic_reports():
@@ -37,10 +41,10 @@ def test_later_task_kills_earlier_task_report():
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
 
     app.send_task(reports_sig, ["testGroup",
-                        "testDisease",
-                        yt.test_touchstone,
-                        "2020-11-04T12:21:15",
-                        "no_vaccination"])
+                                "testDisease",
+                                yt.test_touchstone,
+                                "2020-11-04T12:21:15",
+                                "no_vaccination"])
 
     # Poll the running report repository until the first task has saved its
     # running report key
@@ -73,11 +77,6 @@ def test_later_task_kills_earlier_task_report():
     # Check redis key has been tidied up
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
 
-"""
-
-@pytest.fixture(scope="session")
-def docker(pytestconfig):
-    return pytestconfig.getoption("docker")
 
 def test_archive_folder_contents(docker):
     # Write out files locally to folder which is bind mount when worker running
