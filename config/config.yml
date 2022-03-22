@@ -39,3 +39,5 @@ tasks:
               subject: "New version of another Orderly report"
             timeout: 1200
             assignee: e.russell
+  archive_folder_contents:
+    min_file_age_seconds: 0

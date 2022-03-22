@@ -35,3 +35,5 @@ tasks:
                 - science@example.com
               subject: "New version of another Orderly report"
             assignee: e.russell
+  archive_folder_contents:
+    min_file_age_seconds: 0
