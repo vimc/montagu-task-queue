@@ -74,12 +74,17 @@ def test_later_task_kills_earlier_task_report():
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
 
 """
-def test_archive_folder_contents():
 
+@pytest.fixture(scope="session")
+def docker(pytestconfig):
+    return pytestconfig.getoption("docker")
+
+def test_archive_folder_contents(docker):
     # Write out files locally to folder which is bind mount when worker running
     # in docker
     cwd = os.getcwd()
-    local_folder = "{}/test_archive_files".format(cwd)
+    test_folder = "/test_archive_files"
+    local_folder = "{}{}".format(cwd, test_folder)
 
     with open("{}/TestFile1.csv".format(local_folder), 'w') as file:
         file.write("1,2,3")
@@ -89,9 +94,9 @@ def test_archive_folder_contents():
 
     assert len(os.listdir(local_folder)) == 2
 
-
-    # TODO: This will be different if not running for docker - it will be the same as local_folder
-    folder_param = "/test_archive_files"
+    # The folder param to the task depends on whether the worker is running in
+    # docker - passed as a command line option to pytest
+    folder_param = test_folder if docker == "true" else local_folder
 
     app.signature(archive_folder_sig,
                   [folder_param]).delay().get()
