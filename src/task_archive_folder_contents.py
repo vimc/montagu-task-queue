@@ -9,7 +9,8 @@ import time
 def archive_folder_contents(folder_path):
     logging.info("Removing contents of {}:".format(folder_path))
     config = Config()
-    min_file_age = config.archive_folder_contents_config.min_file_age_seconds
+
+    min_file_age = config.archive_folder_contents.min_file_age_seconds
     now = time.time()
 
     for file in os.scandir(folder_path):
@@ -20,9 +21,10 @@ def archive_folder_contents(folder_path):
 
             file_age = now - created_time
 
-            if (file_age < min_file_age):
+            if file_age < min_file_age:
                 logging.info("Not removing {} as it is only {} seconds old".format(file.path, int(file_age)))
             else:
                 os.remove(file.path)
         except Exception as ex:
             logging.exception(ex)
+
