@@ -1,5 +1,6 @@
-from src.task_run_archive_folder_contents import run_archive_folder_contents
+from src.task_archive_folder_contents import archive_folder_contents
 from test.integration.file_utils import writeTextFile
+import os
 
 
 def test_run_archive_folder_contents():
@@ -11,6 +12,6 @@ def test_run_archive_folder_contents():
 
     assert len(os.listdir(local_folder)) == 2
 
-    test_archive_folder_contents(local_folder)
+    archive_folder_contents(local_folder)
 
     assert len(os.listdir(local_folder)) == 0
