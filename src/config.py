@@ -17,6 +17,7 @@ class ReportConfig:
         self.timeout = timeout
         self.assignee = assignee
 
+
 class ArchiveFolderContentsConfig:
 
     def __init__(self, min_file_age_seconds):
@@ -81,7 +82,7 @@ class Config:
         return self.__value_or_default(self.__smtp(), "password", None)
 
     @property
-    def archive_folder_contents_config(self):
+    def archive_folder_contents(self):
         return ArchiveFolderContentsConfig(self.__task("archive_folder_contents")["min_file_age_seconds"])
 
     def diagnostic_reports(self, group, disease):
