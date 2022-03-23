@@ -76,3 +76,7 @@ def test_diagnostic_reports():
 def test_diagnostic_reports_nonexistent():
     assert len(config.diagnostic_reports("not a group", "not a disease")) == 0
     assert len(config.diagnostic_reports("testGroup", "not a disease")) == 0
+
+
+def test_archive_folder_contents_config():
+    assert config.archive_folder_contents.min_file_age_seconds == 0

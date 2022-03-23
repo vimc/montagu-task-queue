@@ -22,9 +22,9 @@ def archive_folder_contents(folder_path):
             file_age = now - created_time
 
             if file_age < min_file_age:
-                logging.info("Not removing {} as it is only {} seconds old".format(file.path, int(file_age)))
+                logging.info("Not removing {} as it is only {} seconds old"
+                             .format(file.path, int(file_age)))
             else:
                 os.remove(file.path)
         except Exception as ex:
             logging.exception(ex)
-

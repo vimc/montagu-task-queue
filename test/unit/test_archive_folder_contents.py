@@ -7,15 +7,18 @@ mockConfig = {
     "archive_folder_contents": mockArchiveTaskConfig
 }
 
+
 class MockFile:
 
     def __init__(self, path):
         self.path = path
 
+
 mockFiles = [
     MockFile("/MockFile1.csv"),
     MockFile("/MockFile2.csv")
 ]
+
 
 def set_patches_returns(archive_config, time, os):
     archive_config.return_value = mockArchiveTaskConfig
@@ -33,14 +36,14 @@ def assert_expected_log_info_calls(logging):
     ])
 
 
-
-@patch("src.task_archive_folder_contents.Config.archive_folder_contents", new_callable=PropertyMock)
+@patch("src.task_archive_folder_contents.Config.archive_folder_contents",
+       new_callable=PropertyMock)
 @patch("src.task_archive_folder_contents.time.time")
 @patch("src.task_archive_folder_contents.os")
 @patch("src.task_archive_folder_contents.logging")
-def test_archives_only_files_older_than_configured_min_age(logging, os, time, archive_config):
+def test_archives_only_files_older_than_configured_min_age(
+        logging, os, time, archive_config):
     set_patches_returns(archive_config, time, os)
-
 
     archive_folder_contents("test_folder")
 
@@ -49,7 +52,8 @@ def test_archives_only_files_older_than_configured_min_age(logging, os, time, ar
     assert_expected_log_info_calls(logging)
 
 
-@patch("src.task_archive_folder_contents.Config.archive_folder_contents", new_callable=PropertyMock)
+@patch("src.task_archive_folder_contents.Config.archive_folder_contents",
+       new_callable=PropertyMock)
 @patch("src.task_archive_folder_contents.time.time")
 @patch("src.task_archive_folder_contents.os")
 @patch("src.task_archive_folder_contents.logging")

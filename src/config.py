@@ -83,7 +83,8 @@ class Config:
 
     @property
     def archive_folder_contents(self):
-        return ArchiveFolderContentsConfig(self.__task("archive_folder_contents")["min_file_age_seconds"])
+        return ArchiveFolderContentsConfig(
+            self.__task("archive_folder_contents")["min_file_age_seconds"])
 
     def diagnostic_reports(self, group, disease):
         result = []
