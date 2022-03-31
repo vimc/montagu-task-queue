@@ -28,7 +28,7 @@ jobs:
         run: ./scripts/run-docker-worker.sh
 
       - name: Run tests
-        run: pytest --cov=src
+        run: pytest --docker true --cov=src
 
       - name: Lint
         run: pycodestyle .
