@@ -1,6 +1,6 @@
 from celery import Celery
 from .config import Config
-from src.task_archive_folder_contents import archive_folder_contents
+from celery.schedules import crontab
 
 config = Config()
 redis_db = "redis://{}/0".format(config.host)
@@ -17,16 +17,15 @@ app = Celery('tasks',
 # Optional configuration, see the celery application user guide.
 app.conf.update(
     result_expires=3600,
-    timezone='Europe/London'
+    timezone='Europe/London',
+    beat_schedule={
+        'add-every-20-seconds': {
+            'task': 'archive_folder_contents',
+            'schedule': crontab(hour=1),
+            'args': ['burden_estimate_files']
+        }
+    }
 )
-
-
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender):
-    sender.add_periodic_task(
-        crontab(hour=1),
-        archive_folder_contents.s('burden_estimate_files')
-    )
 
 
 if __name__ == '__main__':
