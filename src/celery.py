@@ -19,9 +19,9 @@ app.conf.update(
     result_expires=3600,
     timezone='Europe/London',
     beat_schedule={
-        'add-every-20-seconds': {
+        'nightly_archive_task': {
             'task': 'archive_folder_contents',
-            'schedule': crontab(hour=1),
+            'schedule': crontab(hour=10),
             'args': ['burden_estimate_files']
         }
     }
