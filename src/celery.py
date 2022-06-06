@@ -21,7 +21,7 @@ app.conf.update(
     beat_schedule={
         'nightly_archive_task': {
             'task': 'archive_folder_contents',
-            'schedule': crontab(hour=10),
+            'schedule': crontab(hour=1),
             'args': ['burden_estimate_files']
         }
     }
