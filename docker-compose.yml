@@ -9,8 +9,8 @@ services:
     ports:
       - "5555:5555"
     environment:
-      - CELERY_BROKER_URL=redis://guest@montagu_mq_1//
-      - CELERY_RESULT_BACKEND=redis://guest@montagu_mq_1/0
+      - CELERY_BROKER_URL=redis://montagu_mq_1//
+      - CELERY_RESULT_BACKEND=redis://montagu_mq_1/0
       - FLOWER_PORT=5555
   api:
     image: ${REGISTRY}/montagu-api:master
