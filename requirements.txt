@@ -3,6 +3,5 @@ future
 pyyaml
 montagu>=0.0.2
 orderlyweb-api>=0.0.10
-git+https://github.com/reside-ic/youtrack-rest-python-library
+git+https://github.com/reside-ic/youtrack-rest-python-library@enable_ssl_validation
 constellation
-urllib3==1.25.11
