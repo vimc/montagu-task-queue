@@ -10,7 +10,7 @@ from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 from test.integration.yt_utils import YouTrackUtils
 from test.integration.file_utils import write_text_file
 
-app = celery.Celery(broker="redis://guest@localhost//", backend="redis://")
+app = celery.Celery(broker="redis://localhost//", backend="redis://")
 reports_sig = "run-diagnostic-reports"
 archive_folder_sig = "archive_folder_contents"
 yt = YouTrackUtils()
