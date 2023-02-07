@@ -27,7 +27,7 @@ web:
   image:
     repo: vimc
     name: orderly-web
-    tag: mrc-3916
+    tag: master
     migrate: orderlyweb-migrate
     admin: orderly-web-user-cli
   url: https://localhost
