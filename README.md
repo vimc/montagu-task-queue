@@ -59,3 +59,4 @@ This allows the worker running on metal to use a broker on `localhost` while the
 Note that if a YouTrack token is not provided in the config the app will look for an environment variable called `YOUTRACK_TOKEN`. 
 This makes local and automated testing of the YouTrack integration possible. 
 During `montagu` deployment a token from the vault will be added to the config.
+
