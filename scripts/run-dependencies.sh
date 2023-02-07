@@ -17,6 +17,7 @@ docker-compose --project-name montagu up -d
 docker exec montagu_mq_1 redis-cli FLUSHALL
 
 # Install orderly-web
+pip3 install constellation
 pip3 install orderly-web
 orderly-web start $here
 

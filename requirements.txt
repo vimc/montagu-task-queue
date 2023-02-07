@@ -2,5 +2,6 @@ celery[redis]
 future
 pyyaml
 montagu>=0.0.2
-orderlyweb-api>=0.0.10
+orderlyweb-api>=1.0.0
 git+https://github.com/reside-ic/youtrack-rest-python-library
+constellation
