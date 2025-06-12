@@ -1,4 +1,4 @@
-host: montagu_mq_1
+host: montagu-mq-1
 servers:
   montagu:
     url: http://montagu_api_1:8080

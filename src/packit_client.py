@@ -1,6 +1,7 @@
 import montagu
 
-# TODO: How will we be able to recognised expired token?
+# TODO: How will we be able to recognise expired token?
+# TODO: How to authenticate? user and pw from vault or something smarter?
 
 class PackitClient:
     def __init__(self, config):

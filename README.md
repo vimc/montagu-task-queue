@@ -54,7 +54,7 @@ The worker expects to find a config file at `config/config.yml`.
 
 The Dockerfile copies `config/docker_config.yml` to `config/config.yml`.
 This allows the worker running on metal to use a broker on `localhost` while the worker in docker needs to use
-`montagu_mq`, the container name of the broker, to access its port. 
+`montagu-mq`, the container name of the broker, to access its port. 
 
 Note that if a YouTrack token is not provided in the config the app will look for an environment variable called `YOUTRACK_TOKEN`. 
 This makes local and automated testing of the YouTrack integration possible. 
