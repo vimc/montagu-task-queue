@@ -46,8 +46,8 @@ class Config:
         return self.__montagu()["password"]
 
     @property
-    def orderlyweb_url(self):
-        return self.__server("orderlyweb")["url"]
+    def packit_api_url(self):
+        return self.__server("packit_api")["url"]
 
     @property
     def youtrack_token(self):

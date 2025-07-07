@@ -9,7 +9,6 @@ class PackitClient:
         self.__authenticate()
 
     def __url(self, relative_url):
-        # TODO: add base url to config
         return f"{self.__config.packit_api_url}{relative_url}"
 
     @staticmethod

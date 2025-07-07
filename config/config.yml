@@ -4,8 +4,8 @@ servers:
     url: http://localhost:8080
     user: test.user@example.com
     password: password
-  packit:
-    url: http://localhost:3000
+  packit_api:
+    url: http://localhost:8081 # TODO: expose port in run deps
   youtrack:
     token: None
   smtp:

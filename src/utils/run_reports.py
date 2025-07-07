@@ -2,7 +2,6 @@ import logging
 import time
 from enum import Enum
 
-# TODO: what do these actually mean!?
 class TaskStatus(Enum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
@@ -21,10 +20,10 @@ def task_is_finished(poll_response):
         TaskStatus.RUNNING
         ]
 
-def publish_report(wrapper, name, version, roles):
+def publish_report(wrapper, name, packet_id, roles):
     try:
-        logging.info(f"Publishing packet {name}({version})")
-        return packit.publish(version, roles)
+        logging.info(f"Publishing report packet {name}({packet_id})")
+        return packit.publish(packet_id, roles)
     except Exception as ex:
         logging.exception(ex)
         return False
@@ -36,14 +35,14 @@ def params_to_string(params):
 def run_reports(packit, group, disease, touchstone, config, reports,
                 success_callback, error_callback, running_reports_repo):
     running_reports = {}
-    new_versions = {}
+    new_packets = {}
 
     if not packit.auth_success:
         error = "Packit authentication failed; could not begin task"
         for report in reports:
             error_callback(report, error)
         logging.error(error)
-        return new_versions
+        return new_packets
 
     # Start configured reports
     for report in reports:
@@ -93,23 +92,21 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                         logging.info("Success for key {}. New packet id is {}"
                                      .format(key, result.packetId))
 
-                        version = result.packetId
+                        packet_id = result.packetId
                         name = report.name
 
                         report_config = filter(lambda: report: report.name == name, reports)
                         if len(report_config) > 0 and len(report_config[0].publish_roles > 0):
-                            published = publish_report(wrapper, name, version, report_config[0].publish_roles)
+                            published = publish_report(wrapper, name, packet_id, report_config[0].publish_roles)
                             if published:
                                 logging.info(
-                                    "Successfully published report version {}-{}"
-                                    .format(name, version))
-                                success_callback(report, version)
+                                    f"Successfully published report packet {name} ({packet_id})")
+                                success_callback(report, packet_id)
                             else:
-                                error = "Failed to publish report version {}-{}"\
-                                    .format(name, version)
+                                error = f"Failed to publish report packet {name} ({packet_id})")
                                 logging.error(error)
                                 error_callback(report, error)
-                        new_versions[version] = {
+                        new_packets[packet_id] = {
                             "published": published,
                             "report": name
                         }
@@ -135,4 +132,4 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                                                    key)
         time.sleep(report_poll_seconds)
 
-    return new_versions
+    return new_packet

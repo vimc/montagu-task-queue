@@ -40,10 +40,10 @@ def run_diagnostic_reports(group,
         yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
                       token=yt_token)
 
-        def success_callback(report, version):
+        def success_callback(report, packet_id):
             send_diagnostic_report_email(emailer,
                                          report,
-                                         version,
+                                         packet_id,
                                          group,
                                          disease,
                                          touchstone,
@@ -52,7 +52,7 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
             create_ticket(group, disease, touchstone, scenario,
-                          report, version, None, yt, config)
+                          report, packet_id, None, yt, config)
 
         def error_callback(report, error):
             create_ticket(group, disease, touchstone, scenario,
@@ -76,16 +76,16 @@ def run_diagnostic_reports(group,
 
 
 def create_ticket(group, disease, touchstone, scenario,
-                  report: ReportConfig, version,
+                  report: ReportConfig, packet_id,
                   error,
                   yt: YTClient,
                   config: Config):
     try:
-        report_success = version is not None
+        report_success = packet_id is not None
         summary = "Check & share diag report with {} ({}) {}" if \
             report_success else \
             "Run, check & share diag report with {} ({}) {}"
-        result = get_version_url(report, version, config) if \
+        result = get_version_url(report, packet_id, config) if \
             report_success else \
             "Auto-run failed with error: {}".format(error)
         description = "Report run triggered by upload to scenario: {}. {}"\
@@ -130,7 +130,7 @@ def create_tags(yt, group, disease, touchstone, report):
 
 def send_diagnostic_report_email(emailer,
                                  report,
-                                 version,
+                                 packet_id,
                                  group,
                                  disease,
                                  touchstone,
@@ -139,7 +139,7 @@ def send_diagnostic_report_email(emailer,
                                  config,
                                  *additional_recipients):
     template_values = {
-        "report_version_url": get_version_url(report, version, config),
+        "report_version_url": get_version_url(report, packet_id, config),
         "disease": disease,
         "group": group,
         "touchstone": touchstone,
