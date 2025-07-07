@@ -1,11 +1,30 @@
 import logging
 import time
+from enum import Enum
 
+# TODO: what do these actually mean!?
+class TaskStatus(Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETE = "COMPLETE"
+    ERROR = "ERROR"
+    CANCELLED = "CANCELLED"
+    DIED = "DIED"
+    TIMEOUT = "TIMEOUT"
+    IMPOSSIBLE = "IMPOSSIBLE"
+    DEFERRED = "DEFERRED"
+    MOVED = "MOVED"
 
-def publish_report(wrapper, name, version):
+def task_is_finished(poll_response):
+    return poll_response.status not in [
+        TaskStatus.PENDING,
+        TaskStatus.RUNNING
+        ]
+
+def publish_report(wrapper, name, version, roles):
     try:
-        logging.info("Publishing report version {}-{}".format(name, version))
-        return wrapper.execute(wrapper.ow.publish_report, name, version)
+        logging.info(f"Publishing packet {name}({version})")
+        return packit.publish(version, roles)
     except Exception as ex:
         logging.exception(ex)
         return False
@@ -14,14 +33,13 @@ def publish_report(wrapper, name, version):
 def params_to_string(params):
     return ", ".join([f"{key}={value}" for key, value in params.items()])
 
-
-def run_reports(wrapper, group, disease, touchstone, config, reports,
+def run_reports(packit, group, disease, touchstone, config, reports,
                 success_callback, error_callback, running_reports_repo):
     running_reports = {}
     new_versions = {}
 
-    if wrapper.ow is None:
-        error = "Orderlyweb authentication failed; could not begin task"
+    if not packit.auth_success:
+        error = "Packit authentication failed; could not begin task"
         for report in reports:
             error_callback(report, error)
         logging.error(error)
@@ -29,13 +47,13 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
 
     # Start configured reports
     for report in reports:
-        # Kill any currently running report for this group/disease/report
+        # Kill any currently running task for this group/disease/report
         already_running = running_reports_repo.get(group, disease, report.name)
         if already_running is not None:
             try:
-                logging.info("Killing already running report: {}. Key is {}"
+                logging.info("Killing already running task: {}. Key is {}"
                              .format(report.name, already_running))
-                wrapper.execute(wrapper.ow.kill_report, already_running)
+                packit.kill_task(already_running)
             except Exception as ex:
                 logging.exception(ex)
 
@@ -45,10 +63,15 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
         parameters["touchstone_name"] = touchstone.rsplit('-', 1)[0]
 
         try:
-            key = wrapper.execute(wrapper.ow.run_report,
-                                  report.name,
-                                  parameters,
-                                  report.timeout)
+            key = packit.run(
+                report.name,
+                parameters
+            )
+            # TODO: how was timeout used?
+            #key = wrapper.execute(wrapper.ow.run_report,
+            #                      report.name,
+            #                      parameters,
+            #                      report.timeout)
 
             running_reports[key] = report
             # Save key to shared data - may be killed by subsequent task
@@ -61,7 +84,7 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
             error_callback(report, str(ex))
             logging.exception(ex)
 
-    # Poll running reports until they complete
+    # Poll running tasks until they complete
     report_poll_seconds = config.report_poll_seconds
     while len(running_reports.items()) > 0:
         finished = []
@@ -69,26 +92,29 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
         for key in keys:
             report = running_reports[key]
             try:
-                result = wrapper.execute(wrapper.ow.report_status, key)
-                if result.finished:
+                result = packit.poll(key)
+                if task_is_finished(result):
                     finished.append(key)
-                    if result.success:
-                        logging.info("Success for key {}. New version is {}"
-                                     .format(key, result.version))
+                    if result.status == TaskStatus.COMPLETE:
+                        logging.info("Success for key {}. New packet id is {}"
+                                     .format(key, result.packetId))
 
-                        version = result.version
+                        version = result.packetId
                         name = report.name
-                        published = publish_report(wrapper, name, version)
-                        if published:
-                            logging.info(
-                                "Successfully published report version {}-{}"
-                                .format(name, version))
-                            success_callback(report, version)
-                        else:
-                            error = "Failed to publish report version {}-{}"\
-                                .format(name, version)
-                            logging.error(error)
-                            error_callback(report, error)
+
+                        report_config = filter(lambda: report: report.name == name, reports)
+                        if len(report_config) > 0 and len(report_config[0].publish_roles > 0):
+                            published = publish_report(wrapper, name, version, report_config[0].publish_roles)
+                            if published:
+                                logging.info(
+                                    "Successfully published report version {}-{}"
+                                    .format(name, version))
+                                success_callback(report, version)
+                            else:
+                                error = "Failed to publish report version {}-{}"\
+                                    .format(name, version)
+                                logging.error(error)
+                                error_callback(report, error)
                         new_versions[version] = {
                             "published": published,
                             "report": name
@@ -98,7 +124,7 @@ def run_reports(wrapper, group, disease, touchstone, config, reports,
                             .format(key, result.status)
                         logging.error(error)
                         # don't invoke error callback for cancelled runs
-                        if result.status != "interrupted":
+                        if result.status != TaskStatus.CANCELLED:
                             error_callback(report, error)
 
             except Exception as ex:

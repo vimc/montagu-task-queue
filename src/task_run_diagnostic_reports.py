@@ -12,7 +12,7 @@ from .config import Config, ReportConfig
 from src.utils.email import send_email, Emailer
 from urllib.parse import quote as urlencode
 import logging
-from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from src.packit_client import PackitClient
 from src.utils.running_reports_repository import RunningReportsRepository
 from YTClient.YTClient import YTClient, YTException
 
@@ -29,7 +29,7 @@ def run_diagnostic_reports(group,
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
-        wrapper = OrderlyWebClientWrapper(config)
+        packit = PackitClient(config)
         emailer = Emailer(config.smtp_host, config.smtp_port,
                           config.smtp_user, config.smtp_password)
         yt_token = config.youtrack_token
@@ -60,7 +60,7 @@ def run_diagnostic_reports(group,
 
         running_reports_repo = RunningReportsRepository(host=config.host)
 
-        return run_reports(wrapper,
+        return run_reports(packit,
                            group,
                            disease,
                            touchstone,

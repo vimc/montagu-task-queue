@@ -16,6 +16,11 @@ docker compose --project-name montagu up -d
 # Clear redis
 docker exec montagu-mq-1 redis-cli FLUSHALL
 
+# Install packit
+pip3 install constellation
+pip3 install packit-deploy
+packit start --pull $here
+
 # Start the APIs
 docker exec montagu-api-1 mkdir -p /etc/montagu/api/
 docker exec montagu-api-1 touch /etc/montagu/api/go_signal
