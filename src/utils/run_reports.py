@@ -67,19 +67,13 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                 report.name,
                 parameters
             )
-            # TODO: how was timeout used?
-            #key = wrapper.execute(wrapper.ow.run_report,
-            #                      report.name,
-            #                      parameters,
-            #                      report.timeout)
 
             running_reports[key] = report
             # Save key to shared data - may be killed by subsequent task
             running_reports_repo.set(group, disease, report.name, key)
             logging.info("Running report: {} with parameters {}. Key is {}. "
-                         "Timeout is {}s."
                          .format(report.name, params_to_string(parameters),
-                                 key, report.timeout))
+                                 key))
         except Exception as ex:
             error_callback(report, str(ex))
             logging.exception(ex)

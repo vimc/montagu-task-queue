@@ -8,14 +8,12 @@ class ReportConfig:
                  parameters,
                  success_email_recipients,
                  success_email_subject,
-                 timeout,
                  assignee,
                  publish_roles):
         self.name = name
         self.parameters = parameters
         self.success_email_recipients = success_email_recipients
         self.success_email_subject = success_email_subject
-        self.timeout = timeout
         self.assignee = assignee
         self.publish_roles = publish_roles
 
@@ -98,7 +96,6 @@ class Config:
                 email = self.__value_or_default(r, "success_email", {})
                 recipients = self.__value_or_default(email, "recipients", [])
                 subject = self.__value_or_default(email, "subject", "")
-                timeout = self.__value_or_default(r, "timeout", 600)
                 assignee = r["assignee"]
                 publish_roles = self.__value_or_default(r, "publish_roles", [])
 
@@ -106,7 +103,6 @@ class Config:
                                            params,
                                            recipients,
                                            subject,
-                                           timeout,
                                            assignee,
                                            publish_roles))
         return result
