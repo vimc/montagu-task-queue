@@ -23,6 +23,14 @@ services:
     ports:
       - "5432:5432"
     command: /etc/montagu/postgresql.test.conf
+  contrib:
+    image: ${REGISTRY}/montagu-contrib-portal:master
+    depends_on:
+      - api
+  admin:
+      image: ${REGISTRY}/montagu-admin-portal:master
+      depends_on:
+        - api
   smtp_server:
     image: reachfive/fake-smtp-server
     ports:
