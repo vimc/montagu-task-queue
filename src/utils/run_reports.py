@@ -95,15 +95,16 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                         packet_id = result.packetId
                         name = report.name
 
-                        report_config = filter(lambda: report: report.name == name, reports)
+                        report_config = filter(lambda report: report.name == name, reports)
                         if len(report_config) > 0 and len(report_config[0].publish_roles > 0):
                             published = publish_report(wrapper, name, packet_id, report_config[0].publish_roles)
                             if published:
                                 logging.info(
-                                    f"Successfully published report packet {name} ({packet_id})")
+                                    f"Successfully published report packet {name} ({packet_id})"
+                                 )
                                 success_callback(report, packet_id)
                             else:
-                                error = f"Failed to publish report packet {name} ({packet_id})")
+                                error = f"Failed to publish report packet {name} ({packet_id})"
                                 logging.error(error)
                                 error_callback(report, error)
                         new_packets[packet_id] = {

@@ -24,11 +24,11 @@ class PackitClient:
         return handle_response(response)
 
     def __post(self, relative_url, data):
-        response = requests.post(self.__url(relative_url, data=data, headers=self.__default_headers)
+        response = requests.post(self.__url(relative_url), data=data, headers=self.__default_headers)
         return handle_response(response)
 
     def __put(self, relative_url, data):
-        response = requests.put(self.__url(relative_url, datadata, headers=self.__default_headers)
+        response = requests.put(self.__url(relative_url), datadata, headers=self.__default_headers)
         return handle_response(response)
 
     def __authenticate(self):
@@ -77,27 +77,27 @@ class PackitClient:
             return self.__post(f"/runner/cancel/{task_id}", None)
         return self.__execute(do_kill_task)
 
-   def publish(self, packet_id, roles):
-       # mimic OW publishing by setting packet-level permission for a new report packet permission
-       # on a list of configured roles. NB: These role can either be user roles or groups. If users,
-       # these need to be user names not email addresses.
-       def do_publish_to_role(role):
-           data = {
-            "addPermissions": [
+    def publish(self, packet_id, roles):
+        # mimic OW publishing by setting packet-level permission for a new report packet permission
+        # on a list of configured roles. NB: These role can either be user roles or groups. If users,
+        # these need to be user names not email addresses.
+        def do_publish_to_role(role):
+            data = {
+              "addPermissions": [{
                 "permission": "packit.read",
                 "packetId": packet_id
-            ],
+            }],
             "removePermissions": []
-           }
-           self.__put(f"/roles/{role}/permissions", data)
+            }
+            self.__put(f"/roles/{role}/permissions", data)
 
-       logging.info(f"Publishing packet {name}({packet_id})")
-       success = True
-       for role in roles:
-           try
-             logging.info(f"...to role {role}")
-             self.__execute(do_publish_to_role(role))
-           except Exception as ex:
-               logging.exception(ex)
-               success = False
-       return success
+        logging.info(f"Publishing packet {name}({packet_id})")
+        success = True
+        for role in roles:
+            try:
+              logging.info(f"...to role {role}")
+              self.__execute(do_publish_to_role(role))
+            except Exception as ex:
+                logging.exception(ex)
+                success = False
+        return success

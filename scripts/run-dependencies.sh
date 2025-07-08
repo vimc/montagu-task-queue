@@ -55,13 +55,12 @@ docker run -d \
 	$MONTAGU_PROXY_TAG 443 localhost
 
 # Add user to packit, as admin
+# TODO: This is flaky, sadly. Need to wait until packit-db is ready?
 USERNAME='test.user'
 EMAIL='test.user@example.com'
 DISPLAY_NAME='Test User'
 ROLE='ADMIN'
 docker exec montagu-packit-db create-preauth-user --username "$USERNAME" --email "$EMAIL" --displayname "$DISPLAY_NAME" --role "$ROLE"
-
-# TODO: Get packets into packit...
 
 # From now on, if the user presses Ctrl+C we should teardown gracefully
 function cleanup() {
