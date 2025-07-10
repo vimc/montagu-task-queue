@@ -80,12 +80,14 @@ def create_ticket(group, disease, touchstone, scenario,
                   error,
                   yt: YTClient,
                   config: Config):
+    # TODO: reinstate!
+    return
     try:
         report_success = packet_id is not None
         summary = "Check & share diag report with {} ({}) {}" if \
             report_success else \
             "Run, check & share diag report with {} ({}) {}"
-        result = get_version_url(report, packet_id, config) if \
+        result = get_packet_url(report, packet_id, config) if \
             report_success else \
             "Auto-run failed with error: {}".format(error)
         description = "Report run triggered by upload to scenario: {}. {}"\
@@ -139,7 +141,7 @@ def send_diagnostic_report_email(emailer,
                                  config,
                                  *additional_recipients):
     template_values = {
-        "report_version_url": get_version_url(report, packet_id, config),
+        "report_version_url": get_packet_url(report, packet_id, config),
         "disease": disease,
         "group": group,
         "touchstone": touchstone,
@@ -171,7 +173,7 @@ def get_time_strings(utc_time):
     }
 
 
-def get_version_url(report, version, config):
+def get_packet_url(report, packet_id, config):
     r_enc = urlencode(report.name)
-    v_enc = urlencode(version)
-    return "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc, v_enc)
+    p_enc = urlencode(packet_id)
+    return "{}/{}/{}/".format(config.packit_url, r_enc, p_enc)

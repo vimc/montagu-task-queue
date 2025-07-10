@@ -46,8 +46,12 @@ class Config:
         return self.__montagu()["password"]
 
     @property
-    def packit_api_url(self):
-        return self.__server("packit_api")["url"]
+    def packit_url(self):
+        return self.__server("packit")["url"]
+
+    @property
+    def disable_certificate_verify(self):
+        return self.__server("packit")["disable_certificate_verify"]
 
     @property
     def youtrack_token(self):

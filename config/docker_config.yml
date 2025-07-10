@@ -19,23 +19,28 @@ tasks:
     reports:
       testGroup:
         testDisease:
-          - report_name: explicit
+          - report_name: diagnostic
             success_email:
               recipients:
                 - minimal_modeller@example.com
                 - science@example.com
               subject:  "VIMC diagnostic report: {touchstone} - {group} - {disease}"
             assignee: a.hill
+            publish_roles:
+              - minimal.modeller
+              - Funders
           - report_name: diagnostic-param
             parameters:
-              - a: 1
-              - b: 2
-              - c: 3
+              a: 1
+              b: 2
+              c: 3
             success_email:
               recipients:
                 - other_modeller@example.com
                 - science@example.com
               subject: "New version of another Orderly report"
             assignee: e.russell
+            publish_roles:
+              - other.modeller
   archive_folder_contents:
     min_file_age_seconds: 0

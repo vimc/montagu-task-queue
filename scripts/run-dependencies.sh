@@ -45,6 +45,8 @@ hatch env run -- packit start --pull $here
 echo Packit deployed with exit code $?
 set -e
 
+docker exec montagu-packit-db wait-for-db
+
 # Run the proxy here, not through docker compose - it needs packit to be running before it will start up
 MONTAGU_PROXY_TAG=vimc/montagu-reverse-proxy:master
 docker pull $MONTAGU_PROXY_TAG
@@ -54,6 +56,17 @@ docker run -d \
 	--network montagu_default\
 	$MONTAGU_PROXY_TAG 443 localhost
 
+# give packit api some time to migrate the db...
+sleep 10
+
+# create roles to publish to...
+docker exec -i montagu-packit-db psql -U packituser -d packit --single-transaction <<EOF
+insert into "role" (name, is_username) values ('Funders', FALSE);
+insert into "role" (name, is_username) values ('minimal.modeller', FALSE);
+insert into "role" (name, is_username) values ('other.modeller', FALSE);
+EOF
+
+
 # Add user to packit, as admin
 # TODO: This is flaky, sadly. Need to wait until packit-db is ready?
 USERNAME='test.user'
@@ -62,13 +75,14 @@ DISPLAY_NAME='Test User'
 ROLE='ADMIN'
 docker exec montagu-packit-db create-preauth-user --username "$USERNAME" --email "$EMAIL" --displayname "$DISPLAY_NAME" --role "$ROLE"
 
+
 # From now on, if the user presses Ctrl+C we should teardown gracefully
 function cleanup() {
   docker compose down -v
   docker container stop reverse-proxy
   docker container rm reverse-proxy -v
-  # TODO: This requires user interaction - but clear-docker does not remove volumes!
-  hatch env run -- packit stop ./scripts --network --volume
+  hatch env run -- packit stop ./scripts --network
+  docker volume rm montagu_packit_db
 }
 trap cleanup EXIT
 

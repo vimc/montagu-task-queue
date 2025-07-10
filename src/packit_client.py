@@ -1,3 +1,4 @@
+import json
 import logging
 import requests
 import montagu
@@ -6,10 +7,11 @@ from .packit_client_exception import PackitClientException
 class PackitClient:
     def __init__(self, config):
         self.__config = config
+        self.__verify = not config.disable_certificate_verify
         self.__authenticate()
 
     def __url(self, relative_url):
-        return f"{self.__config.packit_api_url}{relative_url}"
+        return f"{self.__config.packit_url}/api{relative_url}"
 
     @staticmethod
     def handle_response(response):
@@ -20,25 +22,29 @@ class PackitClient:
     def __get(self, relative_url, headers = None):
         if headers is None:
             headers = self.__default_headers
-        response = requests.get(self.__url(relative_url), headers=headers)
-        return handle_response(response)
+        response = requests.get(self.__url(relative_url), headers=headers, verify = self.__verify)
+        return PackitClient.handle_response(response)
 
     def __post(self, relative_url, data):
-        response = requests.post(self.__url(relative_url), data=data, headers=self.__default_headers)
-        return handle_response(response)
+        #raise Exception(f"DATA: {data}")
+        response = requests.post(self.__url(relative_url), data=json.dumps(data), headers=self.__default_headers, verify = self.__verify)
+        return PackitClient.handle_response(response)
 
     def __put(self, relative_url, data):
-        response = requests.put(self.__url(relative_url), datadata, headers=self.__default_headers)
-        return handle_response(response)
+        response = requests.put(self.__url(relative_url), data=json.dumps(data), headers=self.__default_headers, verify = self.__verify)
+        return PackitClient.handle_response(response)
 
     def __authenticate(self):
         try:
             monty = montagu.MontaguAPI(self.__config.montagu_url, self.__config.montagu_user,
-                                               config.montagu_password)
+                                               self.__config.montagu_password)
             packit_login_response = self.__get("/auth/login/montagu", {"Authorization": f"Bearer {monty.token}"})
             self.auth_success = True
-            self.token = packit_login_response.token # TODO: maybe don't need to retain token as saving header?
-            self.__default_headers = { "Authorization": f"Bearer {self.token}" }
+            self.token = packit_login_response["token"] # TODO: maybe don't need to retain token as saving header?
+            self.__default_headers = {
+                "Authorization": f"Bearer {self.token}",
+                "Content-Type": f"application/json"
+            }
         except Exception as ex:
             self.auth_success = False
             logging.exception(ex)
@@ -59,11 +65,11 @@ class PackitClient:
             data = {
                 "name": packet_group,
                 "parameters": parameters,
-                "branch": "",
-                "hash": "" # TODO: can branch and hash be empty??
+                "branch": "mrc-6454-task-queue-test-reports", # TODO: revert this to main!
+                "hash": "cfff4749d9a9ec2d04a37b57cacf648836ba9783"
             }
             response = self.__post("/runner/run", data)
-            return response.taskId
+            return response["taskId"]
 
         return self.__execute(do_run)
 
@@ -77,14 +83,14 @@ class PackitClient:
             return self.__post(f"/runner/cancel/{task_id}", None)
         return self.__execute(do_kill_task)
 
-    def publish(self, packet_id, roles):
+    def publish(self, name, packet_id, roles):
         # mimic OW publishing by setting packet-level permission for a new report packet permission
         # on a list of configured roles. NB: These role can either be user roles or groups. If users,
         # these need to be user names not email addresses.
         def do_publish_to_role(role):
             data = {
               "addPermissions": [{
-                "permission": "packit.read",
+                "permission": "packet.read",
                 "packetId": packet_id
             }],
             "removePermissions": []
@@ -96,7 +102,7 @@ class PackitClient:
         for role in roles:
             try:
               logging.info(f"...to role {role}")
-              self.__execute(do_publish_to_role(role))
+              self.__execute(lambda: do_publish_to_role(role))
             except Exception as ex:
                 logging.exception(ex)
                 success = False

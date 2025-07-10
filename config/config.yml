@@ -4,8 +4,9 @@ servers:
     url: http://localhost:8080
     user: test.user@example.com
     password: password
-  packit_api:
-    url: http://localhost:8081 # TODO: expose port in run deps
+  packit:
+    url: https://localhost/packit
+    disable_certificate_verify: true
   youtrack:
     token: None
   smtp:
@@ -34,7 +35,9 @@ tasks:
               - Funders
           - report_name: diagnostic-param
             parameters:
-              nmin: 0
+              a: 1
+              b: 2
+              c: 3
             success_email:
               recipients:
                 - other_modeller@example.com

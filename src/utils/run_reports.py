@@ -15,15 +15,15 @@ class TaskStatus(Enum):
     MOVED = "MOVED"
 
 def task_is_finished(poll_response):
-    return poll_response.status not in [
-        TaskStatus.PENDING,
-        TaskStatus.RUNNING
+    status = poll_response["status"]
+    return status not in [
+        "PENDING",
+        "RUNNING"
         ]
 
-def publish_report(wrapper, name, packet_id, roles):
+def publish_report(packit, name, packet_id, roles):
     try:
-        logging.info(f"Publishing report packet {name}({packet_id})")
-        return packit.publish(packet_id, roles)
+        return packit.publish(name, packet_id, roles)
     except Exception as ex:
         logging.exception(ex)
         return False
@@ -88,22 +88,24 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                 result = packit.poll(key)
                 if task_is_finished(result):
                     finished.append(key)
-                    if result.status == TaskStatus.COMPLETE:
+                    if result["status"] == "COMPLETE":
                         logging.info("Success for key {}. New packet id is {}"
-                                     .format(key, result.packetId))
+                                     .format(key, result["packetId"]))
 
-                        packet_id = result.packetId
+                        packet_id = result["packetId"]
                         name = report.name
 
-                        report_config = filter(lambda report: report.name == name, reports)
-                        if len(report_config) > 0 and len(report_config[0].publish_roles > 0):
-                            published = publish_report(wrapper, name, packet_id, report_config[0].publish_roles)
+                        report_config = next(filter(lambda report: report.name == name, reports), None)
+                        if report_config is not None:
+                            time.sleep(11) # TODO: something better! need to wait for packit to be imported => Detail: Permission not found
+                            published = publish_report(packit, name, packet_id, report_config.publish_roles)
                             if published:
                                 logging.info(
                                     f"Successfully published report packet {name} ({packet_id})"
                                  )
                                 success_callback(report, packet_id)
                             else:
+                                #raise Exception(f"RESULT: {result}")
                                 error = f"Failed to publish report packet {name} ({packet_id})"
                                 logging.error(error)
                                 error_callback(report, error)
@@ -112,11 +114,12 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                             "report": name
                         }
                     else:
+                        raise Exception(f"ERROR RESULT {result}")
                         error = "Failure for key {}. Status: {}"\
-                            .format(key, result.status)
+                            .format(key, result["status"])
                         logging.error(error)
                         # don't invoke error callback for cancelled runs
-                        if result.status != TaskStatus.CANCELLED:
+                        if result["status"] != TaskStatus.CANCELLED:
                             error_callback(report, error)
 
             except Exception as ex:
@@ -133,4 +136,4 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                                                    key)
         time.sleep(report_poll_seconds)
 
-    return new_packet
+    return new_packets
