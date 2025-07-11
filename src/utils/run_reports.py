@@ -1,24 +1,16 @@
 import logging
 import time
-from enum import Enum
 
-class TaskStatus(Enum):
-    PENDING = "PENDING"
-    RUNNING = "RUNNING"
-    COMPLETE = "COMPLETE"
-    ERROR = "ERROR"
-    CANCELLED = "CANCELLED"
-    DIED = "DIED"
-    TIMEOUT = "TIMEOUT"
-    IMPOSSIBLE = "IMPOSSIBLE"
-    DEFERRED = "DEFERRED"
-    MOVED = "MOVED"
+TASK_STATUS_PENDING = "PENDING"
+TASK_STATUS_RUNNING = "RUNNING"
+TASK_STATUS_COMPLETE = "COMPLETE"
+TASK_STATUS_CANCELLED = "CANCELLED"
 
 def task_is_finished(poll_response):
     status = poll_response["status"]
     return status not in [
-        "PENDING",
-        "RUNNING"
+        TASK_STATUS_PENDING,
+        TASK_STATUS_RUNNING
         ]
 
 def publish_report(packit, name, packet_id, roles):
@@ -88,7 +80,7 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                 result = packit.poll(key)
                 if task_is_finished(result):
                     finished.append(key)
-                    if result["status"] == "COMPLETE":
+                    if result["status"] == TASK_STATUS_COMPLETE:
                         logging.info("Success for key {}. New packet id is {}"
                                      .format(key, result["packetId"]))
 
@@ -97,7 +89,6 @@ def run_reports(packit, group, disease, touchstone, config, reports,
 
                         report_config = next(filter(lambda report: report.name == name, reports), None)
                         if report_config is not None:
-                            time.sleep(11) # TODO: something better! need to wait for packit to be imported => Detail: Permission not found
                             published = publish_report(packit, name, packet_id, report_config.publish_roles)
                             if published:
                                 logging.info(
@@ -105,7 +96,6 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                                  )
                                 success_callback(report, packet_id)
                             else:
-                                #raise Exception(f"RESULT: {result}")
                                 error = f"Failed to publish report packet {name} ({packet_id})"
                                 logging.error(error)
                                 error_callback(report, error)
@@ -114,12 +104,11 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                             "report": name
                         }
                     else:
-                        raise Exception(f"ERROR RESULT {result}")
                         error = "Failure for key {}. Status: {}"\
                             .format(key, result["status"])
                         logging.error(error)
                         # don't invoke error callback for cancelled runs
-                        if result["status"] != TaskStatus.CANCELLED:
+                        if result["status"] != TASK_STATUS_CANCELLED:
                             error_callback(report, error)
 
             except Exception as ex:

@@ -2,6 +2,7 @@ import json
 import logging
 import requests
 import montagu
+import time
 from .packit_client_exception import PackitClientException
 
 class PackitClient:
@@ -26,7 +27,6 @@ class PackitClient:
         return PackitClient.handle_response(response)
 
     def __post(self, relative_url, data):
-        #raise Exception(f"DATA: {data}")
         response = requests.post(self.__url(relative_url), data=json.dumps(data), headers=self.__default_headers, verify = self.__verify)
         return PackitClient.handle_response(response)
 
@@ -60,13 +60,24 @@ class PackitClient:
                 else:
                     raise ex
 
+    def __get_latest_commit_for_branch(self, branch):
+        branches_response = self.__get("/runner/git/branches")
+        branches = branches_response["branches"]
+        branch_details = next(filter(lambda b: b["name"] == branch, branches), None)
+        if branch_details == None:
+            raise Exception(f"Git details not found for branch {branch}")
+        return branch_details["commitHash"]
+
+
     def run(self, packet_group, parameters):
         def do_run():
+            branch = "main"
+            commit = self.__get_latest_commit_for_branch(branch)
             data = {
                 "name": packet_group,
                 "parameters": parameters,
-                "branch": "mrc-6454-task-queue-test-reports", # TODO: revert this to main!
-                "hash": "cfff4749d9a9ec2d04a37b57cacf648836ba9783"
+                "branch": branch,
+                "hash": commit
             }
             response = self.__post("/runner/run", data)
             return response["taskId"]
@@ -97,6 +108,7 @@ class PackitClient:
             }
             self.__put(f"/roles/{role}/permissions", data)
 
+        time.sleep(11) # TODO: :( We need to wait for scheduled packet import
         logging.info(f"Publishing packet {name}({packet_id})")
         success = True
         for role in roles:

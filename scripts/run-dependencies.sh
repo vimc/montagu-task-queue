@@ -9,7 +9,6 @@ docker network prune -f
 
 export NETWORK=montagu_default
 
-
 # Run the API and database
 docker compose pull
 docker compose --project-name montagu up -d
@@ -39,7 +38,7 @@ $here/montagu_cli.sh addRole test.user user
 # Run packit
 hatch env run pip3 install constellation
 hatch env run pip3 install packit-deploy
-# TODO: For some reason packit is emitting exit code 1 despite apparently succeeding. Allow this for now...
+# For some reason packit is emitting exit code 1 despite apparently succeeding. Allow this for now...
 set +e
 hatch env run -- packit start --pull $here
 echo Packit deployed with exit code $?
@@ -57,7 +56,7 @@ docker run -d \
 	$MONTAGU_PROXY_TAG 443 localhost
 
 # give packit api some time to migrate the db...
-sleep 10
+sleep 5
 
 # create roles to publish to...
 docker exec -i montagu-packit-db psql -U packituser -d packit --single-transaction <<EOF
@@ -66,23 +65,24 @@ insert into "role" (name, is_username) values ('minimal.modeller', FALSE);
 insert into "role" (name, is_username) values ('other.modeller', FALSE);
 EOF
 
-
 # Add user to packit, as admin
-# TODO: This is flaky, sadly. Need to wait until packit-db is ready?
 USERNAME='test.user'
 EMAIL='test.user@example.com'
 DISPLAY_NAME='Test User'
 ROLE='ADMIN'
 docker exec montagu-packit-db create-preauth-user --username "$USERNAME" --email "$EMAIL" --displayname "$DISPLAY_NAME" --role "$ROLE"
 
-
 # From now on, if the user presses Ctrl+C we should teardown gracefully
 function cleanup() {
-  docker compose down -v
   docker container stop reverse-proxy
   docker container rm reverse-proxy -v
-  hatch env run -- packit stop ./scripts --network
-  docker volume rm montagu_packit_db
+  # Same exit code issue for packit stop as packit start....
+  set +e
+  hatch env run -- packit stop ./scripts
+  set -e
+  # remove db volume manually rather than --volumes flag to packit, to avoid requiring user confirmation
+  docker volume rm montagu_packit_db montagu_orderly_library montagu_outpack_volume montagu_orderly_logs
+  docker compose --project-name montagu down -v
 }
 trap cleanup EXIT
 
