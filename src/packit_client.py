@@ -68,6 +68,23 @@ class PackitClient:
             raise Exception(f"Git details not found for branch {branch}")
         return branch_details["commitHash"]
 
+    def __wait_for_packet_to_be_imported(self, packet_id):
+        # packet api imports new packets every 10s - poll it for a generous
+        # 30s to find a new packet before attempting to publish it
+        poll_seconds = 2
+        seconds_max = 30
+        poll_max = seconds_max / poll_seconds
+        poll_counter = 0
+        while poll_counter <= poll_max:
+            try:
+                self.__get(f"/packets/{packet_id}")
+                return
+            except PackitClientException as ex:
+                logging.info(f"Waiting for packet {packet_id}...")
+            poll_counter = poll_counter + 1
+            time.sleep(poll_seconds)
+        raise Exception(f"Packet {packet_id} was not imported into Packit after {seconds_max}s")
+
 
     def run(self, packet_group, parameters):
         def do_run():
@@ -94,6 +111,7 @@ class PackitClient:
             return self.__post(f"/runner/cancel/{task_id}", None)
         return self.__execute(do_kill_task)
 
+
     def publish(self, name, packet_id, roles):
         # mimic OW publishing by setting packet-level permission for a new report packet permission
         # on a list of configured roles. NB: These role can either be user roles or groups. If users,
@@ -108,7 +126,8 @@ class PackitClient:
             }
             self.__put(f"/roles/{role}/permissions", data)
 
-        time.sleep(11) # TODO: :( We need to wait for scheduled packet import
+        self.__wait_for_packet_to_be_imported(packet_id)
+
         logging.info(f"Publishing packet {name}({packet_id})")
         success = True
         for role in roles:
