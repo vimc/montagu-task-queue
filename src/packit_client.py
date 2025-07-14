@@ -20,6 +20,10 @@ class PackitClient:
             raise PackitClientException(response)
         return response.json()
 
+    @staticmethod
+    def serialize(data):
+        return None if data is None else json.dumps(data)
+
     def __get(self, relative_url, headers = None):
         if headers is None:
             headers = self.__default_headers
@@ -27,11 +31,11 @@ class PackitClient:
         return PackitClient.handle_response(response)
 
     def __post(self, relative_url, data):
-        response = requests.post(self.__url(relative_url), data=json.dumps(data), headers=self.__default_headers, verify = self.__verify)
+        response = requests.post(self.__url(relative_url), data=PackitClient.serialize(data), headers=self.__default_headers, verify = self.__verify)
         return PackitClient.handle_response(response)
 
     def __put(self, relative_url, data):
-        response = requests.put(self.__url(relative_url), data=json.dumps(data), headers=self.__default_headers, verify = self.__verify)
+        response = requests.put(self.__url(relative_url), data=PackitClient.serialize(data), headers=self.__default_headers, verify = self.__verify)
         return PackitClient.handle_response(response)
 
     def __authenticate(self):
