@@ -80,8 +80,6 @@ def create_ticket(group, disease, touchstone, scenario,
                   error,
                   yt: YTClient,
                   config: Config):
-    # TODO: reinstate!
-    return
     try:
         report_success = packet_id is not None
         summary = "Check & share diag report with {} ({}) {}" if \

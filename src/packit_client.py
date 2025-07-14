@@ -40,7 +40,7 @@ class PackitClient:
                                                self.__config.montagu_password)
             packit_login_response = self.__get("/auth/login/montagu", {"Authorization": f"Bearer {monty.token}"})
             self.auth_success = True
-            self.token = packit_login_response["token"] # TODO: maybe don't need to retain token as saving header?
+            self.token = packit_login_response["token"]
             self.__default_headers = {
                 "Authorization": f"Bearer {self.token}",
                 "Content-Type": f"application/json"

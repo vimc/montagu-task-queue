@@ -5,3 +5,4 @@ montagu>=0.0.2
 orderlyweb-api>=1.0.0
 git+https://github.com/reside-ic/youtrack-rest-python-library
 constellation
+requests-mock
