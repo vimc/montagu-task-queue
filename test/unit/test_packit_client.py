@@ -1,7 +1,9 @@
 import json
 import montagu
+import pytest
 import requests_mock
 from src.packit_client import PackitClient
+from src.packit_client_exception import PackitClientException
 from unittest.mock import patch, MagicMock
 
 PACKIT_URL = "http://test-packit"
@@ -29,6 +31,13 @@ def assert_expected_packit_api_request(requests_mock, index, method, url, text =
     assert req.url == url
     assert req.text == text
 
+def assert_expected_packit_auth_request(requests_mock, index):
+    auth_req = requests_mock.request_history[index]
+    assert auth_req.method == "GET"
+    assert auth_req.url == f"{PACKIT_URL}/api/auth/login/montagu"
+    assert auth_req.headers["Authorization"] == "Bearer test-montagu-token"
+
+
 @patch("montagu.MontaguAPI")
 def test_authenticates_on_init(MockMontaguAPI, requests_mock):
     mock_auth(MockMontaguAPI, requests_mock)
@@ -37,9 +46,7 @@ def test_authenticates_on_init(MockMontaguAPI, requests_mock):
 
     MockMontaguAPI.assert_called_with("http://test-montagu", "test.montagu.user", "montagu_password")
     auth_call = requests_mock.request_history[0]
-    assert auth_call.method == "GET"
-    assert auth_call.url == f"{PACKIT_URL}/api/auth/login/montagu"
-    assert auth_call.headers["Authorization"] == "Bearer test-montagu-token"
+    assert_expected_packit_auth_request(requests_mock, 0)
     assert sut.auth_success
     assert sut.token == "test-packit-token"
 
@@ -116,10 +123,45 @@ def test_publish(MockMontaguAPI, requests_mock):
     assert_expected_packit_api_request(requests_mock, 4, "PUT", f"{PACKIT_URL}/api/roles/test-role-2/permissions", expected_permissions_payload)
     assert result
 
-#def test_raises_exception_when_auth_fails
+@patch("montagu.MontaguAPI")
+def test_sets_auth_success_to_false_when_auth_fails(MockMontaguAPI, requests_mock):
+    requests_mock.get(f"{PACKIT_URL}/api/auth/login/montagu", status_code = 401, text = json.dumps({"error": "Unauthorized"}))
+    sut = PackitClient(config)
+    assert not sut.auth_success
 
-#def test_reauthenticates_on_401
+@patch("montagu.MontaguAPI")
+def test_reauthenticates_on_401(MockMontaguAPI, requests_mock):
+    # Reauthentication should take place as part of the __execute wrapper used
+    # with all methods which require authentication - here we just test a sample
+    # method to check the pattern works.
+    mock_auth(MockMontaguAPI, requests_mock)
+    mock_successful_kill_response = { "status": "dead" }
+    requests_mock.post(f"{PACKIT_URL}/api/runner/cancel/test-task-id", [
+        {"status_code": 401, "text": json.dumps({"error": "Unauthorized"})},
+        {"status_code": 200, "text": json.dumps(mock_successful_kill_response)}
+    ])
 
-#def test_raises_exception_on_unexpected_status
+    sut = PackitClient(config)
+    resp = sut.kill_task("test-task-id")
+
+    assert resp == mock_successful_kill_response
+
+    assert_expected_packit_api_request(requests_mock, 1, "POST", f"{PACKIT_URL}/api/runner/cancel/test-task-id")
+    assert_expected_packit_auth_request(requests_mock, 2)
+    assert_expected_packit_api_request(requests_mock, 3, "POST", f"{PACKIT_URL}/api/runner/cancel/test-task-id")
+
+@patch("montagu.MontaguAPI")
+def test_raises_exception_on_unexpected_status(MockMontaguAPI, requests_mock):
+    mock_auth(MockMontaguAPI, requests_mock)
+    # execute does not tolerate status codes other than 401 - should get an exception
+    bad_response = {"error": "Bad request"}
+    requests_mock.get(f"{PACKIT_URL}/api/runner/status/test-task-id", status_code = 400, text = json.dumps(bad_response))
+
+    sut = PackitClient(config)
+    with pytest.raises(PackitClientException) as exc_info:
+        sut.poll("test-task-id")
+    assert exc_info.value.response.status_code == 400
+    assert exc_info.value.response.json() == bad_response
+
 
 

@@ -130,7 +130,7 @@ class PackitClient:
             }
             self.__put(f"/roles/{role}/permissions", data)
 
-        self.__wait_for_packet_to_be_imported(packet_id)
+        self.__execute(lambda: self.__wait_for_packet_to_be_imported(packet_id))
 
         logging.info(f"Publishing packet {name}({packet_id})")
         success = True
