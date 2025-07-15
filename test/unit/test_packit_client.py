@@ -4,18 +4,8 @@ import pytest
 import requests_mock
 from src.packit_client import PackitClient
 from src.packit_client_exception import PackitClientException
+from test.unit.test_run_reports import MockConfig, PACKIT_URL
 from unittest.mock import patch, MagicMock
-
-PACKIT_URL = "http://test-packit"
-
-class MockConfig:
-    def __init__(self):
-        self.disable_certificate_verify = False
-        self.montagu_url = "http://test-montagu"
-        self.montagu_user = "test.montagu.user"
-        self.montagu_password = "montagu_password"
-        self.packit_url = PACKIT_URL
-
 
 config = MockConfig()
 

@@ -42,7 +42,7 @@ def run_reports(packit, group, disease, touchstone, config, reports,
         already_running = running_reports_repo.get(group, disease, report.name)
         if already_running is not None:
             try:
-                logging.info("Killing already running task: {}. Key is {}"
+                logging.info("Killing already running task: {}. Key is {}."
                              .format(report.name, already_running))
                 packit.kill_task(already_running)
             except Exception as ex:
@@ -62,7 +62,7 @@ def run_reports(packit, group, disease, touchstone, config, reports,
             running_reports[key] = report
             # Save key to shared data - may be killed by subsequent task
             running_reports_repo.set(group, disease, report.name, key)
-            logging.info("Running report: {} with parameters {}. Key is {}. "
+            logging.info("Running report: {} with parameters {}. Key is {}."
                          .format(report.name, params_to_string(parameters),
                                  key))
         except Exception as ex:
@@ -89,6 +89,7 @@ def run_reports(packit, group, disease, touchstone, config, reports,
 
                         report_config = next(filter(lambda report: report.name == name, reports), None)
                         if report_config is not None:
+                            logging.info("Publishing report packet {} ({})".format(name, packet_id))
                             published = publish_report(packit, name, packet_id, report_config.publish_roles)
                             if published:
                                 logging.info(

@@ -14,7 +14,7 @@ fake_tags = [{"name": "g1"},
 
 def test_tags_created():
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                          "Hi", 100, "a.ssignee")
+                          "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
@@ -28,7 +28,7 @@ def test_tags_created():
 
 def test_tags_not_created_if_exists():
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                          "Hi", 100, "a.ssignee")
+                          "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
@@ -41,7 +41,7 @@ def test_tags_not_created_if_exists():
 
 def test_create_ticket_with_version():
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                          "Hi", 100, "a.ssignee")
+                          "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
@@ -52,7 +52,7 @@ def test_create_ticket_with_version():
     expected_create = call(Project(id="78-0"),
                            "Check & share diag report with g1 (d1) t1",
                            "Report run triggered by upload to scenario: s1. "
-                           "http://orderly-web/report/TEST/1234/")
+                           "http://test-packit/TEST/1234/")
     mock_client.create_issue.assert_has_calls([expected_create])
     expected_command_query = \
         "for a.ssignee implementer a.ssignee tag g1 tag d1 tag t1 tag TEST"
@@ -63,7 +63,7 @@ def test_create_ticket_with_version():
 
 def test_create_ticket_without_version():
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                          "Hi", 100, "a.ssignee")
+                          "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.create_issue = Mock(return_value="ISSUE")
@@ -87,7 +87,7 @@ def test_create_ticket_without_version():
 @patch("src.task_run_diagnostic_reports.logging")
 def test_create_ticket_logs_errors(logging):
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                          "Hi", 100, "a.ssignee")
+                           "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.get_issues = Mock(return_value=[])
@@ -101,7 +101,7 @@ def test_create_ticket_logs_errors(logging):
 
 def test_update_ticket():
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                          "Hi", 100, "a.ssignee")
+                           "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.get_issues = Mock(return_value=["ISSUE"])
@@ -111,5 +111,5 @@ def test_update_ticket():
     expected_command = call("ISSUE",
                             "Check & share diag report with g1 (d1) t1",
                             "Report run triggered by upload to scenario: s1. "
-                            "http://orderly-web/report/TEST/1234/")
+                            "http://test-packit/TEST/1234/")
     mock_client.update_issue.assert_has_calls([expected_command])
