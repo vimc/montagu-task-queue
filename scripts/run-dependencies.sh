@@ -58,6 +58,8 @@ docker run -d \
 # give packit api some time to migrate the db...
 # TODO: poll rather than ridiculous sleep
 sleep 60
+docker logs montagu-packit-db
+docker logs montagu-packit-api
 
 # create roles to publish to...
 docker exec -i montagu-packit-db psql -U packituser -d packit --single-transaction <<EOF
