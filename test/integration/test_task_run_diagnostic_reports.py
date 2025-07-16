@@ -178,7 +178,7 @@ def test_ticket_created_on_success():
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
     expected_desc1 = "Report run triggered by upload to scenario: s1. " \
-                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
+                     "https://localhost/packit/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
     assert i1["description"] == expected_desc1
     assignee = get_field(i1, "Assignee")
@@ -194,7 +194,7 @@ def test_ticket_created_on_success():
     assert yt.test_touchstone in tags
 
     expected_desc2 = "Report run triggered by upload to scenario: s1. " \
-                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
+                     "https://localhost/packit/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
     assert i2["description"] == expected_desc2
     assignee = get_field(i2, "Assignee")
@@ -210,9 +210,9 @@ def test_ticket_created_on_success():
     assert yt.test_touchstone in tags
 
 
-@mock.patch('src.config.Config.orderlyweb_url', new_callable=PropertyMock)
-def test_ticket_created_on_error(mock_orderlyweb_url):
-    mock_orderlyweb_url.return_value = "http://bad-url"
+@mock.patch('src.config.Config.packit_url', new_callable=PropertyMock)
+def test_ticket_created_on_error(mock_packit_url):
+    mock_packit_url.return_value = "http://bad-url"
     result = run_diagnostic_reports("testGroup",
                                     "testDisease",
                                     yt.test_touchstone,
@@ -235,7 +235,7 @@ def test_ticket_created_on_error(mock_orderlyweb_url):
 
     expected_err = "Report run triggered by upload to scenario: s1. " \
                    "Auto-run failed with error: " + \
-                   "Orderlyweb authentication failed; could not begin task"
+                   "Packit authentication failed; could not begin task"
 
     i1 = issues[0]
     i2 = issues[1]
@@ -288,12 +288,12 @@ def test_ticket_update_on_success():
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
     expected_desc1 = "Report run triggered by upload to scenario: s1. " \
-                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
+                     "https://localhost/packit/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
     assert i1["description"] == expected_desc1
 
     expected_desc2 = "Report run triggered by upload to scenario: s1. " \
-                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
+                     "https://localhost/packit/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
     assert i2["description"] == expected_desc2
 
@@ -325,11 +325,11 @@ def test_ticket_update_on_success():
         "Check & share diag report with testGroup (testDisease) {}" \
         .format(yt.test_touchstone)
     expected_desc1 = "Report run triggered by upload to scenario: s1. " \
-                     "http://localhost:8888/report/{}/{}/".format(r1, v1)
+                     "https://localhost/packit/{}/{}/".format(r1, v1)
     assert i1["summary"] == expected_summary
     assert i1["description"] == expected_desc1
 
     expected_desc2 = "Report run triggered by upload to scenario: s1. " \
-                     "http://localhost:8888/report/{}/{}/".format(r2, v2)
+                     "https://localhost/packit/{}/{}/".format(r2, v2)
     assert i2["summary"] == expected_summary
     assert i2["description"] == expected_desc2

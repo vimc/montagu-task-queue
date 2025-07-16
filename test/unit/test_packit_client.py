@@ -42,6 +42,16 @@ def test_authenticates_on_init(MockMontaguAPI, requests_mock):
 
 
 @patch("montagu.MontaguAPI")
+def test_refresh_git(MockMontaguAPI, requests_mock):
+    mock_auth(MockMontaguAPI, requests_mock)
+    requests_mock.post(f"{PACKIT_URL}/api/runner/git/fetch", text = None)
+
+    sut = PackitClient(config)
+    sut.refresh_git()
+
+    assert_expected_packit_api_request(requests_mock, 1, "POST", f"{PACKIT_URL}/api/runner/git/fetch")
+
+@patch("montagu.MontaguAPI")
 def test_run(MockMontaguAPI, requests_mock):
     mock_auth(MockMontaguAPI, requests_mock)
     mock_branches_response = { "branches": [

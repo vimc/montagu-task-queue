@@ -19,8 +19,8 @@ def test_montagu_password():
     assert config.montagu_password == "password"
 
 
-def test_orderlyweb_url():
-    assert config.orderlyweb_url == "http://localhost:8888"
+def test_packit_url():
+    assert config.packit_url == "https://localhost"
 
 
 def test_youtrack_token():

@@ -48,6 +48,8 @@ def test_run_reports(logging):
                            reports, success_callback, error_callback,
                            mock_running_reports)
 
+    packit.refresh_git.assert_called_with()
+
     assert versions == {
         "r1-version": {"published": True, "report": "r1"},
         "r2-version": {"published": True, "report": "r2"}
@@ -459,6 +461,7 @@ class MockPackitClient:
         self.report_responses = report_responses
         self.fail_publish = fail_publish
         self.kill_task = Mock()
+        self.refresh_git = Mock()
 
     def run(self, name, params):
         assert params == self.expected_params[name]
