@@ -18,7 +18,7 @@ class PackitClient:
     def handle_response(response):
         if response.status_code != 200 and response.status_code != 204:
             raise PackitClientException(response)
-        return response.json()
+        return response.json() if len(response.text) > 0 else None
 
     @staticmethod
     def serialize(data):
@@ -89,6 +89,10 @@ class PackitClient:
             time.sleep(poll_seconds)
         raise Exception(f"Packet {packet_id} was not imported into Packit after {seconds_max}s")
 
+    def refresh_git(self):
+        def do_refresh_git():
+            self.__post("/runner/git/fetch", None)
+        self.__execute(do_refresh_git)
 
     def run(self, packet_group, parameters):
         def do_run():

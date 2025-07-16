@@ -36,6 +36,16 @@ def run_reports(packit, group, disease, touchstone, config, reports,
         logging.error(error)
         return new_packets
 
+    try:
+        packit.refresh_git()
+    except Exception as ex:
+        error = "Failed to refresh git; could not begin task"
+        for report in reports:
+            error_callback(report, error)
+        logging.error(error)
+        return new_packets
+
+
     # Start configured reports
     for report in reports:
         # Kill any currently running task for this group/disease/report
