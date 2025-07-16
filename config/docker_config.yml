@@ -1,15 +1,16 @@
 host: montagu-mq-1
 servers:
   montagu:
-    url: http://montagu_api_1:8080
+    url: http://montagu-api-1:8080
     user: test.user@example.com
     password: password
-  orderlyweb:
-    url: http://montagu_orderly_web:8888
+  packit:
+    url: http://montagu-packit-api:8080
+    disable_certificate_verify: true
   youtrack:
     token:
   smtp:
-    host: montagu_smtp_server_1
+    host: montagu-smtp_server-1
     port: 1025
     from: noreply@example.com
 tasks:
