@@ -56,7 +56,7 @@ docker run -d \
 	$MONTAGU_PROXY_TAG 443 localhost
 
 # give packit api some time to migrate the db...
-sleep 5
+sleep 10
 
 # create roles to publish to...
 docker exec -i montagu-packit-db psql -U packituser -d packit --single-transaction <<EOF
