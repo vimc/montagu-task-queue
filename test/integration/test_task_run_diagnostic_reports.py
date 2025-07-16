@@ -103,13 +103,13 @@ Please reply to this email to let us know:
     diagnostic_is_first = result[versions[0]]["report"] == "diagnostic"
 
     if diagnostic_is_first:
-         report_1 = "diagnostic"
-         report_2 = "diagnostic-param"
-         email_props = [diagnostic_email_props, diagnostic_param_email_props]
+        report_1 = "diagnostic"
+        report_2 = "diagnostic-param"
+        email_props = [diagnostic_email_props, diagnostic_param_email_props]
     else:
-         report_1 = "diagnostic-param"
-         report_2 = "diagnostic"
-         email_props = [diagnostic_param_email_props, diagnostic_email_props]
+        report_1 = "diagnostic-param"
+        report_2 = "diagnostic"
+        email_props = [diagnostic_param_email_props, diagnostic_email_props]
 
     url_template = "https://localhost/packit/{}/{}/"
     url_1 = url_template.format(report_1, versions[0])

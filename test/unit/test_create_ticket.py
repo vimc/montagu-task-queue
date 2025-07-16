@@ -87,7 +87,7 @@ def test_create_ticket_without_version():
 @patch("src.task_run_diagnostic_reports.logging")
 def test_create_ticket_logs_errors(logging):
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                           "Hi", "a.ssignee", ["Funders"])
+                          "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.get_issues = Mock(return_value=[])
@@ -101,7 +101,7 @@ def test_create_ticket_logs_errors(logging):
 
 def test_update_ticket():
     report = ReportConfig("TEST", {}, ["to@example.com"],
-                           "Hi", "a.ssignee", ["Funders"])
+                          "Hi", "a.ssignee", ["Funders"])
     mock_config: Config = MockConfig()
     mock_client = Mock(spec=YTClient("", ""))
     mock_client.get_issues = Mock(return_value=["ISSUE"])

@@ -6,12 +6,14 @@ TASK_STATUS_RUNNING = "RUNNING"
 TASK_STATUS_COMPLETE = "COMPLETE"
 TASK_STATUS_CANCELLED = "CANCELLED"
 
+
 def task_is_finished(poll_response):
     status = poll_response["status"]
     return status not in [
         TASK_STATUS_PENDING,
         TASK_STATUS_RUNNING
-        ]
+    ]
+
 
 def publish_report(packit, name, packet_id, roles):
     try:
@@ -23,6 +25,7 @@ def publish_report(packit, name, packet_id, roles):
 
 def params_to_string(params):
     return ", ".join([f"{key}={value}" for key, value in params.items()])
+
 
 def run_reports(packit, group, disease, touchstone, config, reports,
                 success_callback, error_callback, running_reports_repo):
@@ -44,7 +47,6 @@ def run_reports(packit, group, disease, touchstone, config, reports,
             error_callback(report, error)
         logging.error(error)
         return new_packets
-
 
     # Start configured reports
     for report in reports:
@@ -97,17 +99,26 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                         packet_id = result["packetId"]
                         name = report.name
 
-                        report_config = next(filter(lambda report: report.name == name, reports), None)
+                        report_config = next(
+                            filter(lambda report: report.name == name,
+                                   reports),
+                            None)
                         if report_config is not None:
-                            logging.info("Publishing report packet {} ({})".format(name, packet_id))
-                            published = publish_report(packit, name, packet_id, report_config.publish_roles)
+                            logging.info(
+                                "Publishing report packet {} ({})"
+                                .format(name, packet_id))
+                            published = publish_report(
+                                packit, name, packet_id,
+                                report_config.publish_roles)
                             if published:
                                 logging.info(
-                                    f"Successfully published report packet {name} ({packet_id})"
-                                 )
+                                    "Successfully published report packet " +
+                                    f"{name} ({packet_id})"
+                                )
                                 success_callback(report, packet_id)
                             else:
-                                error = f"Failed to publish report packet {name} ({packet_id})"
+                                error = "Failed to publish report packet " +
+                                f"{name} ({packet_id})"
                                 logging.error(error)
                                 error_callback(report, error)
                         new_packets[packet_id] = {

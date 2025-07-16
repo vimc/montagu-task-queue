@@ -122,6 +122,7 @@ def create_tag(yt, tag_name):
     except YTException:
         logging.error(f"Failed to create YouTrack tag {tag_name}")
 
+
 def create_tags(yt, group, disease, touchstone, report):
     tags = yt.get_tags(fields=["name"])
     if len([t for t in tags if t["name"] == disease]) == 0:

@@ -38,7 +38,8 @@ def test_run_reports(logging):
                    "packetId": "r2-version"}]
     }
 
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(
+        expected_params, run_successfully, report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -92,7 +93,8 @@ def test_run_reports_with_multi_hyphen_touchstone():
         "r2": {"p1": "v1", "touchstone": "2021test-extra-1",
                "touchstone_name": "2021test-extra"}
     }
-    packit = MockPackitClient(expected_multi_params, run_successfully, report_responses)
+    packit = MockPackitClient(expected_multi_params,
+                              run_successfully, report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -124,7 +126,8 @@ def test_run_reports_kills_currently_running(logging):
                    "packetId": "r2-version"}]
     }
 
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(
+        expected_params, run_successfully, report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -177,7 +180,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
                    ],
         "r2-key": [{"status": "COMPLETE", "packetId": "r2-version"}]
     }
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(expected_params, run_successfully,
+                              report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -207,8 +211,8 @@ def test_run_reports_finish_on_different_poll_cycles(logging):
     packit.kill_task.assert_not_called()
 
     success_callback.assert_has_calls([
-       call(reports[1], "r2-version"),
-       call(reports[0], "r1-version")
+        call(reports[1], "r2-version"),
+        call(reports[0], "r1-version")
     ])
     error_callback.assert_not_called()
 
@@ -220,7 +224,8 @@ def test_run_reports_with_run_error(logging):
         "r2-key": [{"status": "COMPLETE",
                    "packetId": "r2-version"}]
     }
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(expected_params, run_successfully,
+                              report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -272,7 +277,8 @@ def test_run_reports_with_status_error(logging):
                    "packetId": "r2-version"}]
     }
 
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(expected_params, run_successfully,
+                              report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -313,7 +319,8 @@ def test_run_reports_with_status_failure(logging):
                    "packetId": None}]
     }
 
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(expected_params, run_successfully,
+                              report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -341,7 +348,8 @@ def test_run_reports_with_status_failure(logging):
     mock_running_reports.assert_expected_calls()
     packit.kill_task.assert_not_called()
     success_callback.assert_called_with(reports[0], "r1-version")
-    error_callback.assert_called_with(reports[1], "Failure for key r2-key. Status: ERROR")
+    error_callback.assert_called_with(reports[1],
+                                      "Failure for key r2-key. Status: ERROR")
 
 
 @patch("src.utils.run_reports.logging")
@@ -354,7 +362,8 @@ def test_run_reports_with_run_cancelled(logging):
                    "packetId": None}]
     }
 
-    packit = MockPackitClient(expected_params, run_successfully, report_responses)
+    packit = MockPackitClient(expected_params, run_successfully,
+                              report_responses)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -391,12 +400,13 @@ def test_run_reports_with_publish_failure(logging):
     run_successfully = ["r1", "r2"]
     report_responses = {
         "r1-key": [{"status": "COMPLETE",
-                   "packetId": "r1-version"}],
+                    "packetId": "r1-version"}],
         "r2-key": [{"status": "COMPLETE",
-                  "packetId": "r2-version"}]
+                    "packetId": "r2-version"}]
     }
     fail_publish = ["r2"]
-    packit = MockPackitClient(expected_params, run_successfully, report_responses, fail_publish)
+    packit = MockPackitClient(expected_params, run_successfully,
+                              report_responses, fail_publish)
     success_callback = Mock()
     error_callback = Mock()
 
@@ -453,8 +463,10 @@ class MockRunningReportRepository:
             call(group, disease, "r2", "r2-key")
         ], any_order=False)
 
+
 class MockPackitClient:
-    def __init__(self, expected_params, run_successfully, report_responses, fail_publish = []):
+    def __init__(self, expected_params, run_successfully, report_responses,
+                 fail_publish=[]):
         self.auth_success = True
         self.expected_params = expected_params
         self.run_successfully = run_successfully
@@ -485,6 +497,7 @@ class MockPackitClient:
 
 
 PACKIT_URL = "http://test-packit"
+
 
 class MockConfig:
 

@@ -15,7 +15,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip3 install pytest-cov pycodestyle codecov
+          pip3 install pytest-cov pycodestyle codecov hatch
           pip3 install -r requirements.txt
 
       - name: Run dependencies
