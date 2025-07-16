@@ -20,8 +20,10 @@ def test_montagu_password():
 
 
 def test_packit_url():
-    assert config.packit_url == "https://localhost"
+    assert config.packit_url == "https://localhost/packit"
 
+def test_packit_disable_certificate_verify():
+    assert config.packit_disable_certificate_verify == True
 
 def test_youtrack_token():
     assert config.youtrack_token == "None"
@@ -61,16 +63,15 @@ def test_diagnostic_reports():
            ["minimal_modeller@example.com", "science@example.com"]
     assert reports[0].success_email_subject == \
         "VIMC diagnostic report: {touchstone} - {group} - {disease}"
-    assert reports[0].timeout == 300
+    assert reports[0].publish_roles == ["minimal.modeller", "Funders"]
 
     assert reports[1].name == "diagnostic-param"
-    assert len(reports[1].parameters.keys()) == 1
-    assert reports[1].parameters["nmin"] == 0
+    assert reports[1].parameters == { "a": 1, "b": 2, "c": 3 }
     assert reports[1].success_email_recipients == \
         ["other_modeller@example.com", "science@example.com"]
     assert reports[1].success_email_subject == \
         "New version of another Orderly report"
-    assert reports[1].timeout == 1200
+    assert reports[1].publish_roles == ["other.modeller"]
 
 
 def test_diagnostic_reports_nonexistent():

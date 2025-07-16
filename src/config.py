@@ -50,7 +50,7 @@ class Config:
         return self.__server("packit")["url"]
 
     @property
-    def disable_certificate_verify(self):
+    def packit_disable_certificate_verify(self):
         return self.__server("packit")["disable_certificate_verify"]
 
     @property

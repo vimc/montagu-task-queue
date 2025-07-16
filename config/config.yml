@@ -28,7 +28,6 @@ tasks:
                 - minimal_modeller@example.com
                 - science@example.com
               subject: "VIMC diagnostic report: {touchstone} - {group} - {disease}"
-            timeout: 300
             assignee: a.hill
             publish_roles:
               - minimal.modeller
@@ -43,7 +42,6 @@ tasks:
                 - other_modeller@example.com
                 - science@example.com
               subject: "New version of another Orderly report"
-            timeout: 1200
             assignee: e.russell
             publish_roles:
               - other.modeller

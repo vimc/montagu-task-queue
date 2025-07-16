@@ -524,7 +524,7 @@ class MockConfig:
         return PACKIT_URL
 
     @property
-    def disable_certificate_verify(self):
+    def packit_disable_certificate_verify(self):
         return False
 
     @property

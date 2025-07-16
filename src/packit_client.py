@@ -8,7 +8,7 @@ from .packit_client_exception import PackitClientException
 class PackitClient:
     def __init__(self, config):
         self.__config = config
-        self.__verify = not config.disable_certificate_verify
+        self.__verify = not config.packit_disable_certificate_verify
         self.__authenticate()
 
     def __url(self, relative_url):
