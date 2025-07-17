@@ -56,10 +56,7 @@ docker run -d \
 	$MONTAGU_PROXY_TAG 443 localhost
 
 # give packit api some time to migrate the db...
-# TODO: poll rather than ridiculous sleep
-sleep 60
-docker logs montagu-packit-db
-docker logs montagu-packit-api
+sleep 5
 
 # create roles to publish to...
 docker exec -i montagu-packit-db psql -U packituser -d packit --single-transaction <<EOF
@@ -75,20 +72,4 @@ DISPLAY_NAME='Test User'
 ROLE='ADMIN'
 docker exec montagu-packit-db create-preauth-user --username "$USERNAME" --email "$EMAIL" --displayname "$DISPLAY_NAME" --role "$ROLE"
 
-# From now on, if the user presses Ctrl+C we should teardown gracefully
-function cleanup() {
-  docker container stop reverse-proxy
-  docker container rm reverse-proxy -v
-  # Same exit code issue for packit stop as packit start....
-  set +e
-  hatch env run -- packit stop ./scripts
-  set -e
-  # remove db volume manually rather than --volumes flag to packit, to avoid requiring user confirmation
-  docker volume rm montagu_packit_db montagu_orderly_library montagu_outpack_volume montagu_orderly_logs
-  docker compose --project-name montagu down -v
-}
-trap cleanup EXIT
 
-# Wait for Ctrl+C
-echo "Ready to use. Press Ctrl+C to teardown."
-sleep infinity

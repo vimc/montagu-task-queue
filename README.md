@@ -19,7 +19,7 @@ pip3 install -r requirements.txt
 
 ## Development
 
-Run dependencies (Montagu API and DB, Proxy, Packit and a local Redis message queue in docker) with `scripts/run-dependencies.sh`
+Run dependencies (Montagu API and DB, Proxy, Packit and a local Redis message queue in docker) with `scripts/run-dev-dependencies.sh`
 
 Dependencies also include a fake smtp server run from a [docker image](https://hub.docker.com/r/reachfive/fake-smtp-server)
 to enable development and testing of email functionality. You can see a web front end for the emails 'sent' via this server
