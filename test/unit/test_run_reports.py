@@ -1,8 +1,6 @@
 from src.utils.run_reports import run_reports
 from src.config import ReportConfig
-from orderlyweb_api import ReportStatusResult
 from unittest.mock import patch, call, Mock
-from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
 
 reports = [ReportConfig("r1", None, ["r1@example.com"], "Subj: r1",
                         "a.ssignee", ["Funders"]),

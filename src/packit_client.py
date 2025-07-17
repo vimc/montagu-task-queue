@@ -112,7 +112,8 @@ class PackitClient:
 
     def run(self, packet_group, parameters):
         def do_run():
-            branch = "main"
+            # TODO: REVERT THIS!!!
+            branch =  "mrc-6454-add-delay-to-diagnostic" #"main"
             commit = self.__get_latest_commit_for_branch(branch)
             data = {
                 "name": packet_group,

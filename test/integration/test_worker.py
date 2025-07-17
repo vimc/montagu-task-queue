@@ -6,7 +6,7 @@ import logging
 
 from src.config import Config
 from src.utils.running_reports_repository import RunningReportsRepository
-from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from src.packit_client import PackitClient
 from test.integration.yt_utils import YouTrackUtils
 from test.integration.file_utils import write_text_file
 
@@ -68,12 +68,11 @@ def test_later_task_kills_earlier_task_report():
 
     assert len(versions) == 2
 
-    # Check first report key's status with OrderlyWeb - should have been killed
+    # Check first report key's status with Packit - should have been killed
     config = Config()
-    wrapper = OrderlyWebClientWrapper(config)
-    result = wrapper.execute(wrapper.ow.report_status, first_report_key)
-    assert result.status == "interrupted"
-    assert result.finished
+    packit = PackitClient(config)
+    result = packit.poll(first_report_key)
+    assert result["status"] == "CANCELLED"
 
     # Check redis key has been tidied up
     assert running_repo.get("testGroup", "testDisease", "diagnostic") is None
