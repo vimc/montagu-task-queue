@@ -112,13 +112,13 @@ def run_reports(packit, group, disease, touchstone, config, reports,
                                 report_config.publish_roles)
                             if published:
                                 logging.info(
-                                    "Successfully published report packet " + \
-                                    f"{name} ({packet_id})"
+                                    "Successfully published report packet" +
+                                    f" {name} ({packet_id})"
                                 )
                                 success_callback(report, packet_id)
                             else:
-                                error = "Failed to publish report packet " + \
-                                f"{name} ({packet_id})"
+                                error = "Failed to publish report packet" + \
+                                    f" {name} ({packet_id})"
                                 logging.error(error)
                                 error_callback(report, error)
                         new_packets[packet_id] = {
