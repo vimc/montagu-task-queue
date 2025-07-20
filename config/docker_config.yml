@@ -5,7 +5,7 @@ servers:
     user: test.user@example.com
     password: password
   packit:
-    url: http://montagu-packit-api:8080
+    url: https://reverse-proxy:443/packit
     disable_certificate_verify: true
   youtrack:
     token:

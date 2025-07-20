@@ -52,9 +52,11 @@ class PackitClient:
             monty = montagu.MontaguAPI(self.__config.montagu_url,
                                        self.__config.montagu_user,
                                        self.__config.montagu_password)
+            logging.info(f"MONTAGU TOKEN IS {monty.token}")
             packit_login_response = self.__get(
                 "/auth/login/montagu",
                 {"Authorization": f"Bearer {monty.token}"})
+            logging.info(f"AUTH OK!!")
             self.auth_success = True
             self.token = packit_login_response["token"]
             self.__default_headers = {
@@ -65,7 +67,7 @@ class PackitClient:
             self.auth_success = False
             logging.exception(ex)
 
-    def __execute(self, func, *args):  # TODO: maybe don't need args?
+    def __execute(self, func, *args):
         # retry an operation if it fails auth (probably because of an expired
         # packit token)
         try:
@@ -112,8 +114,7 @@ class PackitClient:
 
     def run(self, packet_group, parameters):
         def do_run():
-            # TODO: REVERT THIS!!!
-            branch =  "mrc-6454-add-delay-to-diagnostic" #"main"
+            branch =  "main"
             commit = self.__get_latest_commit_for_branch(branch)
             data = {
                 "name": packet_group,
