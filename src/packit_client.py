@@ -114,7 +114,7 @@ class PackitClient:
 
     def run(self, packet_group, parameters):
         def do_run():
-            branch =  "main"
+            branch = "main"
             commit = self.__get_latest_commit_for_branch(branch)
             data = {
                 "name": packet_group,
