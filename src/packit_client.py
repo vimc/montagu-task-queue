@@ -52,11 +52,9 @@ class PackitClient:
             monty = montagu.MontaguAPI(self.__config.montagu_url,
                                        self.__config.montagu_user,
                                        self.__config.montagu_password)
-            logging.info(f"MONTAGU TOKEN IS {monty.token}")
             packit_login_response = self.__get(
                 "/auth/login/montagu",
                 {"Authorization": f"Bearer {monty.token}"})
-            logging.info(f"AUTH OK!!")
             self.auth_success = True
             self.token = packit_login_response["token"]
             self.__default_headers = {
@@ -140,7 +138,7 @@ class PackitClient:
     def publish(self, name, packet_id, roles):
         # mimic OW publishing by setting packet-level permission for a new
         # report packet permission on a list of configured roles.
-        # NB: These role can either be user # roles or groups.
+        # NB: These role can either be user roles or groups.
         # If users, these need to be user names not email  addresses.
         def do_publish_to_role(role):
             data = {
