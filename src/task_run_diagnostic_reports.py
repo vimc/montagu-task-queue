@@ -119,7 +119,7 @@ def create_ticket(group, disease, touchstone, scenario,
 def create_tag(yt, tag_name):
     logging.info(f"Creating YouTrack tag: {tag_name}")
     try:
-        yt.create_tag(tag_name, return_fields=["name"])
+        yt.create_tag(tag_name)
     except YTException as ex:
         logging.error(f"Failed to create YouTrack tag {tag_name}: {ex}")
 
