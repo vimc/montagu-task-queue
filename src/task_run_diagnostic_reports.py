@@ -117,14 +117,15 @@ def create_ticket(group, disease, touchstone, scenario,
 
 
 def create_tag(yt, tag_name):
+    logging.info(f"Creating YouTrack tag: {tag_name}")
     try:
-        yt.create_tag(tag_name)
-    except YTException:
-        logging.error(f"Failed to create YouTrack tag {tag_name}")
+        yt.create_tag(tag_name, return_fields=["name"])
+    except YTException as ex:
+        logging.error(f"Failed to create YouTrack tag {tag_name}: {ex}")
 
 
 def create_tags(yt, group, disease, touchstone, report):
-    tags = yt.get_tags(fields=["name"])
+    tags = yt.get_tags(fields=["name"], top=10000)
     if len([t for t in tags if t["name"] == disease]) == 0:
         create_tag(yt, disease)
     if len([t for t in tags if t["name"] == group]) == 0:
