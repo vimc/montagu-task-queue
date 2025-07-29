@@ -13,12 +13,13 @@ execute tasks, coordinated by Celery. Celery supports various message brokers in
 Clone the repo anywhere and install dependencies with (from the repo root):
 
 ```
-pip3 install --user -r requirements.txt
+hatch shell
+pip3 install -r requirements.txt
 ```
 
 ## Development
 
-Run dependencies (Montagu API and DB, OrderlyWeb and a local Redis message queue in docker) with `scripts/run-dependencies.sh`
+Run dependencies (Montagu API and DB, Proxy, Packit and a local Redis message queue in docker) with `scripts/run-dev-dependencies.sh`
 
 Dependencies also include a fake smtp server run from a [docker image](https://hub.docker.com/r/reachfive/fake-smtp-server)
 to enable development and testing of email functionality. You can see a web front end for the emails 'sent' via this server
@@ -54,7 +55,7 @@ The worker expects to find a config file at `config/config.yml`.
 
 The Dockerfile copies `config/docker_config.yml` to `config/config.yml`.
 This allows the worker running on metal to use a broker on `localhost` while the worker in docker needs to use
-`montagu_mq`, the container name of the broker, to access its port. 
+`montagu-mq`, the container name of the broker, to access its port. 
 
 Note that if a YouTrack token is not provided in the config the app will look for an environment variable called `YOUTRACK_TOKEN`. 
 This makes local and automated testing of the YouTrack integration possible. 

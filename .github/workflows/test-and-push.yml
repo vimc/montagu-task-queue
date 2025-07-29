@@ -9,13 +9,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.12
 
       - name: Install dependencies
         run: |
-          pip3 install pytest-cov pycodestyle codecov
+          pip3 install pytest-cov pycodestyle codecov hatch
           pip3 install -r requirements.txt
 
       - name: Run dependencies

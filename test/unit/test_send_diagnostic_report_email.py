@@ -38,7 +38,7 @@ def test_url_encodes_url_in_email(send_email):
                                  "2020-11-04T12:22:53",
                                  "no_vaccination",
                                  mock_config)
-    url = "http://orderly-web/report/{}/1234-abcd/".format(encoded, encoded)
+    url = "http://test-packit/{}/1234-abcd/".format(encoded)
     send_email.assert_has_calls([
         call(fake_emailer,
              report,
@@ -64,7 +64,7 @@ def test_additional_recipients_used(send_email):
                                  "no_vaccination",
                                  mock_config,
                                  "someone@example.com")
-    url = "http://orderly-web/report/{}/1234-abcd/".format(name)
+    url = "http://test-packit/{}/1234-abcd/".format(name)
     send_email.assert_has_calls([
         call(fake_emailer,
              report,
@@ -90,7 +90,7 @@ def test_additional_recipients_not_used(send_email):
                                  "no_vaccination",
                                  mock_config,
                                  "someone@example.com")
-    url = "http://orderly-web/report/{}/1234-abcd/".format(name)
+    url = "http://test-packit/{}/1234-abcd/".format(name)
     send_email.assert_has_calls([
         call(fake_emailer,
              report,

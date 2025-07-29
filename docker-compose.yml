@@ -1,4 +1,3 @@
-version: '3'
 services:
   mq:
     image: redis
@@ -9,8 +8,8 @@ services:
     ports:
       - "5555:5555"
     environment:
-      - CELERY_BROKER_URL=redis://montagu_mq_1//
-      - CELERY_RESULT_BACKEND=redis://montagu_mq_1/0
+      - CELERY_BROKER_URL=redis://montagu-mq-1//
+      - CELERY_RESULT_BACKEND=redis://montagu-mq-1/0
       - FLOWER_PORT=5555
   api:
     image: ${REGISTRY}/montagu-api:master
@@ -23,6 +22,14 @@ services:
     ports:
       - "5432:5432"
     command: /etc/montagu/postgresql.test.conf
+  contrib:
+    image: ${REGISTRY}/montagu-contrib-portal:master
+    depends_on:
+      - api
+  admin:
+      image: ${REGISTRY}/montagu-admin-portal:master
+      depends_on:
+        - api
   smtp_server:
     image: reachfive/fake-smtp-server
     ports:

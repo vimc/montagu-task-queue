@@ -12,7 +12,7 @@ from .config import Config, ReportConfig
 from src.utils.email import send_email, Emailer
 from urllib.parse import quote as urlencode
 import logging
-from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from src.packit_client import PackitClient
 from src.utils.running_reports_repository import RunningReportsRepository
 from YTClient.YTClient import YTClient, YTException
 
@@ -29,7 +29,7 @@ def run_diagnostic_reports(group,
     config = Config()
     reports = config.diagnostic_reports(group, disease)
     if len(reports) > 0:
-        wrapper = OrderlyWebClientWrapper(config)
+        packit = PackitClient(config)
         emailer = Emailer(config.smtp_host, config.smtp_port,
                           config.smtp_user, config.smtp_password)
         yt_token = config.youtrack_token
@@ -40,10 +40,10 @@ def run_diagnostic_reports(group,
         yt = YTClient('https://mrc-ide.myjetbrains.com/youtrack/',
                       token=yt_token)
 
-        def success_callback(report, version):
+        def success_callback(report, packet_id):
             send_diagnostic_report_email(emailer,
                                          report,
-                                         version,
+                                         packet_id,
                                          group,
                                          disease,
                                          touchstone,
@@ -52,7 +52,7 @@ def run_diagnostic_reports(group,
                                          config,
                                          *additional_recipients)
             create_ticket(group, disease, touchstone, scenario,
-                          report, version, None, yt, config)
+                          report, packet_id, None, yt, config)
 
         def error_callback(report, error):
             create_ticket(group, disease, touchstone, scenario,
@@ -60,7 +60,7 @@ def run_diagnostic_reports(group,
 
         running_reports_repo = RunningReportsRepository(host=config.host)
 
-        return run_reports(wrapper,
+        return run_reports(packit,
                            group,
                            disease,
                            touchstone,
@@ -76,16 +76,16 @@ def run_diagnostic_reports(group,
 
 
 def create_ticket(group, disease, touchstone, scenario,
-                  report: ReportConfig, version,
+                  report: ReportConfig, packet_id,
                   error,
                   yt: YTClient,
                   config: Config):
     try:
-        report_success = version is not None
+        report_success = packet_id is not None
         summary = "Check & share diag report with {} ({}) {}" if \
             report_success else \
             "Run, check & share diag report with {} ({}) {}"
-        result = get_version_url(report, version, config) if \
+        result = get_packet_url(report, packet_id, config) if \
             report_success else \
             "Auto-run failed with error: {}".format(error)
         description = "Report run triggered by upload to scenario: {}. {}"\
@@ -116,21 +116,29 @@ def create_ticket(group, disease, touchstone, scenario,
         logging.exception(ex)
 
 
+def create_tag(yt, tag_name):
+    logging.info(f"Creating YouTrack tag: {tag_name}")
+    try:
+        yt.create_tag(tag_name)
+    except YTException as ex:
+        logging.error(f"Failed to create YouTrack tag {tag_name}: {ex}")
+
+
 def create_tags(yt, group, disease, touchstone, report):
-    tags = yt.get_tags(fields=["name"])
+    tags = yt.get_tags(fields=["name"], top=10000)
     if len([t for t in tags if t["name"] == disease]) == 0:
-        yt.create_tag(disease)
+        create_tag(yt, disease)
     if len([t for t in tags if t["name"] == group]) == 0:
-        yt.create_tag(group)
+        create_tag(yt, group)
     if len([t for t in tags if t["name"] == touchstone]) == 0:
-        yt.create_tag(touchstone)
+        create_tag(yt, touchstone)
     if len([t for t in tags if t["name"] == report.name]) == 0:
-        yt.create_tag(report.name)
+        create_tag(yt, report.name)
 
 
 def send_diagnostic_report_email(emailer,
                                  report,
-                                 version,
+                                 packet_id,
                                  group,
                                  disease,
                                  touchstone,
@@ -139,7 +147,7 @@ def send_diagnostic_report_email(emailer,
                                  config,
                                  *additional_recipients):
     template_values = {
-        "report_version_url": get_version_url(report, version, config),
+        "report_version_url": get_packet_url(report, packet_id, config),
         "disease": disease,
         "group": group,
         "touchstone": touchstone,
@@ -171,7 +179,7 @@ def get_time_strings(utc_time):
     }
 
 
-def get_version_url(report, version, config):
+def get_packet_url(report, packet_id, config):
     r_enc = urlencode(report.name)
-    v_enc = urlencode(version)
-    return "{}/report/{}/{}/".format(config.orderlyweb_url, r_enc, v_enc)
+    p_enc = urlencode(packet_id)
+    return "{}/{}/{}/".format(config.packit_url, r_enc, p_enc)

@@ -8,14 +8,14 @@ class ReportConfig:
                  parameters,
                  success_email_recipients,
                  success_email_subject,
-                 timeout,
-                 assignee):
+                 assignee,
+                 publish_roles):
         self.name = name
         self.parameters = parameters
         self.success_email_recipients = success_email_recipients
         self.success_email_subject = success_email_subject
-        self.timeout = timeout
         self.assignee = assignee
+        self.publish_roles = publish_roles
 
 
 class ArchiveFolderContentsConfig:
@@ -46,8 +46,12 @@ class Config:
         return self.__montagu()["password"]
 
     @property
-    def orderlyweb_url(self):
-        return self.__server("orderlyweb")["url"]
+    def packit_url(self):
+        return self.__server("packit")["url"]
+
+    @property
+    def packit_disable_certificate_verify(self):
+        return self.__server("packit")["disable_certificate_verify"]
 
     @property
     def youtrack_token(self):
@@ -96,15 +100,15 @@ class Config:
                 email = self.__value_or_default(r, "success_email", {})
                 recipients = self.__value_or_default(email, "recipients", [])
                 subject = self.__value_or_default(email, "subject", "")
-                timeout = self.__value_or_default(r, "timeout", 600)
                 assignee = r["assignee"]
+                publish_roles = self.__value_or_default(r, "publish_roles", [])
 
                 result.append(ReportConfig(r["report_name"],
                                            params,
                                            recipients,
                                            subject,
-                                           timeout,
-                                           assignee))
+                                           assignee,
+                                           publish_roles))
         return result
 
     def __server(self, name):

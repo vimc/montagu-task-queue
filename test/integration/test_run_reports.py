@@ -1,5 +1,5 @@
 from src.config import Config, ReportConfig
-from src.orderlyweb_client_wrapper import OrderlyWebClientWrapper
+from src.packit_client import PackitClient
 from src.utils.run_reports import run_reports
 from src.utils.running_reports_repository import RunningReportsRepository
 
@@ -7,11 +7,11 @@ from src.utils.running_reports_repository import RunningReportsRepository
 def test_run_reports_handles_error():
     reports = [
         ReportConfig("nonexistent", None, ["test1@test.com"], "subject1",
-                     600, "a.ssignee"),
-        ReportConfig("diagnostic", {}, ["test2@test.com"], "subject2", 600,
-                     "a.ssignee")]
+                     "a.ssignee", ["Funders"]),
+        ReportConfig("diagnostic", {}, ["test2@test.com"], "subject2",
+                     "a.ssignee", ["Funders"])]
     config = Config()
-    wrapper = OrderlyWebClientWrapper(config)
+    packit = PackitClient(config)
     success = {}
     error = {}
 
@@ -23,7 +23,7 @@ def test_run_reports_handles_error():
 
     running_reports_repository = RunningReportsRepository()
 
-    versions = run_reports(wrapper, "testGroup", "testDisease",
+    versions = run_reports(packit, "testGroup", "testDisease",
                            "testTouchstone", config, reports,
                            success_callback, error_callback,
                            running_reports_repository)
