@@ -38,12 +38,8 @@ $here/montagu_cli.sh addRole test.user user
 # Run packit
 hatch env run pip3 install constellation
 hatch env run pip3 install packit-deploy
-# For some reason packit is emitting exit code 1 despite apparently succeeding. Allow this for now...
-set +e
 hatch env run packit configure $here
 hatch env run -- packit start --pull
-echo Packit deployed with exit code $?
-set -e
 
 docker exec montagu-packit-db wait-for-db
 
