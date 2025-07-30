@@ -1,5 +1,6 @@
 .idea
 .cache
+.packit_identity
 celerybeat-schedule
 /*/__pycache__/
 /*/*/__pycache__/
