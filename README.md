@@ -1,5 +1,7 @@
 # montagu-task-queue
 
+**THIS REPO IS NOW ARCHIVED. THE MONTAGU TASK QUEUE HAS BEEN MOVED TO [MONTAGU SYSTEM](https://github.com/vimc/montagu-system).**
+
 [![build](https://github.com/vimc/montagu-task-queue/actions/workflows/test-and-push.yml/badge.svg)](https://github.com/vimc/montagu-task-queue/actions/workflows/test-and-push.yml)
 [![codecov.io](https://codecov.io/github/vimc/montagu-task-queue/coverage.svg?branch=master)](https://codecov.io/github/vimc/montagu-task-queue?branch=master)
 
